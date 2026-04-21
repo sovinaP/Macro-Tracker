@@ -6,7 +6,7 @@ A simple self-hosted calorie and macro tracker that runs in the browser.
 
 ## Open the app
 
-[Launch Macro Tracker](https://sovinaP.github.io/macro-tracker/macro-tracker-alpha.html)
+[Launch Macro Tracker]([https://sovinaP.github.io/macro-tracker/macro-tracker-alpha.html](https://sovinap.github.io/Macro-Tracker/))
 
 ## Features
 - Daily calorie and macro tracking (protein, carbs, fat, fiber)
