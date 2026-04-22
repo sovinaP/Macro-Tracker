@@ -9,6 +9,32 @@
 
 ---
 
+## 🚀 Use It Now
+
+**[sovinap.github.io/Macro-Tracker](https://sovinap.github.io/Macro-Tracker/)**
+
+No sign up. No install. Just open and start logging.
+
+### Add to your iPhone home screen (Safari)
+1. Open the link above in **Safari**
+2. Tap the **Share** button (box with arrow pointing up)
+3. Scroll down and tap **Add to Home Screen**
+4. Name it **NourishOS** and tap **Add**
+
+It will behave like a native app — full screen, no browser chrome, launches instantly from your home screen.
+
+---
+
+## 📋 Roadmap
+
+- [ ] Barcode scanning via device camera
+- [ ] Water intake tracking
+- [ ] Meal templates
+- [ ] PWA / installable offline app
+- [ ] HealthKit / Google Fit export
+
+---
+
 ## What It Does
 
 NourishOS lets you log meals, track macros, set nutrition targets, and monitor your weight — all from a single HTML file. Your data lives in your browser's local storage and never leaves your device.
@@ -44,41 +70,32 @@ NourishOS lets you log meals, track macros, set nutrition targets, and monitor y
 
 ---
 
+## 🔒 Your Data Stays Yours
+
+**NourishOS does not collect, transmit, or store any personal data on a server — ever.**
+
+Everything you log is saved locally in your browser via `localStorage`. The only outbound request is a food name query to the USDA FoodData Central API when you search for a food — no personal information is included in that request. You can export a full backup of your data at any time from the Tweaks menu at the bottom of the app.
+
+---
+
 ## Getting Started
 
-### Use it instantly
-Visit the live site: **[your-username.github.io/nourishOS](https://sovinap.github.io/Macro-Tracker/)**
-
 ### Run it locally
-No build step needed. Just open the file:
+
+No build step. No dependencies. Just clone and open:
 
 ```bash
-git clone https://github.com/your-username/nourishOS.git
-cd nourishOS
+git clone https://github.com/sovinap/Macro-Tracker.git
+cd Macro-Tracker
 open index.html
 ```
 
-### Deploy your own fork
+### Fork and deploy your own instance
+
 1. Fork this repo
-2. Go to **Settings > Pages**
+2. Go to **Settings > Pages** in your fork
 3. Set source to `main` branch, `/ (root)`
-4. Your site will be live at `https://your-username.github.io/nourishOS`
-
----
-
-## Data & Privacy
-
-All data is stored locally in your browser via `localStorage`. Nothing is sent to any server except outbound food search queries to the USDA FoodData Central API (food name only, no personal data). You can export a full backup at any time from the Tweaks menu.
-
----
-
-## Roadmap
-
-- [ ] Barcode scanning via device camera
-- [ ] Water intake tracking
-- [ ] Meal templates
-- [ ] PWA / installable offline app
-- [ ] HealthKit / Google Fit export
+4. Your instance will be live at `https://your-username.github.io/nourishOS`
 
 ---
 
