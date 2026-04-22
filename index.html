@@ -677,12 +677,58 @@ $('mealType').addEventListener('change', () => { state.settings.lastMeal = $('me
 let activeGoal = 'maintain';
 let wizardSuggested = null;
 
+function updateGoalBtns() {
+  ['goalCut','goalMaintain','goalBulk'].forEach(b => $(b).classList.remove('active'));
+  const map = { cut:'goalCut', maintain:'goalMaintain', bulk:'goalBulk' };
+  if(map[activeGoal]) $(map[activeGoal]).classList.add('active');
+}
+
+function updateRateRow() {
+  const row = $('wzRateRow');
+  if(!row) return;
+  const hint = $('wzRateHint');
+  const lbl = $('wzRateLabel');
+  const slider = $('wzRate');
+  if(activeGoal === 'maintain') {
+    row.style.display = 'none';
+  } else {
+    row.style.display = 'block';
+    if(activeGoal === 'cut') {
+      slider.max = 2; if(lbl) lbl.textContent = '(lbs/week lost)';
+    } else {
+      slider.max = 1; if(lbl) lbl.textContent = '(lbs/week gained)';
+      if(parseFloat(slider.value) > 1) slider.value = 0.5;
+    }
+    updateRateDisplay();
+  }
+}
+
+function updateRateDisplay() {
+  const slider = $('wzRate');
+  if(!slider) return;
+  const rate = parseFloat(slider.value);
+  const kcal = Math.round(rate * 500);
+  const display = $('wzRateDisplay');
+  const hint = $('wzRateHint');
+  if(display) display.textContent = `${rate} lb/wk`;
+  if(hint) hint.textContent = activeGoal === 'cut' ? `≈ −${kcal} kcal/day deficit` : `≈ +${kcal} kcal/day surplus`;
+}
+
 ['goalCut','goalMaintain','goalBulk'].forEach(id => {
   $(id).addEventListener('click', () => {
     activeGoal = id === 'goalCut' ? 'cut' : id === 'goalBulk' ? 'bulk' : 'maintain';
-    ['goalCut','goalMaintain','goalBulk'].forEach(b => $(b).classList.remove('active'));
-    $(id).classList.add('active');
+    updateGoalBtns();
+    updateRateRow();
   });
+});
+
+const wzRateEl = $('wzRate');
+if(wzRateEl) wzRateEl.addEventListener('input', updateRateDisplay);
+
+const wzProteinPrefEl = $('wzProteinPref');
+if(wzProteinPrefEl) wzProteinPrefEl.addEventListener('change', () => {
+  const row = $('wzCustomProteinRow');
+  if(row) row.style.display = wzProteinPrefEl.value === 'custom' ? 'block' : 'none';
 });
 
 $('toggleWizard').addEventListener('click', () => {
