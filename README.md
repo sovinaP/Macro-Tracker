@@ -2,10 +2,10 @@
 
 > A lightweight, privacy-first macro and nutrition tracker that runs entirely in your browser — no account, no server, no subscription.
 
-![Version](https://img.shields.io/badge/version-v0.2%20alpha-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Built With](https://img.shields.io/badge/built%20with-HTML%20%2F%20CSS%20%2F%20Vanilla%20JS-orange)
-![Deployment](https://img.shields.io/badge/deployed%20on-GitHub%20Pages-lightgrey)
+[![Version](https://img.shields.io/badge/version-v0.2%20alpha-blue)](https://github.com/sovinap/Macro-Tracker)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://choosealicense.com/licenses/mit/)
+[![Built With](https://img.shields.io/badge/built%20with-HTML%20%2F%20CSS%20%2F%20Vanilla%20JS-orange)](https://developer.mozilla.org)
+[![Deployment](https://img.shields.io/badge/deployed%20on-GitHub%20Pages-lightgrey)](https://pages.github.com)
 
 ---
 
@@ -78,7 +78,7 @@ Everything you log is saved locally in your browser via `localStorage`. The only
 
 ---
 
-## FOSS
+## Getting Started
 
 ### Run it locally
 
