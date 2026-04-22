@@ -1342,7 +1342,9 @@ function getWaterDisplay(oz, unit) {
 }
 
 function renderWater() {
-  const date = $('datePicker').value;
+  if(!$('waterProgress')) return; // guard if section not in DOM
+  const date = $('datePicker').value || getLocalDateString();
+  if(!state.water) state.water = {};
   const unit = state.settings.waterUnit || 'oz';
   const goal = parseFloat(state.settings.waterGoal) || 64;
   const goalOz = getWateroz(goal, unit);
@@ -1371,9 +1373,13 @@ function renderWater() {
 
 function addWater(oz) {
   const date = $('datePicker').value;
+  if(!date) return;
+  if(!state.water) state.water = {};
   state.water[date] = (state.water[date] || 0) + oz;
   saveState(); renderWater();
-  showToast(`Water logged.`);
+  const unit = state.settings.waterUnit || 'oz';
+  const display = unit === 'ml' ? Math.round(oz * 29.5735) + ' ml' : Math.round(oz * 10) / 10 + ' oz';
+  showToast(`+${display} logged.`);
 }
 
 $('water8oz').addEventListener('click', () => {
