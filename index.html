@@ -1854,46 +1854,38 @@ var DRAWER_CATS = {
 
 function buildMicroDrawer(macro, date) {
   const drawer = $('microDrawer-' + macro);
-  if(!drawer || !DRAWER_CATS) return;
+  if(!drawer) return;
+  if(!window.DRAWER_CATS) return;
   const cat = DRAWER_CATS[macro];
   if(!cat) return;
   drawer.innerHTML = '';
-  let hasData = false;
+
   cat.sections.forEach(sec => {
-    const rows = sec.nutrients.filter(n => round(getDayMicroTotals(date, n.id)) > 0);
-    if(!rows.length) return;
-    hasData = true;
     if(sec.label) {
       const h = document.createElement('div');
       h.className = 'micro-drawer-section';
       h.textContent = sec.label;
       drawer.appendChild(h);
     }
-    rows.forEach(n => {
+    sec.nutrients.forEach(n => {
       const val = round(getDayMicroTotals(date, n.id));
       const pct = n.dri ? Math.min(100,(val/n.dri)*100) : null;
       const barColor = pct===null ? cat.color : pct>=100?'#10b981':pct>=50?cat.color:'#94a3b8';
       const rowEl = document.createElement('div');
       rowEl.className = 'micro-drawer-row';
-      rowEl.innerHTML = `
-        <div class="micro-drawer-label">
-          <span>${escHtml(n.name)}</span>
-          <span>${val}${n.unit}${n.dri?' / '+n.dri+n.unit:''}</span>
-        </div>
-        ${pct!==null?`<div class="micro-drawer-bar"><span style="width:${pct}%;background:${barColor};"></span></div>`:''}`;
+      rowEl.innerHTML =
+        '<div class="micro-drawer-label">' +
+          '<span>' + escHtml(n.name) + '</span>' +
+          '<span>' + (val||'—') + (val?n.unit:'') + (n.dri?' / '+n.dri+n.unit:'') + '</span>' +
+        '</div>' +
+        (pct!==null ? '<div class="micro-drawer-bar"><span style="width:'+pct+'%;background:'+barColor+';"></span></div>' : '');
       drawer.appendChild(rowEl);
     });
   });
-  if(!hasData) {
-    const empty = document.createElement('div');
-    empty.className = 'micro-drawer-empty';
-    empty.textContent = 'No micronutrient data yet — log foods from USDA to see breakdown here.';
-    drawer.appendChild(empty);
-  }
-  // Always show a subtle "tap anywhere to close" hint
+
   const hint = document.createElement('div');
-  hint.style.cssText = 'font-size:.65rem;color:var(--color-text-faint);text-align:right;margin-top:.4rem;';
-  hint.textContent = 'tap to close';
+  hint.style.cssText = 'font-size:.65rem;color:var(--color-text-faint);text-align:right;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--color-border);';
+  hint.textContent = 'tap card to close';
   drawer.appendChild(hint);
 }
 
@@ -1909,9 +1901,9 @@ function toggleMicroDrawer(card, evt, macro) {
     if(d) { d.style.display='none'; d.classList.remove('open'); }
   });
   if(!isOpen) {
-    buildMicroDrawer(macro, $('datePicker').value);
-    drawer.style.display = 'block';
+    drawer.style.cssText = 'display:block !important;padding-top:.7rem;min-height:30px;';
     drawer.classList.add('open');
+    buildMicroDrawer(macro, $('datePicker').value);
     card.setAttribute('aria-expanded','true');
   } else {
     card.setAttribute('aria-expanded','false');
