@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Macro Tracker Alpha</title>
+  <title>NourishOS</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
@@ -140,6 +141,25 @@
     .toast{position:fixed;bottom:var(--space-6);left:50%;transform:translateX(-50%) translateY(100px);background:var(--color-text);color:var(--color-text-inverse);padding:.7rem 1.2rem;border-radius:var(--radius-full);font-size:var(--text-sm);z-index:9999;opacity:0;transition:opacity .25s,transform .3s cubic-bezier(.16,1,.3,1);pointer-events:none;white-space:nowrap;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+
+    /* DATE NAV */
+    .date-nav{display:flex;align-items:center;gap:.4rem;}
+    .date-nav input[type="date"]{max-width:160px;min-height:44px;padding:.5rem .7rem;}
+    .date-nav-btn{min-width:36px;min-height:44px;background:var(--color-surface-offset);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-md);font-size:1.4rem;line-height:1;color:var(--color-text);display:flex;align-items:center;justify-content:center;transition:background var(--transition),transform var(--transition);}
+    .date-nav-btn:hover{background:color-mix(in oklab,var(--color-primary) 10%,var(--color-surface-offset));transform:translateY(-1px);}
+
+    /* TWEAKS BAR */
+    .tweaks-bar{margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-surface);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-xl);display:flex;flex-wrap:wrap;gap:var(--space-5);align-items:center;}
+    .tweaks-group{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+    .tweaks-group + .tweaks-group{padding-left:var(--space-5);border-left:1px solid rgba(40,37,29,.1);}
+    .tweaks-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
+    .tweak-btn{min-height:36px;padding:.4rem .85rem;border-radius:var(--radius-md);background:var(--color-surface-offset);border:1px solid rgba(40,37,29,.1);color:var(--color-text);font-size:var(--text-sm);font-weight:500;display:inline-flex;align-items:center;transition:background var(--transition),transform var(--transition);}
+    .tweak-btn:hover{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface-offset));transform:translateY(-1px);}
+
+    @media(max-width:720px){
+      .tweaks-group + .tweaks-group{padding-left:0;border-left:none;}
+    }
+
     @media(max-width:980px){
       .layout,.hero-grid{grid-template-columns:1fr 1fr;}
       .grid-5{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -166,18 +186,19 @@
         <circle cx="24" cy="18" r="3" fill="currentColor"/>
       </svg>
       <div>
-        <h1>Macro Tracker Alpha</h1>
-        <div class="muted">Your personal offline nutrition tracker.</div>
+        <h1>NourishOS</h1>
+        <div class="muted">Your personal nutrition OS.</div>
       </div>
     </div>
     <div class="top-actions">
-      <input type="date" id="datePicker" aria-label="Select day" style="max-width:180px;">
-      <button class="btn btn-secondary" id="jumpTodayBtn" aria-label="Jump to today">Today</button>
-      <button class="btn btn-secondary" id="themeToggle" aria-label="Switch theme">Dark mode</button>
-      <button class="btn btn-secondary" id="exportBtn">Export JSON</button>
-      <label class="btn btn-secondary" for="importFile" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">Import JSON</label>
-      <input type="file" id="importFile" accept="application/json" hidden>
+      <div class="date-nav">
+        <button class="date-nav-btn" id="prevDay" aria-label="Previous day">&#8249;</button>
+        <input type="date" id="datePicker" aria-label="Select day">
+        <button class="date-nav-btn" id="nextDay" aria-label="Next day">&#8250;</button>
+        <button class="btn btn-secondary" id="jumpTodayBtn" style="min-height:44px;padding:.5rem .9rem;">Today</button>
+      </div>
     </div>
+    <input type="file" id="importFile" accept="application/json" hidden>
   </header>
 
   <!-- macro summary cards -->
@@ -225,8 +246,15 @@
           </div>
         </div>
 
-        <!-- quick foods -->
-        <div class="food-buttons" id="quickFoods"></div>
+        <!-- custom foods -->
+        <div id="customFoodsSection">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+            <span style="font-size:var(--text-sm);color:var(--color-text-muted);font-weight:500;">My saved foods</span>
+            <button class="btn btn-ghost" id="clearCustomFoods" type="button" style="min-height:32px;padding:.3rem .7rem;font-size:var(--text-xs);display:none;">Clear all</button>
+          </div>
+          <div class="food-buttons" id="quickFoods"></div>
+          <div id="noCustomFoods" style="font-size:var(--text-sm);color:var(--color-text-faint);padding:.5rem 0 .75rem;">No saved foods yet. Search a food, then click Save as custom food.</div>
+        </div>
 
         <!-- USDA search -->
         <div class="search-wrap">
@@ -284,7 +312,7 @@
           </div>
           <div class="grid-2">
             <button class="btn btn-primary" type="submit">Add to log</button>
-            <button class="btn btn-secondary" type="button" id="saveCustomFood">Save as quick food</button>
+            <button class="btn btn-secondary" type="button" id="saveCustomFood">Save as custom food</button>
           </div>
         </form>
       </section>
@@ -427,24 +455,50 @@
 
     </aside>
   </div>
+  <!-- TWEAKS FOOTER -->
+  <footer class="tweaks-bar">
+    <div class="tweaks-group">
+      <span class="tweaks-label">Appearance</span>
+      <button class="tweak-btn" id="themeToggle">Dark mode</button>
+    </div>
+    <div class="tweaks-group">
+      <span class="tweaks-label">Data</span>
+      <button class="tweak-btn" id="exportBtn">Export backup</button>
+      <label class="tweak-btn" for="importFile" style="cursor:pointer;">Import backup</label>
+    </div>
+    <div class="tweaks-group">
+      <span class="tweaks-label">Version</span>
+      <span class="tweaks-label">NourishOS v0.2 alpha</span>
+    </div>
+  </footer>
+
 </div>
 
 <script>
 const USDA_KEY = 'e85R8yLG8xe0lodYKILyv9HdfJLA8X6ZmkqmdJiB';
 const STORAGE_KEY = 'macroTrackerAlpha_v2';
+function getLocalDateString(d = new Date()) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+function formatLocalTime(d = new Date()) {
+  return d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+}
+function updateClockSummary(sel) {
+  const now = new Date();
+  const today = getLocalDateString(now);
+  const date = sel || (document.getElementById('datePicker') ? document.getElementById('datePicker').value : today);
+  document.getElementById('clockSummary').textContent = (date === today ? 'Today' : date) + ' · Local time ' + formatLocalTime(now);
+}
+function startClock() { updateClockSummary(); setInterval(updateClockSummary, 30000); }
+
 const todayStr = getLocalDateString();
 
 const defaultData = {
   settings:{ targets:{calories:2200,protein:180,carbs:200,fat:70,fiber:30}, weightUnit:'lb', theme:'light', lastMeal:'Breakfast' },
   entries:{}, weights:{},
-  quickFoods:[
-    {name:'Protein Shake',calories:160,protein:30,carbs:6,fat:3,fiber:1,meal:'Snack'},
-    {name:'2 Eggs',calories:140,protein:12,carbs:1,fat:10,fiber:0,meal:'Breakfast'},
-    {name:'Chicken Breast 6 oz',calories:280,protein:53,carbs:0,fat:6,fiber:0,meal:'Lunch'},
-    {name:'White Rice 1 cup',calories:205,protein:4,carbs:45,fat:0.4,fiber:0.6,meal:'Lunch'},
-    {name:'Greek Yogurt Cup',calories:100,protein:17,carbs:6,fat:0,fiber:0,meal:'Snack'},
-    {name:'Ground Beef Bowl',calories:520,protein:38,carbs:35,fat:24,fiber:4,meal:'Dinner'}
-  ]
+  quickFoods:[]
 };
 
 const state = loadState();
@@ -463,29 +517,6 @@ renderQuickFoods();
 renderAll();
 startClock();
 
-function getLocalDateString(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function formatLocalTime(date = new Date()) {
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-}
-
-function updateClockSummary(selectedDate = $('datePicker').value) {
-  const now = new Date();
-  const today = getLocalDateString(now);
-  const label = selectedDate === today ? 'Today' : (selectedDate || today);
-  $('clockSummary').textContent = `${label} · Local time ${formatLocalTime(now)}`;
-}
-
-function startClock() {
-  updateClockSummary();
-  setInterval(() => updateClockSummary(), 30000);
-}
-
 // ---- EVENT LISTENERS ----
 $('themeToggle').addEventListener('click', () => {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -493,11 +524,16 @@ $('themeToggle').addEventListener('click', () => {
 });
 
 $('exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `macro-backup-${todayStr}.json`;
-  a.click(); URL.revokeObjectURL(a.href);
+  a.href = url;
+  a.download = 'macro-backup-' + getLocalDateString() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  showToast('Backup downloaded.');
 });
 
 $('importFile').addEventListener('change', async e => {
@@ -511,11 +547,36 @@ $('importFile').addEventListener('change', async e => {
 });
 
 $('datePicker').addEventListener('change', renderAll);
+
+$('clearCustomFoods').addEventListener('click', () => {
+  if(state.quickFoods.length === 0) return;
+  state.quickFoods = [];
+  saveState(); renderQuickFoods();
+  showToast('All custom foods cleared.');
+});
+
+
+$('prevDay').addEventListener('click', () => {
+  const d = new Date($('datePicker').value + 'T00:00:00');
+  d.setDate(d.getDate() - 1);
+  $('datePicker').value = getLocalDateString(d);
+  renderAll();
+});
+$('nextDay').addEventListener('click', () => {
+  const d = new Date($('datePicker').value + 'T00:00:00');
+  d.setDate(d.getDate() + 1);
+  const today = getLocalDateString();
+  const next = getLocalDateString(d);
+  if(next <= today) { $('datePicker').value = next; renderAll(); }
+  else showToast("Can't log future days.");
+});
+
 $('jumpTodayBtn').addEventListener('click', () => { $('datePicker').value = getLocalDateString(); renderAll(); });
-$('mealType').addEventListener('change', () => { state.settings.lastMeal = $('mealType').value; saveState(); }
+$('mealType').addEventListener('change', () => { state.settings.lastMeal = $('mealType').value; saveState(); });
 
 // ---- GOAL WIZARD ----
 let activeGoal = 'maintain';
+let wizardSuggested = null;
 
 ['goalCut','goalMaintain','goalBulk'].forEach(id => {
   $(id).addEventListener('click', () => {
@@ -601,11 +662,7 @@ $('runWizard').addEventListener('click', () => {
   const fiber = Math.round(calories / 1000 * 14);
 
   // Store suggested values for apply button
-  $('applyWizard').dataset.calories = calories;
-  $('applyWizard').dataset.protein = protein;
-  $('applyWizard').dataset.carbs = carbs;
-  $('applyWizard').dataset.fat = fat;
-  $('applyWizard').dataset.fiber = fiber;
+  wizardSuggested = { calories, protein, carbs, fat, fiber };
 
   $('wzResultTitle').textContent = `${goalLabel} — Est. maintenance: ${tdee} kcal`;
   $('wzMacroRow').innerHTML = `
@@ -625,12 +682,18 @@ $('runWizard').addEventListener('click', () => {
 });
 
 $('applyWizard').addEventListener('click', () => {
-  const d = $('applyWizard').dataset;
-  state.settings.targets = { calories:+d.calories, protein:+d.protein, carbs:+d.carbs, fat:+d.fat, fiber:+d.fiber };
+  if(!wizardSuggested) { showToast('Run the calculator first.'); return; }
+  state.settings.targets = {
+    calories: wizardSuggested.calories,
+    protein: wizardSuggested.protein,
+    carbs: wizardSuggested.carbs,
+    fat: wizardSuggested.fat,
+    fiber: wizardSuggested.fiber
+  };
   saveState();
   fillTargetInputs();
   renderAll();
-  showToast('Targets applied from Goal Wizard.');
+  showToast('Targets applied! Check your daily goals.');
 });
 
 // pre-fill wizard from saved profile if it exists
@@ -645,7 +708,6 @@ $('applyWizard').addEventListener('click', () => {
   if(p.bodyFatPct) $('wzBodyFat').value = p.bodyFatPct;
   if(p.activityFactor) $('wzActivity').value = p.activityFactor;
 })();
-);
 
 // food search
 $('foodSearch').addEventListener('input', () => {
@@ -895,12 +957,21 @@ function renderAll() {
 
 function renderQuickFoods() {
   const wrap = $('quickFoods');
+  const empty = $('noCustomFoods');
+  const clearBtn = $('clearCustomFoods');
   wrap.innerHTML = '';
-  if(!state.quickFoods.length) return;
-  state.quickFoods.forEach(food => {
+  const has = state.quickFoods.length > 0;
+  if(empty) empty.style.display = has ? 'none' : 'block';
+  if(clearBtn) clearBtn.style.display = has ? 'inline-flex' : 'none';
+  if(!has) return;
+  state.quickFoods.forEach((food, idx) => {
+    const chip = document.createElement('div');
+    chip.style.cssText = 'display:inline-flex;align-items:center;gap:0;';
     const btn = document.createElement('button');
     btn.className = 'chip'; btn.type = 'button';
-    btn.textContent = `${food.name} · ${food.calories}`;
+    btn.style.borderRadius = 'var(--radius-full) 0 0 var(--radius-full)';
+    btn.style.borderRight = 'none';
+    btn.textContent = `${food.name} · ${food.calories} kcal`;
     btn.addEventListener('click', () => {
       $('foodName').value = food.name;
       $('mealType').value = food.meal || state.settings.lastMeal || 'Snack';
@@ -913,7 +984,22 @@ function renderQuickFoods() {
       $('foodFiber').value = food.fiber;
       $('foodForm').scrollIntoView({behavior:'smooth',block:'nearest'});
     });
-    wrap.appendChild(btn);
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = '×';
+    del.title = 'Remove ' + food.name;
+    del.style.cssText = 'min-height:40px;padding:.4rem .55rem;background:var(--color-surface-offset);border:1px solid color-mix(in oklab,var(--color-primary) 18%,var(--color-border));border-left:none;border-radius:0 var(--radius-full) var(--radius-full) 0;font-size:1rem;color:var(--color-error);cursor:pointer;line-height:1;transition:background var(--transition);';
+    del.addEventListener('mouseover', () => del.style.background = 'color-mix(in oklab,var(--color-error) 10%,var(--color-surface-offset))');
+    del.addEventListener('mouseout', () => del.style.background = 'var(--color-surface-offset)');
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.quickFoods.splice(idx, 1);
+      saveState(); renderQuickFoods();
+      showToast(`Removed ${food.name}`);
+    });
+    chip.appendChild(btn);
+    chip.appendChild(del);
+    wrap.appendChild(chip);
   });
 }
 
@@ -1057,7 +1143,7 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return structuredClone(defaultData);
     const p = JSON.parse(raw);
-    return { settings:{...defaultData.settings,...(p.settings||{})}, entries:p.entries||{}, weights:p.weights||{}, quickFoods:p.quickFoods?.length ? p.quickFoods : structuredClone(defaultData.quickFoods) };
+    return { settings:{...defaultData.settings,...(p.settings||{})}, entries:p.entries||{}, weights:p.weights||{}, quickFoods:p.quickFoods || [] };
   } catch { return structuredClone(defaultData); }
 }
 
