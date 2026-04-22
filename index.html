@@ -58,11 +58,15 @@
     .panel h2,.panel h3{margin:0 0 .6rem;font-size:var(--text-lg);}
     .hero-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-4);}
     .metric-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-lg);transition:box-shadow .15s;}
-    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;}
-    .macro-expandable:active{opacity:.85;}
-    .macro-expandable[aria-expanded="true"]{box-shadow:0 0 0 2px var(--color-accent,#b5892a);}
-    .micro-drawer{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s ease;opacity:0;padding-top:0;}
-    .micro-drawer.open{max-height:700px;opacity:1;padding-top:.7rem;}
+    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;outline:none;}
+    .macro-expandable:focus{outline:none;}
+    .macro-expandable:active{opacity:.9;}
+    .macro-expandable[data-macro="calories"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(1,105,111,.45),0 2px 12px rgba(1,105,111,.2);}
+    .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);}
+    .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);}
+    .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);}
+    .micro-drawer{display:none;overflow:hidden;padding-top:0;}
+    .micro-drawer.open{display:block;padding-top:.7rem;}
     .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
     .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
     .micro-drawer-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);}
@@ -214,22 +218,22 @@
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" tabindex="0" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
+    <div class="metric-card macro-expandable" data-macro="calories" tabindex="0" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" tabindex="0" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
+    <div class="metric-card macro-expandable" data-macro="protein" tabindex="0" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" tabindex="0" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
+    <div class="metric-card macro-expandable" data-macro="carbs" tabindex="0" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" tabindex="0" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
+    <div class="metric-card macro-expandable" data-macro="fat" tabindex="0" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-fat"></div>
@@ -1394,8 +1398,9 @@ function renderSummary() {
   else $('weightInput').value = '';
   updateClockSummary(selectedDate);
   if(typeof buildMicroDrawer === 'function') {
-    document.querySelectorAll('.macro-expandable[aria-expanded="true"]').forEach(c => {
-      buildMicroDrawer(c.dataset.macro, selectedDate);
+    ['calories','protein','carbs','fat'].forEach(m => {
+      const d = $('microDrawer-' + m);
+      if(d && d.style.display === 'block') buildMicroDrawer(m, selectedDate);
     });
   }
 }
@@ -1892,25 +1897,24 @@ function buildMicroDrawer(macro, date) {
   drawer.appendChild(hint);
 }
 
-function toggleMicroDrawer(card, evt) {
-  if(evt) evt.stopPropagation();
-  // Don't toggle if click was inside the drawer content itself
-  if(evt && evt.target && evt.target !== card && evt.target.closest && evt.target.closest('.micro-drawer')) return;
-  const macro = card.dataset.macro;
+function toggleMicroDrawer(card, evt, macro) {
+  macro = macro || (card && card.dataset && card.dataset.macro);
+  if(!macro) return;
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
-  const isOpen = drawer.classList.contains('open');
+  const isOpen = drawer.style.display === 'block';
   // Close all drawers
   ['calories','protein','carbs','fat'].forEach(m => {
     const d = $('microDrawer-' + m);
-    if(d) d.classList.remove('open');
-    const c = document.querySelector('[data-macro="' + m + '"]');
-    if(c) c.setAttribute('aria-expanded','false');
+    if(d) { d.style.display='none'; d.classList.remove('open'); }
   });
   if(!isOpen) {
     buildMicroDrawer(macro, $('datePicker').value);
+    drawer.style.display = 'block';
     drawer.classList.add('open');
     card.setAttribute('aria-expanded','true');
+  } else {
+    card.setAttribute('aria-expanded','false');
   }
 }
 
