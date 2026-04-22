@@ -221,24 +221,30 @@
     <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
     <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
     <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
     <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-fat"></div>
     </div>
   </section>
+  <!-- Single full-width micro drawer panel below the grid -->
+  <div id="microDrawerPanel" style="display:none;margin-bottom:var(--space-4);">
+    <div id="microDrawerPanelInner" class="panel" style="padding:var(--space-4) var(--space-5);border-top:3px solid var(--drawer-accent,var(--color-primary));">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+        <span id="microDrawerTitle" style="font-weight:600;font-size:var(--text-sm);"></span>
+        <button onclick="closeMicroDrawerPanel()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1rem;padding:.1rem .4rem;" aria-label="Close">✕</button>
+      </div>
+      <div id="microDrawerContent"></div>
+    </div>
+  </div>
 
   <!-- water -->
   <section class="panel" style="padding:var(--space-4) var(--space-5);">
@@ -1284,10 +1290,11 @@ function renderAll() {
   renderWater();
   renderTemplates();
   if(typeof buildMicroDrawer === 'function') {
-    ['calories','protein','carbs','fat'].forEach(m => {
-      const d = $('microDrawer-' + m);
-      if(d && d.style.display === 'block') buildMicroDrawer(m, $('datePicker').value);
-    });
+    const panel = $('microDrawerPanel');
+    if(panel && panel.style.display === 'block') {
+      const openCard = document.querySelector('.macro-expandable[aria-expanded="true"]');
+      if(openCard) buildMicroDrawer(openCard.dataset.macro, $('datePicker').value);
+    }
   }
   if(window.lucide) lucide.createIcons();
 }
@@ -1405,10 +1412,11 @@ function renderSummary() {
   else $('weightInput').value = '';
   updateClockSummary(selectedDate);
   if(typeof buildMicroDrawer === 'function') {
-    ['calories','protein','carbs','fat'].forEach(m => {
-      const d = $('microDrawer-' + m);
-      if(d && d.style.display === 'block') buildMicroDrawer(m, selectedDate);
-    });
+    const panel = $('microDrawerPanel');
+    if(panel && panel.style.display === 'block') {
+      const openCard = document.querySelector('.macro-expandable[aria-expanded="true"]');
+      if(openCard) buildMicroDrawer(openCard.dataset.macro, selectedDate);
+    }
   }
 }
 
@@ -1881,61 +1889,79 @@ var DRAWER_CATS = {
 };
 
 function buildMicroDrawer(macro, date) {
-  const drawer = $('microDrawer-' + macro);
-  if(!drawer) return;
+  const container = $('microDrawerContent');
+  if(!container) return;
   if(!window.DRAWER_CATS) return;
   const cat = DRAWER_CATS[macro];
   if(!cat) return;
-  drawer.innerHTML = '';
+  container.innerHTML = '';
 
   cat.sections.forEach(sec => {
     if(sec.label) {
       const h = document.createElement('div');
       h.className = 'micro-drawer-section';
       h.textContent = sec.label;
-      drawer.appendChild(h);
+      container.appendChild(h);
     }
     sec.nutrients.forEach(n => {
       const val = round(getDayMicroTotals(date, n.id));
       const pct = n.dri ? Math.min(100,(val/n.dri)*100) : null;
-      const barColor = pct===null ? cat.color : pct>=100?'#10b981':pct>=50?cat.color:'#94a3b8';
+      const pctLabel = n.dri ? Math.round((val/n.dri)*100) + '%' : '';
+      const barColor = pct===null ? cat.color : pct>=100?'#10b981':pct>=60?cat.color:'#94a3b8';
       const rowEl = document.createElement('div');
       rowEl.className = 'micro-drawer-row';
       rowEl.innerHTML =
         '<div class="micro-drawer-label">' +
           '<span>' + escHtml(n.name) + '</span>' +
-          '<span>' + (val||'—') + (val?n.unit:'') + (n.dri?' / '+n.dri+n.unit:'') + '</span>' +
+          '<span style="display:flex;gap:.4rem;align-items:center;">' +
+            '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
+            (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
+            (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
+          '</span>' +
         '</div>' +
-        (pct!==null ? '<div class="micro-drawer-bar"><span style="width:'+pct+'%;background:'+barColor+';"></span></div>' : '');
-      drawer.appendChild(rowEl);
+        (pct !== null ?
+          '<div class="micro-drawer-bar"><span style="width:' + Math.min(100,pct) + '%;background:' + barColor + ';"></span></div>'
+          : '');
+      container.appendChild(rowEl);
     });
   });
+}
 
-  const hint = document.createElement('div');
-  hint.style.cssText = 'font-size:.65rem;color:var(--color-text-faint);text-align:right;margin-top:.5rem;padding-top:.4rem;border-top:1px solid var(--color-border);';
-  hint.textContent = 'tap card to close';
-  drawer.appendChild(hint);
+function closeMicroDrawerPanel() {
+  const panel = $('microDrawerPanel');
+  if(panel) panel.style.display = 'none';
+  document.querySelectorAll('.macro-expandable').forEach(c => c.setAttribute('aria-expanded','false'));
 }
 
 function toggleMicroDrawer(card, evt, macro) {
   macro = macro || (card && card.dataset && card.dataset.macro);
   if(!macro) return;
-  const drawer = $('microDrawer-' + macro);
-  if(!drawer) return;
-  const isOpen = drawer.style.display === 'block';
-  // Close all drawers
-  ['calories','protein','carbs','fat'].forEach(m => {
-    const d = $('microDrawer-' + m);
-    if(d) { d.style.display='none'; d.classList.remove('open'); }
-  });
-  if(!isOpen) {
-    drawer.style.cssText = 'display:block !important;padding-top:.7rem;min-height:30px;';
-    drawer.classList.add('open');
-    buildMicroDrawer(macro, $('datePicker').value);
-    card.setAttribute('aria-expanded','true');
-  } else {
-    card.setAttribute('aria-expanded','false');
+  const panel = $('microDrawerPanel');
+  if(!panel) return;
+
+  const isOpen = panel.style.display === 'block' && card.getAttribute('aria-expanded') === 'true';
+
+  // Reset all cards
+  document.querySelectorAll('.macro-expandable').forEach(c => c.setAttribute('aria-expanded','false'));
+
+  if(isOpen) {
+    panel.style.display = 'none';
+    return;
   }
+
+  // Set accent color to match this macro's bar
+  const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
+  const labels = {calories:'Calories',protein:'Protein',carbs:'Carbs',fat:'Fat'};
+  const panelInner = $('microDrawerPanelInner');
+  if(panelInner) panelInner.style.borderTopColor = colors[macro] || 'var(--color-primary)';
+  const title = $('microDrawerTitle');
+  if(title) title.textContent = labels[macro] + ' — Micronutrient Breakdown';
+
+  buildMicroDrawer(macro, $('datePicker').value);
+  panel.style.display = 'block';
+  card.setAttribute('aria-expanded','true');
+  // Scroll the panel into view smoothly
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
 
 // Wire macro card drawers - use event delegation on parent for iOS PWA compatibility
