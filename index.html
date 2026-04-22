@@ -1398,7 +1398,7 @@ $('foodForm').addEventListener('submit', e => {
     id: crypto.randomUUID(),
     name: $('foodName').value.trim(),
     meal: $('mealType').value,
-    calories: num('foodCalories'),
+    calories: Math.ceil(num('foodCalories')),
     protein: num('foodProtein'),
     carbs: num('foodCarbs'),
     fat: num('foodFat'),
@@ -1420,6 +1420,13 @@ $('foodForm').addEventListener('submit', e => {
   $('macroPreview').style.display = 'none';
   showToast(`Added: ${entry.name}`);
   renderAll();
+});
+
+$('foodCalories').addEventListener('blur', function() {
+  if(this.value) this.value = Math.ceil(parseFloat(this.value)||0);
+});
+$('foodCalories').addEventListener('change', function() {
+  if(this.value) this.value = Math.ceil(parseFloat(this.value)||0);
 });
 
 $('saveCustomFood').addEventListener('click', () => {
@@ -1670,7 +1677,7 @@ function updateMacroPreview() {
   const scale = grams / 100;
   const nutrients = selectedFoodData.nutrients;
 
-  const calories = round(getNutrientRaw(nutrients,1008) * scale);
+  const calories = Math.ceil(getNutrientRaw(nutrients,1008) * scale);
   const protein  = round(getNutrientRaw(nutrients,1003) * scale);
   const carbs    = round(getNutrientRaw(nutrients,1005) * scale);
   const fat      = round(getNutrientRaw(nutrients,1004) * scale);
@@ -1889,6 +1896,7 @@ function lastSevenDates() {
 function mealOrder(meal) { return ['Breakfast','Lunch','Dinner','Snack'].indexOf(meal); }
 function val(id) { return $(id).value.trim(); }
 function num(id) { return Number($(id).value||0); }
+function numCal(id) { return Math.ceil(Number($(id).value||0)); }
 function round(n) { return Math.round((Number(n)||0)*10)/10; }
 function escHtml(s) { return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function clearMacroFields() { ['foodCalories','foodProtein','foodCarbs','foodFat','foodFiber'].forEach(id => $(id).value=0); }
