@@ -28,7 +28,6 @@ It will behave like a native app — full screen, no browser chrome, launches in
 ## 📋 Roadmap
 
 - [ ] Barcode scanning via device camera
-- [ ] Water intake tracking
 - [ ] Meal templates
 - [ ] PWA / installable offline app
 - [ ] HealthKit / Google Fit export
