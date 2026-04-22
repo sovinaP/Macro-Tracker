@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -649,6 +650,7 @@ $('mealType').value = state.settings.lastMeal || 'Breakfast';
 renderQuickFoods();
 renderAll();
 renderWater();
+bindWaterControls();
 startClock();
 // Ensure chart renders even if Chart.js loads late
 if(typeof Chart === 'undefined') { setTimeout(renderChart, 500); setTimeout(renderChart, 1500); }
@@ -1544,7 +1546,8 @@ function clearMacroFields() { ['foodCalories','foodProtein','foodCarbs','foodFat
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  $('themeToggle').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+  const tt = $('themeToggle');
+  if(tt) tt.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
 }
 
 function fillTargetInputs() {
@@ -1642,44 +1645,27 @@ function addWater(oz) {
   showToast(`+${display} logged.`);
 }
 
-$('water8oz').addEventListener('click', () => {
-  const unit = state.settings.waterUnit || 'oz';
-  addWater(unit === 'ml' ? 250 / 29.5735 : 8);
-});
-$('water16oz').addEventListener('click', () => {
-  const unit = state.settings.waterUnit || 'oz';
-  addWater(unit === 'ml' ? 500 / 29.5735 : 16);
-});
-$('water500ml').addEventListener('click', () => {
-  const unit = state.settings.waterUnit || 'oz';
-  addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735);
-});
-$('waterCustomAdd').addEventListener('click', () => {
-  const row = $('waterCustomRow');
-  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
-});
-$('waterCustomSave').addEventListener('click', () => {
-  const amt = parseFloat($('waterCustomInput').value);
-  const unit = $('waterCustomUnit').value;
-  if(!amt || amt <= 0) { showToast('Enter a valid amount.'); return; }
-  addWater(getWateroz(amt, unit));
-  $('waterCustomInput').value = '';
-  $('waterCustomRow').style.display = 'none';
-});
-$('waterReset').addEventListener('click', () => {
-  const date = $('datePicker').value;
-  state.water[date] = 0;
-  saveState(); renderWater();
-  showToast('Water reset for today.');
-});
-$('waterGoalInput').addEventListener('change', () => {
-  state.settings.waterGoal = parseFloat($('waterGoalInput').value) || 64;
-  saveState(); renderWater();
-});
-$('waterUnitSelect').addEventListener('change', () => {
-  state.settings.waterUnit = $('waterUnitSelect').value;
-  saveState(); renderWater();
-});
+function bindWaterControls() {
+  const map = {
+    water8oz: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 250 / 29.5735 : 8); },
+    water16oz: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 500 / 29.5735 : 16); },
+    water500ml: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735); },
+    waterCustomAdd: () => { const row = $('waterCustomRow'); if(row) row.style.display = row.style.display === 'none' ? 'flex' : 'none'; },
+    waterCustomSave: () => {
+      const amt = parseFloat($('waterCustomInput')?.value);
+      const unit = $('waterCustomUnit')?.value;
+      if(!amt || amt <= 0) { showToast('Enter a valid amount.'); return; }
+      addWater(getWateroz(amt, unit));
+      if($('waterCustomInput')) $('waterCustomInput').value = '';
+      if($('waterCustomRow')) $('waterCustomRow').style.display = 'none';
+    },
+    waterReset: () => { const date = $('datePicker').value; state.water[date] = 0; saveState(); renderWater(); showToast('Water reset for today.'); },
+    waterGoalInput: () => { state.settings.waterGoal = parseFloat($('waterGoalInput').value) || 64; saveState(); renderWater(); },
+    waterUnitSelect: () => { state.settings.waterUnit = $('waterUnitSelect').value; saveState(); renderWater(); }
+  };
+  Object.entries(map).forEach(([id, fn]) => { const el = $(id); if(el) el.onclick = fn; });
+}
+bindWaterControls();
 
 
 // ---- MEAL TEMPLATES ----
