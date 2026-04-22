@@ -6,472 +6,8 @@
   <title>NourishOS</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer>
-// ---- MICRONUTRIENT MODAL ----
-const MICRO_CATS = {
-  calories: {
-    label: 'Energy',
-    color: 'var(--color-accent)',
-    nutrients: [
-      { id: 1008, name: 'Energy', unit: 'kcal' },
-      { id: 1062, name: 'Energy (kJ)', unit: 'kJ' },
-    ]
-  },
-  protein: {
-    label: 'Protein',
-    color: '#3b82f6',
-    nutrients: [
-      { id: 1003, name: 'Total Protein', unit: 'g' },
-      { id: 1232, name: 'Tryptophan', unit: 'g' },
-      { id: 1210, name: 'Threonine', unit: 'g' },
-      { id: 1211, name: 'Isoleucine', unit: 'g' },
-      { id: 1212, name: 'Leucine', unit: 'g' },
-      { id: 1213, name: 'Lysine', unit: 'g' },
-      { id: 1214, name: 'Methionine', unit: 'g' },
-      { id: 1215, name: 'Cystine', unit: 'g' },
-      { id: 1216, name: 'Phenylalanine', unit: 'g' },
-      { id: 1217, name: 'Tyrosine', unit: 'g' },
-      { id: 1218, name: 'Valine', unit: 'g' },
-      { id: 1219, name: 'Arginine', unit: 'g' },
-      { id: 1221, name: 'Histidine', unit: 'g' },
-      { id: 1222, name: 'Alanine', unit: 'g' },
-      { id: 1223, name: 'Aspartic Acid', unit: 'g' },
-      { id: 1224, name: 'Glutamic Acid', unit: 'g' },
-      { id: 1225, name: 'Glycine', unit: 'g' },
-      { id: 1226, name: 'Proline', unit: 'g' },
-      { id: 1227, name: 'Serine', unit: 'g' },
-    ]
-  },
-  carbs: {
-    label: 'Carbohydrates',
-    color: '#f59e0b',
-    nutrients: [
-      { id: 1005, name: 'Total Carbohydrates', unit: 'g' },
-      { id: 1079, name: 'Dietary Fiber', unit: 'g' },
-      { id: 2000, name: 'Total Sugars', unit: 'g' },
-      { id: 1082, name: 'Added Sugars', unit: 'g' },
-      { id: 1010, name: 'Sucrose', unit: 'g' },
-      { id: 1011, name: 'Glucose', unit: 'g' },
-      { id: 1012, name: 'Fructose', unit: 'g' },
-      { id: 1013, name: 'Lactose', unit: 'g' },
-      { id: 1014, name: 'Maltose', unit: 'g' },
-      { id: 1008, name: 'Starch', unit: 'g' },
-    ]
-  },
-  fat: {
-    label: 'Fats',
-    color: '#ec4899',
-    nutrients: [
-      { id: 1004, name: 'Total Fat', unit: 'g' },
-      { id: 1258, name: 'Saturated Fat', unit: 'g' },
-      { id: 1292, name: 'Monounsaturated Fat', unit: 'g' },
-      { id: 1293, name: 'Polyunsaturated Fat', unit: 'g' },
-      { id: 1257, name: 'Trans Fat', unit: 'g' },
-      { id: 1253, name: 'Cholesterol', unit: 'mg' },
-      { id: 1278, name: 'Omega-3 ALA', unit: 'g' },
-      { id: 1404, name: 'Omega-3 EPA', unit: 'g' },
-      { id: 1405, name: 'Omega-3 DHA', unit: 'g' },
-      { id: 1316, name: 'Omega-6 LA', unit: 'g' },
-    ]
-  },
-  fiber: {
-    label: 'Fiber',
-    color: '#10b981',
-    nutrients: [
-      { id: 1079, name: 'Total Dietary Fiber', unit: 'g' },
-      { id: 1082, name: 'Added Sugars (context)', unit: 'g' },
-      { id: 2000, name: 'Total Sugars (context)', unit: 'g' },
-    ]
-  }
-};
-
-// Daily Reference Intakes (adults general)
-const DRI = {
-  1008: 2000, 1003: 50, 1005: 275, 1004: 78, 1079: 28,
-  2000: 50, 1082: 25, 1258: 20, 1253: 300, 1257: 2,
-  1162: 90, 1106: 900, 1114: 20, 1109: 15, 1185: 120,
-  1165: 1.2, 1166: 1.3, 1167: 16, 1170: 5, 1175: 1.7,
-  1177: 400, 1176: 2.4, 1087: 1300, 1089: 18, 1090: 420,
-  1091: 1250, 1092: 4700, 1093: 2300, 1095: 11,
-};
-const DRI_UNIT = {
-  1162:'mg',1106:'mcg',1114:'mcg',1109:'mg',1185:'mcg',
-  1165:'mg',1166:'mg',1167:'mg',1170:'mg',1175:'mg',
-  1177:'mcg',1176:'mcg',1087:'mg',1089:'mg',1090:'mg',
-  1091:'mg',1092:'mg',1093:'mg',1095:'mg',1253:'mg'
-};
-
-// Accumulate micros across all entries for the current day
-function getDayMicroTotals(date, nutrientId) {
-  const entries = state.entries[date] || [];
-  return entries.reduce((sum, e) => {
-    if(!e.nutrients) return sum;
-    const n = e.nutrients.find(x => x.nutrientId === nutrientId || x.id === nutrientId);
-    return sum + (n ? (n.value || n.amount || 0) : 0);
-  }, 0);
-}
-
-function openMicroModal(entry, category) {
-  const cat = MICRO_CATS[category];
-  if(!cat) return;
-  const date = $('datePicker').value;
-
-  $('microModalTitle').textContent = cat.label + ' Breakdown';
-  $('microModalSub').textContent = entry.name;
-
-  const body = $('microModalBody');
-  body.innerHTML = '';
-
-  // Also show vitamin & mineral sections if clicking any macro
-  const sectionsToShow = category === 'calories'
-    ? ['calories']
-    : category === 'fiber'
-    ? ['fiber']
-    : [category, 'vitamins', 'minerals'];
-
-  const allSections = {
-    ...MICRO_CATS,
-    vitamins: {
-      label: 'Vitamins',
-      color: '#8b5cf6',
-      nutrients: [
-        { id: 1106, name: 'Vitamin A', unit: 'mcg' },
-        { id: 1162, name: 'Vitamin C', unit: 'mg' },
-        { id: 1114, name: 'Vitamin D', unit: 'mcg' },
-        { id: 1109, name: 'Vitamin E', unit: 'mg' },
-        { id: 1185, name: 'Vitamin K', unit: 'mcg' },
-        { id: 1165, name: 'Thiamin (B1)', unit: 'mg' },
-        { id: 1166, name: 'Riboflavin (B2)', unit: 'mg' },
-        { id: 1167, name: 'Niacin (B3)', unit: 'mg' },
-        { id: 1170, name: 'Pantothenic Acid (B5)', unit: 'mg' },
-        { id: 1175, name: 'Vitamin B6', unit: 'mg' },
-        { id: 1177, name: 'Folate (B9)', unit: 'mcg' },
-        { id: 1176, name: 'Vitamin B12', unit: 'mcg' },
-      ]
-    },
-    minerals: {
-      label: 'Minerals',
-      color: '#64748b',
-      nutrients: [
-        { id: 1087, name: 'Calcium', unit: 'mg' },
-        { id: 1089, name: 'Iron', unit: 'mg' },
-        { id: 1090, name: 'Magnesium', unit: 'mg' },
-        { id: 1091, name: 'Phosphorus', unit: 'mg' },
-        { id: 1092, name: 'Potassium', unit: 'mg' },
-        { id: 1093, name: 'Sodium', unit: 'mg' },
-        { id: 1095, name: 'Zinc', unit: 'mg' },
-        { id: 1098, name: 'Copper', unit: 'mg' },
-        { id: 1101, name: 'Manganese', unit: 'mg' },
-        { id: 1103, name: 'Selenium', unit: 'mcg' },
-      ]
-    }
-  };
-
-  const displaySections = category === 'calories' ? ['calories']
-    : category === 'fiber' ? ['fiber', 'vitamins', 'minerals']
-    : [category, 'vitamins', 'minerals'];
-
-  displaySections.forEach(secKey => {
-    const sec = allSections[secKey];
-    if(!sec) return;
-
-    const hasAny = sec.nutrients.some(n => {
-      const found = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      return found && (found.value || found.amount || 0) > 0;
-    });
-
-    const secEl = document.createElement('div');
-    secEl.style.cssText = 'margin-bottom:1.25rem;';
-
-    const header = document.createElement('div');
-    header.style.cssText = `font-weight:600;font-size:var(--text-sm);color:${sec.color};margin-bottom:.5rem;padding-bottom:.25rem;border-bottom:1px solid var(--color-border);`;
-    header.textContent = sec.label;
-    secEl.appendChild(header);
-
-    if(!hasAny) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'font-size:var(--text-xs);color:var(--color-text-faint);padding:.25rem 0;';
-      empty.textContent = 'No data available for this food.';
-      secEl.appendChild(empty);
-      body.appendChild(secEl);
-      return;
-    }
-
-    sec.nutrients.forEach(n => {
-      const raw = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      const val = raw ? round(raw.value || raw.amount || 0) : null;
-      if(val === null || val === 0) return;
-
-      const dayTotal = round(getDayMicroTotals(date, n.id));
-      const dri = DRI[n.id];
-
-      const rowEl = document.createElement('div');
-      rowEl.style.cssText = 'display:flex;flex-direction:column;gap:.2rem;margin-bottom:.6rem;';
-
-      const labelRow = document.createElement('div');
-      labelRow.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;font-size:var(--text-xs);';
-      labelRow.innerHTML = `
-        <span style="color:var(--color-text);">${escHtml(n.name)}</span>
-        <span style="color:var(--color-text-muted);">${val}${n.unit} this food${dri ? ` · ${dayTotal}${n.unit} / ${dri}${n.unit} today` : ` · ${dayTotal}${n.unit} today`}</span>`;
-      rowEl.appendChild(labelRow);
-
-      if(dri) {
-        const pct = Math.min(100, (dayTotal / dri) * 100);
-        const barColor = pct >= 100 ? '#10b981' : pct >= 50 ? sec.color : 'var(--color-border-strong, #94a3b8)';
-        const barEl = document.createElement('div');
-        barEl.style.cssText = 'height:4px;border-radius:2px;background:var(--color-border);overflow:hidden;';
-        barEl.innerHTML = `<div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width .3s;"></div>`;
-        rowEl.appendChild(barEl);
-      }
-
-      secEl.appendChild(rowEl);
-    });
-
-    body.appendChild(secEl);
-  });
-
-  const modal = $('microModal');
-  modal.style.display = 'flex';
-  if(window.lucide) window.lucide.createIcons();
-}
-
-$('closeMicroModal').addEventListener('click', () => { $('microModal').style.display = 'none'; });
-$('microModal').addEventListener('click', e => { if(e.target === $('microModal')) $('microModal').style.display = 'none'; });
-
-</script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer>
-// ---- MICRONUTRIENT MODAL ----
-const MICRO_CATS = {
-  calories: {
-    label: 'Energy',
-    color: 'var(--color-accent)',
-    nutrients: [
-      { id: 1008, name: 'Energy', unit: 'kcal' },
-      { id: 1062, name: 'Energy (kJ)', unit: 'kJ' },
-    ]
-  },
-  protein: {
-    label: 'Protein',
-    color: '#3b82f6',
-    nutrients: [
-      { id: 1003, name: 'Total Protein', unit: 'g' },
-      { id: 1232, name: 'Tryptophan', unit: 'g' },
-      { id: 1210, name: 'Threonine', unit: 'g' },
-      { id: 1211, name: 'Isoleucine', unit: 'g' },
-      { id: 1212, name: 'Leucine', unit: 'g' },
-      { id: 1213, name: 'Lysine', unit: 'g' },
-      { id: 1214, name: 'Methionine', unit: 'g' },
-      { id: 1215, name: 'Cystine', unit: 'g' },
-      { id: 1216, name: 'Phenylalanine', unit: 'g' },
-      { id: 1217, name: 'Tyrosine', unit: 'g' },
-      { id: 1218, name: 'Valine', unit: 'g' },
-      { id: 1219, name: 'Arginine', unit: 'g' },
-      { id: 1221, name: 'Histidine', unit: 'g' },
-      { id: 1222, name: 'Alanine', unit: 'g' },
-      { id: 1223, name: 'Aspartic Acid', unit: 'g' },
-      { id: 1224, name: 'Glutamic Acid', unit: 'g' },
-      { id: 1225, name: 'Glycine', unit: 'g' },
-      { id: 1226, name: 'Proline', unit: 'g' },
-      { id: 1227, name: 'Serine', unit: 'g' },
-    ]
-  },
-  carbs: {
-    label: 'Carbohydrates',
-    color: '#f59e0b',
-    nutrients: [
-      { id: 1005, name: 'Total Carbohydrates', unit: 'g' },
-      { id: 1079, name: 'Dietary Fiber', unit: 'g' },
-      { id: 2000, name: 'Total Sugars', unit: 'g' },
-      { id: 1082, name: 'Added Sugars', unit: 'g' },
-      { id: 1010, name: 'Sucrose', unit: 'g' },
-      { id: 1011, name: 'Glucose', unit: 'g' },
-      { id: 1012, name: 'Fructose', unit: 'g' },
-      { id: 1013, name: 'Lactose', unit: 'g' },
-      { id: 1014, name: 'Maltose', unit: 'g' },
-      { id: 1008, name: 'Starch', unit: 'g' },
-    ]
-  },
-  fat: {
-    label: 'Fats',
-    color: '#ec4899',
-    nutrients: [
-      { id: 1004, name: 'Total Fat', unit: 'g' },
-      { id: 1258, name: 'Saturated Fat', unit: 'g' },
-      { id: 1292, name: 'Monounsaturated Fat', unit: 'g' },
-      { id: 1293, name: 'Polyunsaturated Fat', unit: 'g' },
-      { id: 1257, name: 'Trans Fat', unit: 'g' },
-      { id: 1253, name: 'Cholesterol', unit: 'mg' },
-      { id: 1278, name: 'Omega-3 ALA', unit: 'g' },
-      { id: 1404, name: 'Omega-3 EPA', unit: 'g' },
-      { id: 1405, name: 'Omega-3 DHA', unit: 'g' },
-      { id: 1316, name: 'Omega-6 LA', unit: 'g' },
-    ]
-  },
-  fiber: {
-    label: 'Fiber',
-    color: '#10b981',
-    nutrients: [
-      { id: 1079, name: 'Total Dietary Fiber', unit: 'g' },
-      { id: 1082, name: 'Added Sugars (context)', unit: 'g' },
-      { id: 2000, name: 'Total Sugars (context)', unit: 'g' },
-    ]
-  }
-};
-
-// Daily Reference Intakes (adults general)
-const DRI = {
-  1008: 2000, 1003: 50, 1005: 275, 1004: 78, 1079: 28,
-  2000: 50, 1082: 25, 1258: 20, 1253: 300, 1257: 2,
-  1162: 90, 1106: 900, 1114: 20, 1109: 15, 1185: 120,
-  1165: 1.2, 1166: 1.3, 1167: 16, 1170: 5, 1175: 1.7,
-  1177: 400, 1176: 2.4, 1087: 1300, 1089: 18, 1090: 420,
-  1091: 1250, 1092: 4700, 1093: 2300, 1095: 11,
-};
-const DRI_UNIT = {
-  1162:'mg',1106:'mcg',1114:'mcg',1109:'mg',1185:'mcg',
-  1165:'mg',1166:'mg',1167:'mg',1170:'mg',1175:'mg',
-  1177:'mcg',1176:'mcg',1087:'mg',1089:'mg',1090:'mg',
-  1091:'mg',1092:'mg',1093:'mg',1095:'mg',1253:'mg'
-};
-
-// Accumulate micros across all entries for the current day
-function getDayMicroTotals(date, nutrientId) {
-  const entries = state.entries[date] || [];
-  return entries.reduce((sum, e) => {
-    if(!e.nutrients) return sum;
-    const n = e.nutrients.find(x => x.nutrientId === nutrientId || x.id === nutrientId);
-    return sum + (n ? (n.value || n.amount || 0) : 0);
-  }, 0);
-}
-
-function openMicroModal(entry, category) {
-  const cat = MICRO_CATS[category];
-  if(!cat) return;
-  const date = $('datePicker').value;
-
-  $('microModalTitle').textContent = cat.label + ' Breakdown';
-  $('microModalSub').textContent = entry.name;
-
-  const body = $('microModalBody');
-  body.innerHTML = '';
-
-  // Also show vitamin & mineral sections if clicking any macro
-  const sectionsToShow = category === 'calories'
-    ? ['calories']
-    : category === 'fiber'
-    ? ['fiber']
-    : [category, 'vitamins', 'minerals'];
-
-  const allSections = {
-    ...MICRO_CATS,
-    vitamins: {
-      label: 'Vitamins',
-      color: '#8b5cf6',
-      nutrients: [
-        { id: 1106, name: 'Vitamin A', unit: 'mcg' },
-        { id: 1162, name: 'Vitamin C', unit: 'mg' },
-        { id: 1114, name: 'Vitamin D', unit: 'mcg' },
-        { id: 1109, name: 'Vitamin E', unit: 'mg' },
-        { id: 1185, name: 'Vitamin K', unit: 'mcg' },
-        { id: 1165, name: 'Thiamin (B1)', unit: 'mg' },
-        { id: 1166, name: 'Riboflavin (B2)', unit: 'mg' },
-        { id: 1167, name: 'Niacin (B3)', unit: 'mg' },
-        { id: 1170, name: 'Pantothenic Acid (B5)', unit: 'mg' },
-        { id: 1175, name: 'Vitamin B6', unit: 'mg' },
-        { id: 1177, name: 'Folate (B9)', unit: 'mcg' },
-        { id: 1176, name: 'Vitamin B12', unit: 'mcg' },
-      ]
-    },
-    minerals: {
-      label: 'Minerals',
-      color: '#64748b',
-      nutrients: [
-        { id: 1087, name: 'Calcium', unit: 'mg' },
-        { id: 1089, name: 'Iron', unit: 'mg' },
-        { id: 1090, name: 'Magnesium', unit: 'mg' },
-        { id: 1091, name: 'Phosphorus', unit: 'mg' },
-        { id: 1092, name: 'Potassium', unit: 'mg' },
-        { id: 1093, name: 'Sodium', unit: 'mg' },
-        { id: 1095, name: 'Zinc', unit: 'mg' },
-        { id: 1098, name: 'Copper', unit: 'mg' },
-        { id: 1101, name: 'Manganese', unit: 'mg' },
-        { id: 1103, name: 'Selenium', unit: 'mcg' },
-      ]
-    }
-  };
-
-  const displaySections = category === 'calories' ? ['calories']
-    : category === 'fiber' ? ['fiber', 'vitamins', 'minerals']
-    : [category, 'vitamins', 'minerals'];
-
-  displaySections.forEach(secKey => {
-    const sec = allSections[secKey];
-    if(!sec) return;
-
-    const hasAny = sec.nutrients.some(n => {
-      const found = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      return found && (found.value || found.amount || 0) > 0;
-    });
-
-    const secEl = document.createElement('div');
-    secEl.style.cssText = 'margin-bottom:1.25rem;';
-
-    const header = document.createElement('div');
-    header.style.cssText = `font-weight:600;font-size:var(--text-sm);color:${sec.color};margin-bottom:.5rem;padding-bottom:.25rem;border-bottom:1px solid var(--color-border);`;
-    header.textContent = sec.label;
-    secEl.appendChild(header);
-
-    if(!hasAny) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'font-size:var(--text-xs);color:var(--color-text-faint);padding:.25rem 0;';
-      empty.textContent = 'No data available for this food.';
-      secEl.appendChild(empty);
-      body.appendChild(secEl);
-      return;
-    }
-
-    sec.nutrients.forEach(n => {
-      const raw = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      const val = raw ? round(raw.value || raw.amount || 0) : null;
-      if(val === null || val === 0) return;
-
-      const dayTotal = round(getDayMicroTotals(date, n.id));
-      const dri = DRI[n.id];
-
-      const rowEl = document.createElement('div');
-      rowEl.style.cssText = 'display:flex;flex-direction:column;gap:.2rem;margin-bottom:.6rem;';
-
-      const labelRow = document.createElement('div');
-      labelRow.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;font-size:var(--text-xs);';
-      labelRow.innerHTML = `
-        <span style="color:var(--color-text);">${escHtml(n.name)}</span>
-        <span style="color:var(--color-text-muted);">${val}${n.unit} this food${dri ? ` · ${dayTotal}${n.unit} / ${dri}${n.unit} today` : ` · ${dayTotal}${n.unit} today`}</span>`;
-      rowEl.appendChild(labelRow);
-
-      if(dri) {
-        const pct = Math.min(100, (dayTotal / dri) * 100);
-        const barColor = pct >= 100 ? '#10b981' : pct >= 50 ? sec.color : 'var(--color-border-strong, #94a3b8)';
-        const barEl = document.createElement('div');
-        barEl.style.cssText = 'height:4px;border-radius:2px;background:var(--color-border);overflow:hidden;';
-        barEl.innerHTML = `<div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width .3s;"></div>`;
-        rowEl.appendChild(barEl);
-      }
-
-      secEl.appendChild(rowEl);
-    });
-
-    body.appendChild(secEl);
-  });
-
-  const modal = $('microModal');
-  modal.style.display = 'flex';
-  if(window.lucide) window.lucide.createIcons();
-}
-
-$('closeMicroModal').addEventListener('click', () => { $('microModal').style.display = 'none'; });
-$('microModal').addEventListener('click', e => { if(e.target === $('microModal')) $('microModal').style.display = 'none'; });
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
   <style>
     :root, [data-theme="light"] {
       --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -521,7 +57,18 @@ $('microModal').addEventListener('click', e => { if(e.target === $('microModal')
     .panel{background:var(--color-surface);border:1px solid rgba(40,37,29,.12);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:var(--space-5);}
     .panel h2,.panel h3{margin:0 0 .6rem;font-size:var(--text-lg);}
     .hero-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-4);}
-    .metric-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-lg);}
+    .metric-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-lg);transition:box-shadow .15s;}
+    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;}
+    .macro-expandable:active{opacity:.85;}
+    .macro-expandable[aria-expanded="true"]{box-shadow:0 0 0 2px var(--color-accent,#b5892a);}
+    .micro-drawer{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s ease;opacity:0;padding-top:0;}
+    .micro-drawer.open{max-height:700px;opacity:1;padding-top:.7rem;}
+    .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
+    .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
+    .micro-drawer-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);}
+    .micro-drawer-bar{height:3px;border-radius:2px;background:var(--color-border);overflow:hidden;}
+    .micro-drawer-bar span{display:block;height:100%;border-radius:2px;transition:width .4s ease;}
+    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;}
     .metric-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;}
     .metric-card .label{font-size:var(--text-sm);color:var(--color-text-muted);}
     .metric-card .value{font-size:var(--text-lg);font-weight:700;font-variant-numeric:tabular-nums;}
@@ -667,21 +214,25 @@ $('microModal').addEventListener('click', e => { if(e.target === $('microModal')
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card">
+    <div class="metric-card macro-expandable" data-macro="calories" tabindex="0" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
+      <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card macro-expandable" data-macro="protein" tabindex="0" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
+      <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card macro-expandable" data-macro="carbs" tabindex="0" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
+      <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card macro-expandable" data-macro="fat" tabindex="0" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
+      <div class="micro-drawer" id="microDrawer-fat"></div>
     </div>
   </section>
 
@@ -1423,10 +974,10 @@ $('foodForm').addEventListener('submit', e => {
 });
 
 $('foodCalories').addEventListener('blur', function() {
-  if(this.value) this.value = Math.ceil(parseFloat(this.value)||0);
+  if(this.value !== '') this.value = Math.ceil(parseFloat(this.value)||0);
 });
 $('foodCalories').addEventListener('change', function() {
-  if(this.value) this.value = Math.ceil(parseFloat(this.value)||0);
+  if(this.value !== '') this.value = Math.ceil(parseFloat(this.value)||0);
 });
 
 $('saveCustomFood').addEventListener('click', () => {
@@ -1486,35 +1037,44 @@ function showResultsLoading() {
 async function searchOFF(query) {
   if(!query) return;
   showResultsLoading();
+  const tryFetch = async (url) => {
+    const res = await fetch(url, {mode:'cors'});
+    if(!res.ok) throw new Error('bad response');
+    return res.json();
+  };
+  const normalize = (p) => {
+    const n = p.nutriments || {};
+    return {
+      description: p.product_name,
+      brandOwner: p.brands || '',
+      servingSize: p.serving_quantity || null,
+      servingSizeUnit: 'g',
+      _source: 'off',
+      foodNutrients: [
+        { nutrientId:1008, value: Math.round(n['energy-kcal_100g'] || (n['energy_100g'] ? n['energy_100g']/4.184 : 0)) },
+        { nutrientId:1003, value: n['proteins_100g'] || 0 },
+        { nutrientId:1005, value: n['carbohydrates_100g'] || 0 },
+        { nutrientId:1004, value: n['fat_100g'] || 0 },
+        { nutrientId:1079, value: n['fiber_100g'] || 0 },
+        { nutrientId:2000, value: n['sugars_100g'] || 0 },
+        { nutrientId:1258, value: n['saturated-fat_100g'] || 0 },
+        { nutrientId:1093, value: n['sodium_100g'] ? n['sodium_100g']*1000 : 0 },
+      ]
+    };
+  };
   try {
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10&fields=product_name,brands,nutriments,serving_size,serving_quantity`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('OFF API error');
-    const data = await res.json();
-    const foods = (data.products || [])
-      .filter(p => p.product_name)
-      .map(p => {
-        const n = p.nutriments || {};
-        return {
-          description: p.product_name,
-          brandOwner: p.brands || '',
-          servingSize: p.serving_quantity || null,
-          servingSizeUnit: 'g',
-          _source: 'off',
-          foodNutrients: [
-            { nutrientId: 1008, value: n['energy-kcal_100g'] || n['energy_100g'] ? Math.round((n['energy-kcal_100g'] || n['energy_100g'] / 4.184)) : 0 },
-            { nutrientId: 1003, value: n['proteins_100g'] || 0 },
-            { nutrientId: 1005, value: n['carbohydrates_100g'] || 0 },
-            { nutrientId: 1004, value: n['fat_100g'] || 0 },
-            { nutrientId: 1079, value: n['fiber_100g'] || 0 },
-          ]
-        };
-      });
-    renderResults(foods, 'off');
-  } catch(err) {
-    const box = $('searchResults');
-    box.style.display = 'block';
-    box.innerHTML = '<div class="search-hint">Could not reach Open Food Facts. Check your internet connection.</div>';
+    const data = await tryFetch(`https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(query)}&page_size=10&fields=product_name,brands,nutriments,serving_size,serving_quantity&json=true`);
+    const foods = (data.products||[]).filter(p=>p.product_name).map(normalize);
+    renderResults(foods,'off');
+  } catch(e) {
+    try {
+      const data2 = await tryFetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10`);
+      const foods2 = (data2.products||[]).filter(p=>p.product_name).map(normalize);
+      renderResults(foods2,'off');
+    } catch(e2) {
+      $('searchResults').style.display='block';
+      $('searchResults').innerHTML='<div class="search-hint">Open Food Facts could not be reached. Try switching to USDA.</div>';
+    }
   }
 }
 
@@ -1781,43 +1341,37 @@ function renderEntries() {
   sorted.forEach(entry => {
     const row = document.createElement('div');
     row.className = 'entry';
-
     const mealOpts = MEALS.map(m => `<option value="${m}"${m===entry.meal?' selected':''}>${m}</option>`).join('');
     const hasNutrients = entry.nutrients && entry.nutrients.length > 0;
-    const pillTitle = hasNutrients ? 'title="Tap to view micronutrients" style="cursor:pointer;"' : '';
-
+    const pillHint = hasNutrients ? 'title="Tap for micronutrients" style="cursor:pointer;"' : '';
     row.innerHTML = `
       <div style="flex:1;min-width:0;">
         <div class="entry-title">${escHtml(entry.name)}</div>
-        <div class="entry-meta" style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
-          <select class="meal-change-select" aria-label="Change meal" style="font-size:var(--text-xs);padding:.15rem .3rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-offset);color:var(--color-text);cursor:pointer;">${mealOpts}</select>
+        <div class="entry-meta" style="display:flex;align-items:center;gap:.4rem;">
+          <select class="meal-change-select" aria-label="Change meal" style="font-size:var(--text-xs);padding:.15rem .35rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-offset);color:var(--color-text);cursor:pointer;">${mealOpts}</select>
         </div>
         <div class="entry-macros">
-          <span class="macro-pill mp-cal" data-micro="calories" ${pillTitle}>${round(entry.calories)} kcal</span>
-          <span class="macro-pill mp-pro" data-micro="protein" ${pillTitle}>P ${round(entry.protein)}g</span>
-          <span class="macro-pill mp-car" data-micro="carbs" ${pillTitle}>C ${round(entry.carbs)}g</span>
-          <span class="macro-pill mp-fat" data-micro="fat" ${pillTitle}>F ${round(entry.fat)}g</span>
-          <span class="macro-pill mp-fib" data-micro="fiber" ${pillTitle}>Fi ${round(entry.fiber)}g</span>
+          <span class="macro-pill mp-cal" data-micro="calories" ${pillHint}>${round(entry.calories)} kcal</span>
+          <span class="macro-pill mp-pro" data-micro="protein" ${pillHint}>P ${round(entry.protein)}g</span>
+          <span class="macro-pill mp-car" data-micro="carbs" ${pillHint}>C ${round(entry.carbs)}g</span>
+          <span class="macro-pill mp-fat" data-micro="fat" ${pillHint}>F ${round(entry.fat)}g</span>
+          <span class="macro-pill mp-fib" data-micro="fiber" ${pillHint}>Fi ${round(entry.fiber)}g</span>
         </div>
       </div>
       <button class="entry-delete" aria-label="Delete ${escHtml(entry.name)}"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>`;
-
     row.querySelector('.meal-change-select').addEventListener('change', function() {
       const idx = state.entries[date].findIndex(x => x.id === entry.id);
       if(idx !== -1) { state.entries[date][idx].meal = this.value; saveState(); renderAll(); }
     });
-
     row.querySelector('.entry-delete').addEventListener('click', () => {
       state.entries[date] = state.entries[date].filter(x => x.id !== entry.id);
       saveState(); renderAll();
     });
-
     if(hasNutrients) {
       row.querySelectorAll('.macro-pill[data-micro]').forEach(pill => {
         pill.addEventListener('click', () => openMicroModal(entry, pill.dataset.micro));
       });
     }
-
     wrap.appendChild(row);
   });
 }
@@ -1837,6 +1391,11 @@ function renderSummary() {
   if(w) $('weightInput').value = w.value;
   else $('weightInput').value = '';
   updateClockSummary(selectedDate);
+  if(typeof buildMicroDrawer === 'function') {
+    document.querySelectorAll('.macro-expandable[aria-expanded="true"]').forEach(c => {
+      buildMicroDrawer(c.dataset.macro, selectedDate);
+    });
+  }
 }
 
 function setMetric(name, total, target, suffix) {
@@ -1896,7 +1455,6 @@ function lastSevenDates() {
 function mealOrder(meal) { return ['Breakfast','Lunch','Dinner','Snack'].indexOf(meal); }
 function val(id) { return $(id).value.trim(); }
 function num(id) { return Number($(id).value||0); }
-function numCal(id) { return Math.ceil(Number($(id).value||0)); }
 function round(n) { return Math.round((Number(n)||0)*10)/10; }
 function escHtml(s) { return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function clearMacroFields() { ['foodCalories','foodProtein','foodCarbs','foodFat','foodFiber'].forEach(id => $(id).value=0); }
@@ -2124,248 +1682,234 @@ $('confirmSaveTemplate').addEventListener('click', () => {
 
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-// ---- MICRONUTRIENT MODAL ----
-const MICRO_CATS = {
-  calories: {
-    label: 'Energy',
-    color: 'var(--color-accent)',
-    nutrients: [
-      { id: 1008, name: 'Energy', unit: 'kcal' },
-      { id: 1062, name: 'Energy (kJ)', unit: 'kJ' },
-    ]
-  },
-  protein: {
-    label: 'Protein',
-    color: '#3b82f6',
-    nutrients: [
-      { id: 1003, name: 'Total Protein', unit: 'g' },
-      { id: 1232, name: 'Tryptophan', unit: 'g' },
-      { id: 1210, name: 'Threonine', unit: 'g' },
-      { id: 1211, name: 'Isoleucine', unit: 'g' },
-      { id: 1212, name: 'Leucine', unit: 'g' },
-      { id: 1213, name: 'Lysine', unit: 'g' },
-      { id: 1214, name: 'Methionine', unit: 'g' },
-      { id: 1215, name: 'Cystine', unit: 'g' },
-      { id: 1216, name: 'Phenylalanine', unit: 'g' },
-      { id: 1217, name: 'Tyrosine', unit: 'g' },
-      { id: 1218, name: 'Valine', unit: 'g' },
-      { id: 1219, name: 'Arginine', unit: 'g' },
-      { id: 1221, name: 'Histidine', unit: 'g' },
-      { id: 1222, name: 'Alanine', unit: 'g' },
-      { id: 1223, name: 'Aspartic Acid', unit: 'g' },
-      { id: 1224, name: 'Glutamic Acid', unit: 'g' },
-      { id: 1225, name: 'Glycine', unit: 'g' },
-      { id: 1226, name: 'Proline', unit: 'g' },
-      { id: 1227, name: 'Serine', unit: 'g' },
-    ]
-  },
-  carbs: {
-    label: 'Carbohydrates',
-    color: '#f59e0b',
-    nutrients: [
-      { id: 1005, name: 'Total Carbohydrates', unit: 'g' },
-      { id: 1079, name: 'Dietary Fiber', unit: 'g' },
-      { id: 2000, name: 'Total Sugars', unit: 'g' },
-      { id: 1082, name: 'Added Sugars', unit: 'g' },
-      { id: 1010, name: 'Sucrose', unit: 'g' },
-      { id: 1011, name: 'Glucose', unit: 'g' },
-      { id: 1012, name: 'Fructose', unit: 'g' },
-      { id: 1013, name: 'Lactose', unit: 'g' },
-      { id: 1014, name: 'Maltose', unit: 'g' },
-      { id: 1008, name: 'Starch', unit: 'g' },
-    ]
-  },
-  fat: {
-    label: 'Fats',
-    color: '#ec4899',
-    nutrients: [
-      { id: 1004, name: 'Total Fat', unit: 'g' },
-      { id: 1258, name: 'Saturated Fat', unit: 'g' },
-      { id: 1292, name: 'Monounsaturated Fat', unit: 'g' },
-      { id: 1293, name: 'Polyunsaturated Fat', unit: 'g' },
-      { id: 1257, name: 'Trans Fat', unit: 'g' },
-      { id: 1253, name: 'Cholesterol', unit: 'mg' },
-      { id: 1278, name: 'Omega-3 ALA', unit: 'g' },
-      { id: 1404, name: 'Omega-3 EPA', unit: 'g' },
-      { id: 1405, name: 'Omega-3 DHA', unit: 'g' },
-      { id: 1316, name: 'Omega-6 LA', unit: 'g' },
-    ]
-  },
-  fiber: {
-    label: 'Fiber',
-    color: '#10b981',
-    nutrients: [
-      { id: 1079, name: 'Total Dietary Fiber', unit: 'g' },
-      { id: 1082, name: 'Added Sugars (context)', unit: 'g' },
-      { id: 2000, name: 'Total Sugars (context)', unit: 'g' },
-    ]
-  }
-};
-
-// Daily Reference Intakes (adults general)
-const DRI = {
-  1008: 2000, 1003: 50, 1005: 275, 1004: 78, 1079: 28,
-  2000: 50, 1082: 25, 1258: 20, 1253: 300, 1257: 2,
-  1162: 90, 1106: 900, 1114: 20, 1109: 15, 1185: 120,
-  1165: 1.2, 1166: 1.3, 1167: 16, 1170: 5, 1175: 1.7,
-  1177: 400, 1176: 2.4, 1087: 1300, 1089: 18, 1090: 420,
-  1091: 1250, 1092: 4700, 1093: 2300, 1095: 11,
-};
-const DRI_UNIT = {
-  1162:'mg',1106:'mcg',1114:'mcg',1109:'mg',1185:'mcg',
-  1165:'mg',1166:'mg',1167:'mg',1170:'mg',1175:'mg',
-  1177:'mcg',1176:'mcg',1087:'mg',1089:'mg',1090:'mg',
-  1091:'mg',1092:'mg',1093:'mg',1095:'mg',1253:'mg'
-};
-
-// Accumulate micros across all entries for the current day
+// ── MICRO HELPERS ────────────────────────────────────────────────────────
 function getDayMicroTotals(date, nutrientId) {
-  const entries = state.entries[date] || [];
-  return entries.reduce((sum, e) => {
+  return (state.entries[date] || []).reduce((sum, e) => {
     if(!e.nutrients) return sum;
-    const n = e.nutrients.find(x => x.nutrientId === nutrientId || x.id === nutrientId);
+    const n = e.nutrients.find(x => (x.nutrientId || x.id) === nutrientId);
     return sum + (n ? (n.value || n.amount || 0) : 0);
   }, 0);
 }
 
+// ── MICRO MODAL (entry pill tap) ─────────────────────────────────────────
+var MICRO_CATS = {
+  calories: { label:'Energy', color:'var(--color-accent,#b5892a)', sections:[
+    { label:null, nutrients:[
+      {id:1008,name:'Energy',unit:'kcal',dri:2000},
+      {id:1062,name:'Energy (kJ)',unit:'kJ'},
+    ]}
+  ]},
+  protein: { label:'Protein', color:'#3b82f6', sections:[
+    { label:'Amino Acids', nutrients:[
+      {id:1232,name:'Tryptophan',unit:'g'},{id:1212,name:'Leucine',unit:'g'},
+      {id:1213,name:'Lysine',unit:'g'},{id:1211,name:'Isoleucine',unit:'g'},
+      {id:1218,name:'Valine',unit:'g'},{id:1214,name:'Methionine',unit:'g'},
+      {id:1216,name:'Phenylalanine',unit:'g'},{id:1210,name:'Threonine',unit:'g'},
+      {id:1221,name:'Histidine',unit:'g'},{id:1219,name:'Arginine',unit:'g'},
+    ]}
+  ]},
+  carbs: { label:'Carbohydrates', color:'#f59e0b', sections:[
+    { label:'Sugars', nutrients:[
+      {id:2000,name:'Total Sugars',unit:'g',dri:50},{id:1082,name:'Added Sugars',unit:'g',dri:25},
+      {id:1011,name:'Glucose',unit:'g'},{id:1012,name:'Fructose',unit:'g'},{id:1013,name:'Lactose',unit:'g'},
+    ]},
+    { label:'Fiber', nutrients:[{id:1079,name:'Dietary Fiber',unit:'g',dri:28}]}
+  ]},
+  fat: { label:'Fats', color:'#ec4899', sections:[
+    { label:'Fat Types', nutrients:[
+      {id:1258,name:'Saturated Fat',unit:'g',dri:20},{id:1292,name:'Monounsaturated Fat',unit:'g'},
+      {id:1293,name:'Polyunsaturated Fat',unit:'g'},{id:1257,name:'Trans Fat',unit:'g',dri:2},
+      {id:1253,name:'Cholesterol',unit:'mg',dri:300},
+    ]},
+    { label:'Omega-3', nutrients:[
+      {id:1278,name:'ALA',unit:'g'},{id:1404,name:'EPA',unit:'g'},{id:1405,name:'DHA',unit:'g'},
+    ]}
+  ]},
+  fiber: { label:'Fiber', color:'#10b981', sections:[
+    { label:null, nutrients:[
+      {id:1079,name:'Total Dietary Fiber',unit:'g',dri:28},
+      {id:2000,name:'Total Sugars (context)',unit:'g'},{id:1082,name:'Added Sugars',unit:'g',dri:25},
+    ]}
+  ]}
+};
+
+var MICRO_VITAMINS = { label:'Vitamins', color:'#8b5cf6', sections:[{ label:null, nutrients:[
+  {id:1106,name:'Vitamin A',unit:'mcg',dri:900},{id:1162,name:'Vitamin C',unit:'mg',dri:90},
+  {id:1114,name:'Vitamin D',unit:'mcg',dri:20},{id:1109,name:'Vitamin E',unit:'mg',dri:15},
+  {id:1185,name:'Vitamin K',unit:'mcg',dri:120},{id:1165,name:'Thiamin B1',unit:'mg',dri:1.2},
+  {id:1166,name:'Riboflavin B2',unit:'mg',dri:1.3},{id:1167,name:'Niacin B3',unit:'mg',dri:16},
+  {id:1170,name:'Pantothenic Acid B5',unit:'mg',dri:5},{id:1175,name:'Vitamin B6',unit:'mg',dri:1.7},
+  {id:1177,name:'Folate B9',unit:'mcg',dri:400},{id:1176,name:'Vitamin B12',unit:'mcg',dri:2.4},
+]}]};
+
+var MICRO_MINERALS = { label:'Minerals', color:'#64748b', sections:[{ label:null, nutrients:[
+  {id:1087,name:'Calcium',unit:'mg',dri:1300},{id:1089,name:'Iron',unit:'mg',dri:18},
+  {id:1090,name:'Magnesium',unit:'mg',dri:420},{id:1091,name:'Phosphorus',unit:'mg',dri:1250},
+  {id:1092,name:'Potassium',unit:'mg',dri:4700},{id:1093,name:'Sodium',unit:'mg',dri:2300},
+  {id:1095,name:'Zinc',unit:'mg',dri:11},{id:1098,name:'Copper',unit:'mg'},
+  {id:1101,name:'Manganese',unit:'mg'},{id:1103,name:'Selenium',unit:'mcg'},
+]}]};
+
+function renderMicroSections(sections, nutrients, date, color, container) {
+  sections.forEach(sec => {
+    const rows = sec.nutrients.filter(n => {
+      const found = (nutrients||[]).find(x=>(x.nutrientId||x.id)===n.id);
+      return found && (found.value||found.amount||0) > 0;
+    });
+    if(!rows.length) return;
+    if(sec.label) {
+      const h = document.createElement('div');
+      h.style.cssText = `font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:${color};margin:.6rem 0 .25rem;padding-bottom:.2rem;border-bottom:1px solid var(--color-border);`;
+      h.textContent = sec.label;
+      container.appendChild(h);
+    }
+    rows.forEach(n => {
+      const raw = (nutrients||[]).find(x=>(x.nutrientId||x.id)===n.id);
+      const val = round(raw ? (raw.value||raw.amount||0) : 0);
+      const dayTotal = round(getDayMicroTotals(date, n.id));
+      const pct = n.dri ? Math.min(100,(dayTotal/n.dri)*100) : null;
+      const barColor = pct===null ? color : pct>=100?'#10b981':pct>=50?color:'#94a3b8';
+      const rowEl = document.createElement('div');
+      rowEl.style.cssText = 'margin-bottom:.5rem;';
+      rowEl.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);margin-bottom:.15rem;">
+          <span>${escHtml(n.name)}</span>
+          <span>${val}${n.unit} · ${dayTotal}${n.unit}${n.dri?' / '+n.dri+n.unit+' DRI':''}</span>
+        </div>
+        ${pct!==null?`<div style="height:3px;border-radius:2px;background:var(--color-border);overflow:hidden;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width .4s;"></div></div>`:''}`;
+      container.appendChild(rowEl);
+    });
+  });
+}
+
 function openMicroModal(entry, category) {
+  const date = $('datePicker').value;
   const cat = MICRO_CATS[category];
   if(!cat) return;
-  const date = $('datePicker').value;
-
   $('microModalTitle').textContent = cat.label + ' Breakdown';
   $('microModalSub').textContent = entry.name;
-
   const body = $('microModalBody');
   body.innerHTML = '';
-
-  // Also show vitamin & mineral sections if clicking any macro
-  const sectionsToShow = category === 'calories'
-    ? ['calories']
-    : category === 'fiber'
-    ? ['fiber']
-    : [category, 'vitamins', 'minerals'];
-
-  const allSections = {
-    ...MICRO_CATS,
-    vitamins: {
-      label: 'Vitamins',
-      color: '#8b5cf6',
-      nutrients: [
-        { id: 1106, name: 'Vitamin A', unit: 'mcg' },
-        { id: 1162, name: 'Vitamin C', unit: 'mg' },
-        { id: 1114, name: 'Vitamin D', unit: 'mcg' },
-        { id: 1109, name: 'Vitamin E', unit: 'mg' },
-        { id: 1185, name: 'Vitamin K', unit: 'mcg' },
-        { id: 1165, name: 'Thiamin (B1)', unit: 'mg' },
-        { id: 1166, name: 'Riboflavin (B2)', unit: 'mg' },
-        { id: 1167, name: 'Niacin (B3)', unit: 'mg' },
-        { id: 1170, name: 'Pantothenic Acid (B5)', unit: 'mg' },
-        { id: 1175, name: 'Vitamin B6', unit: 'mg' },
-        { id: 1177, name: 'Folate (B9)', unit: 'mcg' },
-        { id: 1176, name: 'Vitamin B12', unit: 'mcg' },
-      ]
-    },
-    minerals: {
-      label: 'Minerals',
-      color: '#64748b',
-      nutrients: [
-        { id: 1087, name: 'Calcium', unit: 'mg' },
-        { id: 1089, name: 'Iron', unit: 'mg' },
-        { id: 1090, name: 'Magnesium', unit: 'mg' },
-        { id: 1091, name: 'Phosphorus', unit: 'mg' },
-        { id: 1092, name: 'Potassium', unit: 'mg' },
-        { id: 1093, name: 'Sodium', unit: 'mg' },
-        { id: 1095, name: 'Zinc', unit: 'mg' },
-        { id: 1098, name: 'Copper', unit: 'mg' },
-        { id: 1101, name: 'Manganese', unit: 'mg' },
-        { id: 1103, name: 'Selenium', unit: 'mcg' },
-      ]
-    }
-  };
-
-  const displaySections = category === 'calories' ? ['calories']
-    : category === 'fiber' ? ['fiber', 'vitamins', 'minerals']
-    : [category, 'vitamins', 'minerals'];
-
-  displaySections.forEach(secKey => {
-    const sec = allSections[secKey];
-    if(!sec) return;
-
-    const hasAny = sec.nutrients.some(n => {
-      const found = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      return found && (found.value || found.amount || 0) > 0;
-    });
-
-    const secEl = document.createElement('div');
-    secEl.style.cssText = 'margin-bottom:1.25rem;';
-
-    const header = document.createElement('div');
-    header.style.cssText = `font-weight:600;font-size:var(--text-sm);color:${sec.color};margin-bottom:.5rem;padding-bottom:.25rem;border-bottom:1px solid var(--color-border);`;
-    header.textContent = sec.label;
-    secEl.appendChild(header);
-
-    if(!hasAny) {
-      const empty = document.createElement('div');
-      empty.style.cssText = 'font-size:var(--text-xs);color:var(--color-text-faint);padding:.25rem 0;';
-      empty.textContent = 'No data available for this food.';
-      secEl.appendChild(empty);
-      body.appendChild(secEl);
-      return;
-    }
-
-    sec.nutrients.forEach(n => {
-      const raw = (entry.nutrients||[]).find(x => x.nutrientId === n.id || x.id === n.id);
-      const val = raw ? round(raw.value || raw.amount || 0) : null;
-      if(val === null || val === 0) return;
-
-      const dayTotal = round(getDayMicroTotals(date, n.id));
-      const dri = DRI[n.id];
-
-      const rowEl = document.createElement('div');
-      rowEl.style.cssText = 'display:flex;flex-direction:column;gap:.2rem;margin-bottom:.6rem;';
-
-      const labelRow = document.createElement('div');
-      labelRow.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;font-size:var(--text-xs);';
-      labelRow.innerHTML = `
-        <span style="color:var(--color-text);">${escHtml(n.name)}</span>
-        <span style="color:var(--color-text-muted);">${val}${n.unit} this food${dri ? ` · ${dayTotal}${n.unit} / ${dri}${n.unit} today` : ` · ${dayTotal}${n.unit} today`}</span>`;
-      rowEl.appendChild(labelRow);
-
-      if(dri) {
-        const pct = Math.min(100, (dayTotal / dri) * 100);
-        const barColor = pct >= 100 ? '#10b981' : pct >= 50 ? sec.color : 'var(--color-border-strong, #94a3b8)';
-        const barEl = document.createElement('div');
-        barEl.style.cssText = 'height:4px;border-radius:2px;background:var(--color-border);overflow:hidden;';
-        barEl.innerHTML = `<div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width .3s;"></div>`;
-        rowEl.appendChild(barEl);
-      }
-
-      secEl.appendChild(rowEl);
-    });
-
-    body.appendChild(secEl);
-  });
-
-  const modal = $('microModal');
-  modal.style.display = 'flex';
-  if(window.lucide) window.lucide.createIcons();
+  renderMicroSections(cat.sections, entry.nutrients, date, cat.color, body);
+  if(category !== 'calories') {
+    renderMicroSections(MICRO_VITAMINS.sections, entry.nutrients, date, MICRO_VITAMINS.color, body);
+    renderMicroSections(MICRO_MINERALS.sections, entry.nutrients, date, MICRO_MINERALS.color, body);
+  }
+  if(!body.innerHTML.trim()) {
+    body.innerHTML = '<div style="font-size:.8rem;color:var(--color-text-faint);font-style:italic;">No micronutrient data available for this food.</div>';
+  }
+  $('microModal').style.display = 'flex';
 }
 
 $('closeMicroModal').addEventListener('click', () => { $('microModal').style.display = 'none'; });
-$('microModal').addEventListener('click', e => { if(e.target === $('microModal')) $('microModal').style.display = 'none'; });
+$('microModal').addEventListener('click', e => { if(e.target===$('microModal')) $('microModal').style.display='none'; });
+
+// ── MACRO CARD DRAWERS ────────────────────────────────────────────────────
+var DRAWER_CATS = {
+  calories: { color:'var(--color-accent,#b5892a)', sections:[
+    { label:null, nutrients:[{id:1008,name:'Energy',unit:'kcal',dri:2000}]}
+  ]},
+  protein: { color:'#3b82f6', sections:[
+    { label:'Amino Acids', nutrients:[
+      {id:1232,name:'Tryptophan',unit:'g'},{id:1212,name:'Leucine',unit:'g'},
+      {id:1213,name:'Lysine',unit:'g'},{id:1211,name:'Isoleucine',unit:'g'},
+      {id:1218,name:'Valine',unit:'g'},{id:1219,name:'Arginine',unit:'g'},
+    ]}
+  ]},
+  carbs: { color:'#f59e0b', sections:[
+    { label:'Sugars', nutrients:[
+      {id:2000,name:'Total Sugars',unit:'g',dri:50},{id:1082,name:'Added Sugars',unit:'g',dri:25},
+      {id:1011,name:'Glucose',unit:'g'},{id:1012,name:'Fructose',unit:'g'},
+    ]},
+    { label:'Fiber', nutrients:[{id:1079,name:'Dietary Fiber',unit:'g',dri:28}]}
+  ]},
+  fat: { color:'#ec4899', sections:[
+    { label:'Fat Types', nutrients:[
+      {id:1258,name:'Saturated',unit:'g',dri:20},{id:1292,name:'Mono',unit:'g'},
+      {id:1293,name:'Poly',unit:'g'},{id:1257,name:'Trans',unit:'g',dri:2},
+      {id:1253,name:'Cholesterol',unit:'mg',dri:300},
+    ]},
+    { label:'Omega-3', nutrients:[
+      {id:1278,name:'ALA',unit:'g'},{id:1404,name:'EPA',unit:'g'},{id:1405,name:'DHA',unit:'g'},
+    ]}
+  ]}
+};
+
+function buildMicroDrawer(macro, date) {
+  const drawer = $('microDrawer-' + macro);
+  if(!drawer || !DRAWER_CATS) return;
+  const cat = DRAWER_CATS[macro];
+  if(!cat) return;
+  drawer.innerHTML = '';
+  let hasData = false;
+  cat.sections.forEach(sec => {
+    const rows = sec.nutrients.filter(n => round(getDayMicroTotals(date, n.id)) > 0);
+    if(!rows.length) return;
+    hasData = true;
+    if(sec.label) {
+      const h = document.createElement('div');
+      h.className = 'micro-drawer-section';
+      h.textContent = sec.label;
+      drawer.appendChild(h);
+    }
+    rows.forEach(n => {
+      const val = round(getDayMicroTotals(date, n.id));
+      const pct = n.dri ? Math.min(100,(val/n.dri)*100) : null;
+      const barColor = pct===null ? cat.color : pct>=100?'#10b981':pct>=50?cat.color:'#94a3b8';
+      const rowEl = document.createElement('div');
+      rowEl.className = 'micro-drawer-row';
+      rowEl.innerHTML = `
+        <div class="micro-drawer-label">
+          <span>${escHtml(n.name)}</span>
+          <span>${val}${n.unit}${n.dri?' / '+n.dri+n.unit:''}</span>
+        </div>
+        ${pct!==null?`<div class="micro-drawer-bar"><span style="width:${pct}%;background:${barColor};"></span></div>`:''}`;
+      drawer.appendChild(rowEl);
+    });
+  });
+  if(!hasData) {
+    const empty = document.createElement('div');
+    empty.className = 'micro-drawer-empty';
+    empty.textContent = 'Log foods with nutrient data to see breakdown.';
+    drawer.appendChild(empty);
+  }
+}
+
+function toggleMicroDrawer(card) {
+  const macro = card.dataset.macro;
+  const drawer = $('microDrawer-' + macro);
+  if(!drawer) return;
+  const isOpen = drawer.classList.contains('open');
+  document.querySelectorAll('.macro-expandable').forEach(c => {
+    c.setAttribute('aria-expanded','false');
+    const d = $('microDrawer-' + c.dataset.macro);
+    if(d) d.classList.remove('open');
+  });
+  if(!isOpen) {
+    buildMicroDrawer(macro, $('datePicker').value);
+    drawer.classList.add('open');
+    card.setAttribute('aria-expanded','true');
+  }
+}
+
+document.querySelectorAll('.macro-expandable').forEach(card => {
+  card.addEventListener('click', () => toggleMicroDrawer(card));
+  card.addEventListener('keydown', e => {
+    if(e.key==='Enter'||e.key===' ') { e.preventDefault(); toggleMicroDrawer(card); }
+  });
+});
 
 </script>
 
 <!-- Micronutrient Modal -->
 <div id="microModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
-  <div id="microModalBox" style="background:var(--color-surface);border-radius:var(--radius-lg);max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3);">
+  <div style="background:var(--color-surface);border-radius:var(--radius-lg);max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3);">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem .75rem;border-bottom:1px solid var(--color-border);">
       <div>
         <div id="microModalTitle" style="font-weight:600;font-size:var(--text-base);"></div>
         <div id="microModalSub" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.15rem;"></div>
       </div>
-      <button id="closeMicroModal" aria-label="Close" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:.25rem;"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <button id="closeMicroModal" aria-label="Close" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:.25rem;font-size:1.2rem;line-height:1;">✕</button>
     </div>
     <div id="microModalBody" style="overflow-y:auto;padding:1rem 1.25rem;flex:1;"></div>
   </div>
