@@ -220,6 +220,51 @@
     </div>
   </section>
 
+  <!-- water -->
+  <section class="panel" style="padding:var(--space-4) var(--space-5);">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);">
+      <div style="display:flex;align-items:center;gap:var(--space-3);">
+        <span style="font-weight:600;font-size:var(--text-base);">💧 Water</span>
+        <span id="waterAmount" style="font-weight:700;color:var(--color-primary);font-size:var(--text-base);">0 oz</span>
+        <span id="waterGoalLabel" style="font-size:var(--text-sm);color:var(--color-text-muted);">/ 64 oz</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-2);">
+        <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Goal</span>
+        <input id="waterGoalInput" type="number" min="1" max="500" style="width:56px;padding:.3rem .5rem;text-align:center;font-size:var(--text-sm);" value="64">
+        <select id="waterUnitSelect" style="padding:.3rem .5rem;font-size:var(--text-sm);">
+          <option value="oz">oz</option>
+          <option value="ml">ml</option>
+        </select>
+        <button class="btn btn-ghost" type="button" id="waterReset" style="padding:.3rem .6rem;font-size:var(--text-xs);color:var(--color-error);">Reset</button>
+      </div>
+    </div>
+
+    <!-- progress bar -->
+    <div style="height:8px;border-radius:999px;background:var(--color-surface-offset);overflow:hidden;margin-bottom:var(--space-3);">
+      <div id="waterProgress" style="height:100%;border-radius:999px;background:var(--color-primary);transition:width .3s;width:0%;"></div>
+    </div>
+
+    <!-- quick add -->
+    <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);">
+      <button class="btn btn-secondary" type="button" id="water8oz" style="flex:1;min-width:70px;font-size:var(--text-sm);">+ 8 oz</button>
+      <button class="btn btn-secondary" type="button" id="water16oz" style="flex:1;min-width:70px;font-size:var(--text-sm);">+ 16 oz</button>
+      <button class="btn btn-secondary" type="button" id="water500ml" style="flex:1;min-width:70px;font-size:var(--text-sm);">+ 500 ml</button>
+      <button class="btn btn-secondary" type="button" id="waterCustomAdd" style="flex:1;min-width:70px;font-size:var(--text-sm);">+ Custom</button>
+    </div>
+    <div id="waterCustomRow" style="display:none;margin-top:var(--space-2);">
+      <div style="display:flex;gap:var(--space-2);">
+        <input id="waterCustomInput" type="number" min="1" placeholder="Amount" style="flex:1;">
+        <select id="waterCustomUnit" style="padding:.5rem .6rem;">
+          <option value="oz">oz</option>
+          <option value="ml">ml</option>
+        </select>
+        <button class="btn btn-primary" type="button" id="waterCustomSave">Add</button>
+      </div>
+    </div>
+  </section>
+
+
+
   <div class="layout">
     <main style="display:grid;gap:1rem;">
 
@@ -482,54 +527,6 @@
         <div class="footer-note" id="weightSummary">No weight logged for this day.</div>
       </section>
 
-      <!-- water -->
-      <section class="panel settings">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);">
-          <div>
-            <h2>Water intake</h2>
-            <div class="muted">Track daily hydration.</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:var(--space-2);">
-            <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Goal:</span>
-            <input id="waterGoalInput" type="number" min="1" max="500" style="width:60px;padding:.3rem .5rem;text-align:center;" value="64">
-            <select id="waterUnitSelect" style="padding:.3rem .5rem;">
-              <option value="oz">oz</option>
-              <option value="ml">ml</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- progress -->
-        <div style="margin-top:var(--space-3);">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem;">
-            <span id="waterAmount" style="font-size:var(--text-lg);font-weight:700;color:var(--color-primary);">0</span>
-            <span id="waterGoalLabel" style="font-size:var(--text-sm);color:var(--color-text-muted);">/ 64 oz</span>
-          </div>
-          <div style="height:10px;border-radius:999px;background:var(--color-surface-offset);overflow:hidden;">
-            <div id="waterProgress" style="height:100%;border-radius:999px;background:var(--color-primary);transition:width .3s;width:0%;"></div>
-          </div>
-        </div>
-
-        <!-- quick add buttons -->
-        <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3);">
-          <button class="btn btn-secondary" type="button" id="water8oz" style="flex:1;min-width:80px;">+ 8 oz</button>
-          <button class="btn btn-secondary" type="button" id="water16oz" style="flex:1;min-width:80px;">+ 16 oz</button>
-          <button class="btn btn-secondary" type="button" id="water500ml" style="flex:1;min-width:80px;">+ 500 ml</button>
-          <button class="btn btn-secondary" type="button" id="waterCustomAdd" style="flex:1;min-width:80px;">+ Custom</button>
-        </div>
-        <div id="waterCustomRow" style="display:none;margin-top:var(--space-2);">
-          <div style="display:flex;gap:var(--space-2);">
-            <input id="waterCustomInput" type="number" min="1" placeholder="Amount" style="flex:1;">
-            <select id="waterCustomUnit" style="padding:.5rem .6rem;">
-              <option value="oz">oz</option>
-              <option value="ml">ml</option>
-            </select>
-            <button class="btn btn-primary" type="button" id="waterCustomSave">Add</button>
-          </div>
-        </div>
-        <button class="btn btn-ghost" type="button" id="waterReset" style="margin-top:var(--space-2);color:var(--color-error);font-size:var(--text-sm);">Reset today's water</button>
-      </section>
-
       <!-- recent days -->
       <section class="panel">
         <div class="section-head">
@@ -595,6 +592,14 @@ const defaultData = {
 };
 
 const state = loadState();
+
+// State migration — patch missing keys from older saved versions
+if (!state.water) state.water = {};
+if (!state.mealTemplates) state.mealTemplates = [];
+if (state.settings.waterGoal === undefined) state.settings.waterGoal = 64;
+if (!state.settings.waterUnit) state.settings.waterUnit = 'oz';
+saveState();
+
 let calorieChart = null;
 let selectedFoodData = null; // { fdcId, description, nutrients[], servings[] }
 let searchDebounce = null;
