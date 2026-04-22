@@ -47,7 +47,7 @@ NourishOS lets you log meals, track macros, set nutrition targets, and monitor y
 ## Getting Started
 
 ### Use it instantly
-Visit the live site: **[your-username.github.io/nourishOS](https://your-username.github.io/nourishOS)**
+Visit the live site: **[your-username.github.io/nourishOS](https://sovinap.github.io/Macro-Tracker/)**
 
 ### Run it locally
 No build step needed. Just open the file:
