@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -169,7 +170,7 @@
     .tweaks-group + .tweaks-group{padding-left:var(--space-5);border-left:1px solid rgba(40,37,29,.1);}
     .tweaks-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
     .tweak-btn{min-height:36px;padding:.4rem .85rem;border-radius:var(--radius-md);background:var(--color-surface-offset);border:1px solid rgba(40,37,29,.1);color:var(--color-text);font-size:var(--text-sm);font-weight:500;display:inline-flex;align-items:center;transition:background var(--transition),transform var(--transition);}
-    .tweak-btn:hover{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface-offset));transform:translateY(-1px);}
+    .tweak-btn:hover{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface-offset));transform:translateY(-1px);} .settings input[type="range"]{width:100%;} .settings input[type="color"]{border-radius:var(--radius-md);} .settings label{display:block;margin-bottom:.35rem;font-size:var(--text-sm);color:var(--color-text-muted);}
 
     @media(max-width:720px){
       .tweaks-group + .tweaks-group{padding-left:0;border-left:none;}
@@ -353,9 +354,10 @@
           </div>
         </div>
 
-        <div class="divider">or enter manually</div>
+        <div class="divider">manual entry</div>
+        <button class="btn btn-secondary" id="manualEntryToggle" type="button">Enter manually</button>
 
-        <form id="foodForm" style="display:grid;gap:1rem;">
+        <form id="foodForm" style="display:none;gap:1rem;margin-top:1rem;">
           <div class="grid-2">
             <div>
               <label for="foodName">Food name</label>
@@ -573,6 +575,7 @@
   <footer class="tweaks-bar">
     <div class="tweaks-group">
       <span class="tweaks-label">Appearance</span>
+      <button class="tweak-btn" id="settingsBtn">Settings</button>
       <button class="tweak-btn" id="themeToggle">Dark mode</button>
     </div>
     <div class="tweaks-group">
@@ -587,11 +590,45 @@
     </div>
   </footer>
 
+  <div id="settingsModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
+    <div style="width:min(520px,100%);background:var(--color-surface);border:1px solid rgba(40,37,29,.12);border-radius:var(--radius-xl);box-shadow:0 18px 60px rgba(0,0,0,.28);padding:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:1rem;">
+        <div>
+          <div style="font-weight:700;font-size:1.05rem;">Appearance settings</div>
+          <div style="font-size:.8rem;color:var(--color-text-muted);">Tune accent color and transparency without overdoing the UI.</div>
+        </div>
+        <button class="tweak-btn" id="closeSettings" type="button">Close</button>
+      </div>
+      <div class="settings">
+        <div>
+          <label for="accentColor">Accent color</label>
+          <input id="accentColor" type="color" value="#4aa3b5" style="width:100%;height:44px;padding:0;border:none;background:transparent;">
+        </div>
+        <div>
+          <label for="accentOpacity">Accent opacity</label>
+          <input id="accentOpacity" type="range" min="0.15" max="1" step="0.05" value="0.45" style="width:100%;accent-color:var(--color-primary);">
+          <div style="font-size:.8rem;color:var(--color-text-muted);margin-top:.25rem;" id="accentOpacityLabel">45%</div>
+        </div>
+        <div>
+          <label for="accentSoftness">Accent softness</label>
+          <input id="accentSoftness" type="range" min="0" max="0.7" step="0.05" value="0.2" style="width:100%;accent-color:var(--color-primary);">
+          <div style="font-size:.8rem;color:var(--color-text-muted);margin-top:.25rem;" id="accentSoftnessLabel">20%</div>
+        </div>
+        <div style="font-size:.8rem;color:var(--color-text-muted);line-height:1.4;">These settings affect highlights, active states, and subtle UI accents only. The goal is a small visual lift, not a loud theme overhaul.</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const USDA_KEY = 'e85R8yLG8xe0lodYKILyv9HdfJLA8X6ZmkqmdJiB';
 const STORAGE_KEY = 'macroTrackerAlpha_v2';
+const DEFAULT_THEME = { accent:'#4aa3b5', opacity:0.45, softness:0.2 };
+function getThemePrefs(){ try { return Object.assign({}, DEFAULT_THEME, JSON.parse(localStorage.getItem('nourishThemePrefs')||'{}')); } catch(e){ return {...DEFAULT_THEME}; } }
+function saveThemePrefs(p){ localStorage.setItem('nourishThemePrefs', JSON.stringify(p)); }
+function applyThemePrefs(p){ const root = document.documentElement; root.style.setProperty('--color-primary', p.accent); root.style.setProperty('--accent-opacity', p.opacity); root.style.setProperty('--accent-softness', p.softness); const rgba = hexToRgba(p.accent, p.opacity); root.style.setProperty('--accent-rgba', rgba); }
+function hexToRgba(hex, a){ const v = hex.replace('#',''); const n = v.length===3 ? v.split('').map(x=>x+x).join('') : v; const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
 function getLocalDateString(d = new Date()) {
   return d.getFullYear() + '-' +
     String(d.getMonth()+1).padStart(2,'0') + '-' +
@@ -1280,6 +1317,8 @@ function renderAll() {
   renderSummary();
   renderHistory();
   renderChart();
+  renderGoalChart();
+  renderProteinChart();
   renderWeightSummary();
   renderWater();
   renderTemplates();
@@ -1424,6 +1463,54 @@ function renderHistory() {
     return `<tr><td>${date.slice(5)}</td><td>${round(t.calories)}</td><td>${round(t.protein)}g</td><td>${w ? w.value+' '+w.unit : '—'}</td></tr>`;
   });
   $('historyBody').innerHTML = rows.join('');
+}
+
+function renderGoalChart() {
+  const canvas = $('goalChart');
+  if(!canvas || !window.Chart) return;
+  const dates = getRecentDates(7);
+  const days = dates.map(d => new Date(d + 'T00:00:00').toLocaleDateString([], {weekday:'short'}));
+  const targets = dates.map(() => Number(state.settings.targets.calories || 2200));
+  const consumed = dates.map(d => getDayTotals(d).calories || 0);
+  const ctx = canvas.getContext('2d');
+  if(window.goalChart instanceof Chart) window.goalChart.destroy();
+  window.goalChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: days, datasets: [
+      { label: 'Calories consumed', data: consumed, borderColor: 'var(--color-primary)', backgroundColor: 'rgba(1,105,111,.12)', tension: .35, fill: true, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2 },
+      { label: 'Goal', data: targets, borderColor: 'rgba(100,100,100,.45)', borderDash: [5,5], pointRadius: 0, fill: false, borderWidth: 1.5 }
+    ]},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { usePointStyle: true, boxWidth: 8, color: 'var(--color-text-muted)' } } },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(40,37,29,.06)' }, ticks: { color: 'var(--color-text-muted)' } }, x: { grid: { display: false }, ticks: { color: 'var(--color-text-muted)' } } }
+    }
+  });
+}
+
+function renderProteinChart() {
+  const canvas = $('proteinChart');
+  if(!canvas || !window.Chart) return;
+  const dates = getRecentDates(7);
+  const days = dates.map(d => new Date(d + 'T00:00:00').toLocaleDateString([], {weekday:'short'}));
+  const targets = dates.map(() => Number(state.settings.targets.protein || 180));
+  const consumed = dates.map(d => getDayTotals(d).protein || 0);
+  const ctx = canvas.getContext('2d');
+  if(window.proteinChart instanceof Chart) window.proteinChart.destroy();
+  window.proteinChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: days, datasets: [
+      { label: 'Protein consumed (g)', data: consumed, backgroundColor: 'rgba(67,122,34,.5)', borderColor: 'rgba(67,122,34,.9)', borderWidth: 1, borderRadius: 8 },
+      { label: 'Goal', data: targets, type: 'line', borderColor: 'rgba(100,100,100,.5)', borderDash: [5,5], pointRadius: 0, tension: .25, fill: false, borderWidth: 1.5 }
+    ]},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { usePointStyle: true, boxWidth: 8, color: 'var(--color-text-muted)' } } },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(40,37,29,.06)' }, ticks: { color: 'var(--color-text-muted)' } }, x: { grid: { display: false }, ticks: { color: 'var(--color-text-muted)' } } }
+    }
+  });
 }
 
 function renderChart() {
@@ -2024,6 +2111,28 @@ async function rescanNutrients() {
 
 $('rescanNutrientsBtn').addEventListener('click', rescanNutrients);
 
+
+$('settingsBtn').addEventListener('click', () => { $('settingsModal').style.display = 'flex'; });
+$('closeSettings').addEventListener('click', () => { $('settingsModal').style.display = 'none'; });
+$('settingsModal').addEventListener('click', (e) => { if(e.target.id === 'settingsModal') $('settingsModal').style.display = 'none'; });
+(function initThemeControls(){
+  const p = getThemePrefs();
+  const c = $('accentColor'); const o = $('accentOpacity'); const s = $('accentSoftness');
+  if(c) c.value = p.accent;
+  if(o) o.value = p.opacity;
+  if(s) s.value = p.softness;
+  const sync = () => {
+    const np = { accent: c.value, opacity: parseFloat(o.value), softness: parseFloat(s.value) };
+    applyThemePrefs(np);
+    saveThemePrefs(np);
+    if($('accentOpacityLabel')) $('accentOpacityLabel').textContent = Math.round(np.opacity * 100) + '%';
+    if($('accentSoftnessLabel')) $('accentSoftnessLabel').textContent = Math.round(np.softness * 100) + '%';
+  };
+  if(c) c.addEventListener('input', sync);
+  if(o) o.addEventListener('input', sync);
+  if(s) s.addEventListener('input', sync);
+  sync();
+})();
 </script>
 
 <!-- Micronutrient Modal -->
