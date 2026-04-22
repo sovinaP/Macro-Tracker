@@ -391,6 +391,32 @@
               <button class="goal-btn" id="goalBulk" type="button">💪 Lean Bulk</button>
             </div>
           </div>
+          <div id="wzRateRow" style="display:none;">
+            <label for="wzRate">Rate of change <span style="font-size:var(--text-xs);color:var(--color-text-faint);" id="wzRateLabel">(lbs/week)</span></label>
+            <div style="display:flex;align-items:center;gap:var(--space-3);">
+              <input id="wzRate" type="range" min="0.25" max="2" step="0.25" value="0.75" style="flex:1;accent-color:var(--color-primary);">
+              <span id="wzRateDisplay" style="min-width:80px;font-weight:600;color:var(--color-primary);">0.75 lb/wk</span>
+            </div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:.25rem;" id="wzRateHint">≈ −262 kcal/day deficit</div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label for="wzGoalWeight">Goal weight (lb) <span style="font-size:var(--text-xs);color:var(--color-text-faint);">(optional)</span></label>
+              <input id="wzGoalWeight" type="number" min="50" max="600" placeholder="Leave blank to skip">
+            </div>
+            <div>
+              <label for="wzProteinPref">Protein target</label>
+              <select id="wzProteinPref">
+                <option value="lean">Lean mass (more accurate)</option>
+                <option value="body" selected>Total bodyweight</option>
+                <option value="custom">Custom (g/lb)</option>
+              </select>
+            </div>
+          </div>
+          <div id="wzCustomProteinRow" style="display:none;">
+            <label for="wzCustomProtein">Custom protein (g per lb of bodyweight)</label>
+            <input id="wzCustomProtein" type="number" min="0.5" max="2" step="0.05" placeholder="e.g. 0.8">
+          </div>
           <button class="btn btn-primary" id="runWizard" type="button">Calculate targets</button>
           <div id="wizardResult" style="display:none;" class="wizard-result">
             <h3 id="wzResultTitle">Suggested targets</h3>
@@ -630,27 +656,38 @@ $('runWizard').addEventListener('click', () => {
 
   const tdee = Math.round(bmr * activityFactor);
 
+  const rate = parseFloat($('wzRate').value) || 0.75;
+  const kcalDelta = Math.round(rate * 500);
+
   let calories, goalLabel, defSurplus;
   if(activeGoal === 'cut') {
-    calories = tdee - 400;
-    goalLabel = 'Cut (−400 kcal deficit)';
-    defSurplus = '-400';
+    calories = tdee - kcalDelta;
+    goalLabel = `Cut (−${kcalDelta} kcal/day · ${rate} lb/wk)`;
+    defSurplus = `-${kcalDelta}`;
   } else if(activeGoal === 'bulk') {
-    calories = tdee + 200;
-    goalLabel = 'Lean Bulk (+200 kcal surplus)';
-    defSurplus = '+200';
+    calories = tdee + kcalDelta;
+    goalLabel = `Lean Bulk (+${kcalDelta} kcal/day · ${rate} lb/wk)`;
+    defSurplus = `+${kcalDelta}`;
   } else {
     calories = tdee;
     goalLabel = 'Maintain';
     defSurplus = '0';
   }
+  calories = Math.max(1200, calories);
 
-  // Protein: 1g per lb of bodyweight (or lean mass if body fat known)
-  let proteinBase = weightLb;
-  if(!isNaN(bodyFatPct) && bodyFatPct > 0) {
-    proteinBase = weightLb * (1 - bodyFatPct / 100);
+  // Protein based on user preference
+  const proteinPref = $('wzProteinPref').value;
+  const leanMassLb = (!isNaN(bodyFatPct) && bodyFatPct > 0) ? weightLb * (1 - bodyFatPct / 100) : null;
+  let proteinBase;
+  if(proteinPref === 'lean') {
+    proteinBase = leanMassLb || weightLb;
+  } else if(proteinPref === 'custom') {
+    const customG = parseFloat($('wzCustomProtein').value) || 0.8;
+    proteinBase = weightLb * customG;
+  } else {
+    proteinBase = weightLb;
   }
-  const protein = Math.round(Math.min(proteinBase, calories * 0.35 / 4));
+  const protein = Math.round(Math.min(proteinBase, calories * 0.4 / 4));
 
   // Fat: ~25% of calories, minimum 0.35g per lb
   const fat = Math.round(Math.max(weightLb * 0.35, calories * 0.25 / 9));
@@ -671,13 +708,22 @@ $('runWizard').addEventListener('click', () => {
     <span class="wizard-macro-pill" style="color:#a07020">Carbs ${carbs}g</span>
     <span class="wizard-macro-pill" style="color:var(--color-warning)">Fat ${fat}g</span>
     <span class="wizard-macro-pill">Fiber ${fiber}g</span>`;
-  $('wzNote').textContent = `Formula: ${formulaUsed}. Protein based on ${isNaN(bodyFatPct)||!bodyFatPct?'total bodyweight':'lean body mass'} (1g/lb). Fat at 25% of calories. Carbs fill the remainder. These are starting estimates — adjust based on real results.`;
+  const goalWeightLb = parseFloat($('wzGoalWeight').value);
+  let etaStr = '';
+  if(!isNaN(goalWeightLb) && goalWeightLb > 0 && activeGoal !== 'maintain' && rate > 0) {
+    const diff = Math.abs(goalWeightLb - weightLb);
+    const weeks = Math.round(diff / rate);
+    const months = (weeks / 4.33).toFixed(1);
+    etaStr = ` Goal weight ${goalWeightLb} lb — estimated ${weeks} weeks (~${months} months) at current rate.`;
+  }
+  const proteinNote = proteinPref === 'custom' ? `custom ${(parseFloat($('wzCustomProtein').value)||0.8)}g/lb` : proteinPref === 'lean' ? 'lean body mass (1g/lb)' : 'total bodyweight (1g/lb)';
+  $('wzNote').textContent = `Formula: ${formulaUsed}. Protein based on ${proteinNote}. Fat at 25% of calories. Carbs fill the remainder.${etaStr} These are starting estimates — adjust based on real results.`;
 
   $('wizardResult').style.display = 'block';
   $('wizardResult').scrollIntoView({ behavior:'smooth', block:'nearest' });
 
   // Save profile for future Apple Health integration
-  state.settings.profile = { sex, age, heightFt:ft, heightIn:inch, weightLb, bodyFatPct: bodyFatPct||null, activityFactor, source:'manual', updatedAt: new Date().toISOString() };
+  state.settings.profile = { sex, age, heightFt:ft, heightIn:inch, weightLb, bodyFatPct: bodyFatPct||null, activityFactor, goalType: activeGoal, ratePerWeek: rate, goalWeightLb: goalWeightLb||null, proteinPref: $('wzProteinPref').value, source:'manual', updatedAt: new Date().toISOString() };
   saveState();
 });
 
@@ -707,6 +753,13 @@ $('applyWizard').addEventListener('click', () => {
   if(p.weightLb) $('wzWeight').value = p.weightLb;
   if(p.bodyFatPct) $('wzBodyFat').value = p.bodyFatPct;
   if(p.activityFactor) $('wzActivity').value = p.activityFactor;
+  if(p.goalType) { activeGoal = p.goalType; updateGoalBtns(); updateRateRow(); }
+  if(p.ratePerWeek) { $('wzRate').value = p.ratePerWeek; updateRateDisplay(); }
+  if(p.goalWeightLb) $('wzGoalWeight').value = p.goalWeightLb;
+  if(p.proteinPref) {
+    $('wzProteinPref').value = p.proteinPref;
+    $('wzCustomProteinRow').style.display = p.proteinPref === 'custom' ? 'block' : 'none';
+  }
 })();
 
 // food search
