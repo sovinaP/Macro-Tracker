@@ -2,7 +2,7 @@
 
 > A lightweight, privacy-first macro and nutrition tracker that runs entirely in your browser — no account, no server, no subscription.
 
-[![Version](https://img.shields.io/badge/version-v0.4%20alpha-blue)](https://github.com/sovinap/Macro-Tracker)
+[![Version](https://img.shields.io/badge/version-v0.5%20alpha-blue)](https://github.com/sovinap/Macro-Tracker)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://choosealicense.com/licenses/mit/)
 [![Built With](https://img.shields.io/badge/built%20with-HTML%20%2F%20CSS%20%2F%20Vanilla%20JS-orange)](https://developer.mozilla.org)
 [![Deployment](https://img.shields.io/badge/deployed%20on-GitHub%20Pages-lightgrey)](https://pages.github.com)
@@ -28,8 +28,9 @@ It will behave like a native app — full screen, no browser chrome, launches in
 ## 📋 Roadmap
 
 - [ ] Barcode scanning via device camera
-- [ ] Meal templates
-- [ ] PWA / installable offline app
+- [x] Water intake tracking
+- [x] Meal templates
+- [x] PWA / installable offline app
 - [ ] HealthKit / Google Fit export
 
 ---
@@ -44,6 +45,8 @@ NourishOS lets you log meals, track macros, set nutrition targets, and monitor y
 
 - **Daily food log** — search 300,000+ foods via the USDA FoodData Central API, with serving size and unit selection
 - **Macro tracking** — calories, protein, carbs, fat, and fiber with live progress bars
+- **Micronutrient drawers** — tap a macro card to expand a detailed micronutrient breakdown directly under the progress bar, with automatic live updates from the food log
+- **Micronutrient refresh** — use the Refresh micros button in the footer to rescan the day and backfill older entries with nutrient data
 - **Custom saved foods** — save any food as a personal chip for one-tap relogging; delete individually or clear all
 - **Goal Wizard** — calculate your TDEE using Mifflin-St Jeor or Katch-McArdle, then set targets for cut, maintain, or bulk
 - **Manual targets** — override with your own calorie and macro goals anytime
@@ -102,7 +105,7 @@ open index.html
 
 ## 📝 Recent Changes
 
-### v0.4 alpha *(current)*
+### v0.5 alpha *(current)*
 - **Dual food database** — toggle between USDA (300k+ foods) and Open Food Facts (3M+ packaged/branded products) directly in the search bar; OFF results normalize into the same serving size and macro flow as USDA
 - **Critical bug fix** — resolved a silent JavaScript ReferenceError on page load that was killing all event listeners (water buttons, search, food log, everything); all 28 interactive features now runtime-verified
 - **Water intake tracker** — quick-add buttons (8 oz, 16 oz, 500 ml, custom), daily progress bar, configurable goal and unit (oz/ml), positioned directly under macros ✅
