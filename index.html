@@ -1003,11 +1003,12 @@ function hideResults() {
   $('foodSearch').setAttribute('aria-expanded','false');
 }
 
-function renderResults(foods) {
+function renderResults(foods, source) {
   const box = $('searchResults');
-  if(!foods.length){ box.innerHTML = '<div class="search-hint">No results found. Try a different name.</div>'; box.style.display='block'; return; }
+  if(!foods.length){ box.innerHTML = '<div class="search-hint">No results found. Try a different name or switch databases.</div>'; box.style.display='block'; return; }
   box.innerHTML = '';
   box.style.display = 'block';
+  const srcLabel = source === 'off' ? '<span style="font-size:.7rem;padding:.1rem .4rem;border-radius:4px;background:var(--color-surface-offset);color:var(--color-text-muted);margin-left:.4rem;">Open Food Facts</span>' : '';
   foods.forEach(food => {
     const item = document.createElement('div');
     item.className = 'search-result-item';
@@ -1016,9 +1017,11 @@ function renderResults(foods) {
     const pro = getNutrientValue(food.foodNutrients, 1003);
     const carb = getNutrientValue(food.foodNutrients, 1005);
     const fat = getNutrientValue(food.foodNutrients, 1004);
+    const serving = food.servingSize ? ` · ${food.servingSize}${food.servingSizeUnit||'g'} serving` : '';
+    const brand = food.brandOwner || (source === 'off' ? 'Open Food Facts' : food.dataType || '');
     item.innerHTML = `
-      <div class="sri-name">${escHtml(food.description)}</div>
-      <div class="sri-meta">${escHtml(food.brandOwner||food.dataType||'')}${food.servingSize ? ' · ' + food.servingSize + (food.servingSizeUnit||'g') + ' serving' : ''}</div>
+      <div class="sri-name">${escHtml(food.description)}${srcLabel}</div>
+      <div class="sri-meta">${escHtml(brand)}${serving}</div>
       <div class="sri-macros">${cal} kcal · P ${pro}g · C ${carb}g · F ${fat}g per 100g</div>`;
     item.addEventListener('click', () => selectFood(food));
     box.appendChild(item);
@@ -1030,13 +1033,18 @@ async function selectFood(food) {
   $('foodSearch').value = food.description;
   $('foodName').value = food.description;
 
-  // Fetch full detail for proper serving sizes
+  // OFF foods don't have fdcId — use search data directly
+  if(food._source === 'off' || !food.fdcId) {
+    buildSelectedFoodFromSearch(food);
+    return;
+  }
+
+  // USDA: fetch full detail for proper serving sizes
   try {
     const res = await fetch(`https://api.nal.usda.gov/fdc/v1/food/${food.fdcId}?api_key=${USDA_KEY}`);
     const detail = await res.json();
     buildSelectedFood(detail);
   } catch {
-    // fall back to search result data
     buildSelectedFoodFromSearch(food);
   }
 }
