@@ -1387,6 +1387,23 @@ function getWaterDisplay(oz, unit) {
   return Math.round(oz * 10) / 10;
 }
 
+
+function renderWeightSummary() {
+  const date = $('datePicker').value || getLocalDateString();
+  const el = $('weightSummary');
+  if(!el) return;
+  const w = state.weights[date];
+  if(!w) {
+    el.textContent = 'No weight logged for this day.';
+  } else {
+    el.textContent = `Logged: ${w.value} ${w.unit}`;
+  }
+  // also restore weight input fields
+  const unit = state.settings.weightUnit || 'lb';
+  const wUnit = $('weightUnit');
+  if(wUnit) wUnit.value = unit;
+}
+
 function renderWater() {
   if(!$('waterProgress')) return; // guard if section not in DOM
   const date = $('datePicker').value || getLocalDateString();
