@@ -61,10 +61,10 @@
     .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;outline:none;}
     .macro-expandable:focus{outline:none;} .macro-expandable[aria-expanded="true"]{transform:translateY(-1px);} .macro-expandable:focus{outline:none;box-shadow:none;} .macro-expandable:focus-visible{outline:none;}
     .macro-expandable:active{opacity:.9;}
-    .macro-expandable[data-macro="calories"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(1,105,111,.45),0 2px 12px rgba(1,105,111,.2);}
-    .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);}
-    .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);}
-    .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);}
+    .macro-expandable[data-macro="calories"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(1,105,111,.45),0 2px 12px rgba(1,105,111,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
+    .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
+    .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
+    .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
     .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;}
     .micro-drawer.open{display:block;padding-top:.7rem;}
     .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
@@ -1909,7 +1909,7 @@ function buildMicroDrawer(macro, date) {
     });
   });
   if(!rows.length) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
-  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('');
+  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('') + '<div class="micro-drawer-empty" style="margin-top:.35rem;">&nbsp;</div>';
 }
 
 
@@ -1920,28 +1920,29 @@ function toggleMicroDrawer(card, evt, macro) {
   if(!drawer) return;
   const isOpen = drawer.style.display === 'block';
   document.querySelectorAll('.macro-expandable').forEach(c => {
-    if(c !== card) c.setAttribute('aria-expanded','false');
-    const d = c.querySelector('.micro-drawer');
-    if(d && c !== card) { d.style.display='none'; d.innerHTML=''; }
+    if(c !== card) {
+      c.setAttribute('aria-expanded','false');
+      c.style.boxShadow = '';
+      const d = c.querySelector('.micro-drawer');
+      if(d) { d.style.display='none'; d.innerHTML=''; }
+    }
   });
   if(isOpen) {
     drawer.style.display = 'none';
     drawer.innerHTML = '';
     card.setAttribute('aria-expanded','false');
+    card.style.boxShadow = '';
     return;
   }
   const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
-  drawer.innerHTML = '<div class="micro-drawer-empty">Loading micros…</div>';
   drawer.style.display = 'block';
+  drawer.innerHTML = '';
   card.setAttribute('aria-expanded','true');
   card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
   buildMicroDrawer(macro, $('datePicker').value);
-  setTimeout(() => {
-    const d2 = $('microDrawer-' + macro);
-    if(d2 && !d2.innerHTML.trim()) {
-      d2.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
-    }
-  }, 120);
+  if(!drawer.innerHTML.trim()) {
+    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
+  }
 }
 
 
