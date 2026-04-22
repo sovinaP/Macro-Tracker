@@ -873,24 +873,76 @@ function buildSelectedFood(detail) {
   const nutrients = detail.foodNutrients || [];
   const portions = detail.foodPortions || [];
 
-  // Always include 100g as first option
-  const servingOptions = [{ label:'100g', grams:100 }];
+  // Always include 100g and 1g as base options
+  const servingOptions = [
+    { label:'100g', grams:100 },
+    { label:'1g', grams:1 },
+  ];
   portions.forEach(p => {
     if(p.gramWeight && p.portionDescription) {
       servingOptions.push({ label:`${p.amount||1} ${p.portionDescription} (${Math.round(p.gramWeight)}g)`, grams:p.gramWeight });
     }
   });
 
+  // Universal units — weight
+  servingOptions.push(
+    { label:'─── Weight ───', grams:null, disabled:true },
+    { label:'1 oz (28g)', grams:28.3495 },
+    { label:'1 lb (454g)', grams:453.592 },
+    { label:'1 kg', grams:1000 },
+  );
+  // Volume
+  servingOptions.push(
+    { label:'─── Volume ───', grams:null, disabled:true },
+    { label:'1 ml', grams:1.0 },
+    { label:'100 ml', grams:100.0 },
+    { label:'1 fl oz (30ml)', grams:29.5735 },
+    { label:'1 cup (240ml)', grams:240.0 },
+    { label:'1 tbsp (15ml)', grams:14.7868 },
+    { label:'1 tsp (5ml)', grams:4.9289 },
+  );
+  // Count & serving
+  servingOptions.push(
+    { label:'─── Count / Serving ───', grams:null, disabled:true },
+    { label:'1 serving', grams:100 },
+    { label:'1 scoop', grams:100 },
+    { label:'1 slice', grams:100 },
+    { label:'1 piece', grams:100 },
+    { label:'1 container', grams:100 },
+  );
+
   selectedFoodData = { description: detail.description, nutrients, servingOptions };
   setupServingUI(detail.description, servingOptions);
 }
 
 function buildSelectedFoodFromSearch(food) {
-  const servingOptions = [{ label:'100g', grams:100 }];
+  const servingOptions = [
+    { label:'100g', grams:100 },
+    { label:'1g', grams:1 },
+  ];
   if(food.servingSize && food.servingSizeUnit) {
     const g = food.servingSizeUnit.toLowerCase() === 'g' ? food.servingSize : food.servingSize * 28.35;
     servingOptions.push({ label:`1 serving (${Math.round(g)}g)`, grams:g });
   }
+  servingOptions.push(
+    { label:'─── Weight ───', grams:null, disabled:true },
+    { label:'1 oz (28g)', grams:28.3495 },
+    { label:'1 lb (454g)', grams:453.592 },
+    { label:'1 kg', grams:1000 },
+    { label:'─── Volume ───', grams:null, disabled:true },
+    { label:'1 ml', grams:1.0 },
+    { label:'100 ml', grams:100.0 },
+    { label:'1 fl oz (30ml)', grams:29.5735 },
+    { label:'1 cup (240ml)', grams:240.0 },
+    { label:'1 tbsp (15ml)', grams:14.7868 },
+    { label:'1 tsp (5ml)', grams:4.9289 },
+    { label:'─── Count / Serving ───', grams:null, disabled:true },
+    { label:'1 serving', grams:100 },
+    { label:'1 scoop', grams:100 },
+    { label:'1 slice', grams:100 },
+    { label:'1 piece', grams:100 },
+    { label:'1 container', grams:100 },
+  );
   selectedFoodData = { description: food.description, nutrients: food.foodNutrients||[], servingOptions };
   setupServingUI(food.description, servingOptions);
 }
@@ -901,7 +953,10 @@ function setupServingUI(name, servingOptions) {
   sel.innerHTML = '';
   servingOptions.forEach((opt,i) => {
     const o = document.createElement('option');
-    o.value = i; o.textContent = opt.label; sel.appendChild(o);
+    o.value = i;
+    o.textContent = opt.label;
+    if(opt.disabled) { o.disabled = true; o.style.color = 'var(--color-text-faint)'; }
+    sel.appendChild(o);
   });
   $('servingQty').value = 1;
   $('servingRow').style.display = 'flex';
