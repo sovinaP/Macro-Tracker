@@ -2,7 +2,7 @@
 
 > A lightweight, privacy-first macro and nutrition tracker that runs entirely in your browser — no account, no server, no subscription.
 
-[![Version](https://img.shields.io/badge/version-v0.2%20alpha-blue)](https://github.com/sovinap/Macro-Tracker)
+[![Version](https://img.shields.io/badge/version-v0.3%20alpha-blue)](https://github.com/sovinap/Macro-Tracker)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://choosealicense.com/licenses/mit/)
 [![Built With](https://img.shields.io/badge/built%20with-HTML%20%2F%20CSS%20%2F%20Vanilla%20JS-orange)](https://developer.mozilla.org)
 [![Deployment](https://img.shields.io/badge/deployed%20on-GitHub%20Pages-lightgrey)](https://pages.github.com)
@@ -96,6 +96,25 @@ open index.html
 2. Go to **Settings > Pages** in your fork
 3. Set source to `main` branch, `/ (root)`
 4. Your instance will be live at `https://your-username.github.io/nourishOS`
+
+---
+
+---
+
+## 📝 Recent Changes
+
+### v0.3 alpha *(current)*
+- **Water intake tracker** — quick-add buttons, daily progress bar, configurable goal and unit (oz/ml), resets per day
+- **Meal templates** — save any logged day as a named template and apply it to any future day with one tap
+
+### v0.2 alpha
+- **Expanded serving units** — weight (g, oz, lb, kg), volume (ml, fl oz, cup, tbsp, tsp), and count options (serving, scoop, slice, piece, container)
+- **Custom saved foods** — save any searched food as a personal chip; delete individually or clear all
+- **Goal Wizard improvements** — rate of change slider, goal weight with ETA estimate, protein preference (total, lean mass, or custom g/lb)
+- App renamed to **NourishOS**, version label added
+
+### v0.1 alpha
+- Initial release — food log, USDA search, macro tracking, weight log, 7-day history, calorie chart, dark/light mode, export/import
 
 ---
 
