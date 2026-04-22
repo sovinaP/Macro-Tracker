@@ -1708,19 +1708,24 @@ function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 // ── MICRO HELPERS ────────────────────────────────────────────────────────
 function getDayMicroTotals(date, nutrientId) {
   return (state.entries[date] || []).reduce((sum, e) => {
-    const list = e.nutrients || e.foodNutrients || e.nutrientData || [];
-    const n = list.find(x => (x.nutrientId || x.id || x.nutrient || x.nutrientNumber) === nutrientId);
-    const v = n ? (n.value ?? n.amount ?? n.quantity ?? n.protein ?? n.carbohydrates ?? 0) : 0;
+    const list = getEntryNutrients(e);
+    const n = list.find(x => String(x.nutrientId || x.id || x.nutrient || x.nutrientNumber) === String(nutrientId));
+    const v = n ? (n.value ?? n.amount ?? n.quantity ?? n.protein ?? n.carbohydrates ?? n.calories ?? 0) : 0;
     return sum + Number(v || 0);
   }, 0);
 }
 
 function getSourceLabel(e) {
-  const s = String(e.source || e.dataSource || e.origin || '').toLowerCase();
+  const s = String(e.source || e.dataSource || e.origin || e.entrySource || e.nutrientSource || '').toLowerCase();
   if(s.includes('usda')) return 'usda';
-  if(s.includes('community') || s.includes('crowd')) return 'community';
+  if(s.includes('community') || s.includes('crowd') || s.includes('user') || s.includes('open')) return 'community';
   if(s.includes('manual')) return 'manual';
-  return s || 'unknown';
+  if(s) return s;
+  return 'unknown';
+}
+
+function getEntryNutrients(e) {
+  return e.nutrients || e.foodNutrients || e.nutrientData || e.microNutrients || e.nutrientProfile || [];
 }
 
 function hasNonUsdaEntries(date) {
@@ -1900,8 +1905,11 @@ function buildMicroDrawer(macro, date) {
   const rows = [];
   const entries = (state.entries[date] || []);
   const nonUsda = entries.filter(e => getSourceLabel(e) !== 'usda');
-  if(nonUsda.length) {
-    rows.push('<div class="micro-source-note">Some entries came from community or other non-USDA sources. USDA-backed values are the most accurate; community results should be taken with a grain of salt.</div>');
+  const usdaCount = entries.length - nonUsda.length;
+  if(entries.length) {
+    rows.push('<div class="micro-source-note">' +
+      (nonUsda.length ? ('USDA-backed values are the most accurate. ' + nonUsda.length + ' entry' + (nonUsda.length === 1 ? '' : 'ies') + ' may be community or manual estimates.') : 'All visible entries appear to be USDA-backed.') +
+    '</div>');
   }
   cat.sections.forEach(sec => {
     if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
@@ -1910,12 +1918,13 @@ function buildMicroDrawer(macro, date) {
       const pct = n.dri ? Math.min(100, (val / n.dri) * 100) : null;
       const pctLabel = n.dri ? Math.round((val / n.dri) * 100) + '%' : '';
       const barColor = pct === null ? cat.color : pct >= 100 ? '#10b981' : pct >= 60 ? cat.color : '#94a3b8';
+      const hasValue = val > 0;
       rows.push(
         '<div class="micro-drawer-row">' +
           '<div class="micro-drawer-label">' +
             '<span>' + escHtml(n.name) + '</span>' +
             '<span style="display:flex;gap:.4rem;align-items:center;">' +
-              '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
+              '<span>' + (hasValue ? val + n.unit : '—') + '</span>' +
               (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
               (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
             '</span>' +
@@ -1925,8 +1934,8 @@ function buildMicroDrawer(macro, date) {
       );
     });
   });
-  if(!rows.length) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
-  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('') + '<div class="micro-drawer-empty" style="margin-top:.35rem;">&nbsp;</div>';
+  if(rows.length === 0) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
+  drawer.innerHTML = rows.join('');
 }
 
 
@@ -1953,13 +1962,10 @@ function toggleMicroDrawer(card, evt, macro) {
   }
   const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
   drawer.style.display = 'block';
-  drawer.innerHTML = '';
   card.setAttribute('aria-expanded','true');
   card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
   buildMicroDrawer(macro, $('datePicker').value);
-  if(!drawer.innerHTML.trim()) {
-    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. USDA nutrient data is missing for this card or the entry came from another source.</div>';
-  }
+  if(!drawer.innerHTML.trim()) drawer.innerHTML = '<div class="micro-source-note">No micronutrient details available yet.</div>';
 }
 
 
@@ -1970,49 +1976,48 @@ async function rescanNutrients() {
   const btn = $('rescanNutrientsBtn');
   const date = $('datePicker').value;
   const entries = state.entries[date] || [];
-
   if(!entries.length) {
     showToast('No entries to refresh.');
     return;
   }
-
   if(btn) { btn.disabled = true; btn.textContent = '⟳ Fetching…'; }
-
   let updated = 0;
   let failed = 0;
   const total = entries.length;
-
-  for(let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if(btn) btn.textContent = `⟳ ${i+1} / ${total}…`;
-    try {
-      const searchRes = await fetch(
-        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(entry.name)}&pageSize=1&dataType=Foundation,SR%20Legacy,Branded`
-      );
-      if(!searchRes.ok) throw new Error('search failed');
-      const searchData = await searchRes.json();
-      const firstHit = (searchData.foods || [])[0];
-      if(!firstHit || !firstHit.fdcId) throw new Error('no match');
-
-      const detailRes = await fetch(
-        `https://api.nal.usda.gov/fdc/v1/food/${firstHit.fdcId}?api_key=${USDA_KEY}`
-      );
-      if(!detailRes.ok) throw new Error('detail failed');
-      const detail = await detailRes.json();
-
-      const idx = state.entries[date].findIndex(e => e.id === entry.id);
-      if(idx !== -1) {
-        state.entries[date][idx].nutrients = detail.foodNutrients || [];
-        updated++;
+  const batchSize = 3;
+  for(let start = 0; start < entries.length; start += batchSize) {
+    const batch = entries.slice(start, start + batchSize);
+    if(btn) btn.textContent = `⟳ ${Math.min(start + batch.length, total)} / ${total}…`;
+    const results = await Promise.all(batch.map(async entry => {
+      try {
+        const searchRes = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(entry.name)}&pageSize=1&dataType=Foundation,SR%20Legacy,Branded`);
+        if(!searchRes.ok) throw new Error('search failed');
+        const searchData = await searchRes.json();
+        const firstHit = (searchData.foods || [])[0];
+        if(!firstHit || !firstHit.fdcId) throw new Error('no match');
+        const detailRes = await fetch(`https://api.nal.usda.gov/fdc/v1/food/${firstHit.fdcId}?api_key=${USDA_KEY}`);
+        if(!detailRes.ok) throw new Error('detail failed');
+        const detail = await detailRes.json();
+        return { id: entry.id, nutrients: detail.foodNutrients || [], source: 'usda' };
+      } catch(e) {
+        return null;
       }
-    } catch(e) {
-      failed++;
-    }
+    }));
+    results.forEach(res => {
+      if(res) {
+        const idx = state.entries[date].findIndex(e => e.id === res.id);
+        if(idx !== -1) {
+          state.entries[date][idx].nutrients = res.nutrients;
+          state.entries[date][idx].source = 'usda';
+          updated++;
+        }
+      } else {
+        failed++;
+      }
+    });
   }
-
   saveState();
   renderAll();
-
   if(btn) { btn.disabled = false; btn.textContent = '⟳ Fetch micros'; }
   showToast(`Refreshed ${updated} / ${total} entries.${failed ? ' (' + failed + ' unmatched)' : ''}`);
 }
