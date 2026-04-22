@@ -6,7 +6,7 @@
   <title>NourishOS</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" onload="if(typeof renderChart==='function')renderChart();" onerror="console.warn('Chart.js failed to load')"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
   <style>
     :root, [data-theme="light"] {
@@ -58,7 +58,7 @@
     .panel h2,.panel h3{margin:0 0 .6rem;font-size:var(--text-lg);}
     .hero-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-4);}
     .metric-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-lg);transition:box-shadow .15s;}
-    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;}
+    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;}
     .macro-expandable:active{opacity:.85;}
     .macro-expandable[aria-expanded="true"]{box-shadow:0 0 0 2px var(--color-accent,#b5892a);}
     .micro-drawer{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s ease;opacity:0;padding-top:0;}
@@ -635,6 +635,8 @@ renderQuickFoods();
 renderAll();
 renderWater();
 startClock();
+// Ensure chart renders even if Chart.js loads late
+if(typeof Chart === 'undefined') { setTimeout(renderChart, 500); setTimeout(renderChart, 1500); }
 
 // ---- EVENT LISTENERS ----
 $('themeToggle').addEventListener('click', () => {
@@ -1369,7 +1371,7 @@ function renderEntries() {
     });
     if(hasNutrients) {
       row.querySelectorAll('.macro-pill[data-micro]').forEach(pill => {
-        pill.addEventListener('click', () => openMicroModal(entry, pill.dataset.micro));
+        pill.addEventListener('click', e => { e.stopPropagation(); openMicroModal(entry, pill.dataset.micro); });
       });
     }
     wrap.appendChild(row);
@@ -1414,7 +1416,11 @@ function renderHistory() {
 }
 
 function renderChart() {
-  if(typeof Chart === 'undefined') return;
+  if(typeof Chart === 'undefined') {
+    // Chart.js not loaded yet — retry once it is
+    setTimeout(renderChart, 200);
+    return;
+  }
   const dates = lastSevenDates();
   const labels = dates.map(d => d.slice(5));
   const values = dates.map(d => round(getTotals(d).calories));
@@ -1423,7 +1429,13 @@ function renderChart() {
   const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim();
   const gridColor = isDark ? 'rgba(255,255,255,.08)' : 'rgba(40,37,29,.08)';
   const ctx = $('calorieChart');
-  if(calorieChart) calorieChart.destroy();
+  if(!ctx) return;
+  // Guard: canvas needs non-zero dimensions
+  if(ctx.offsetWidth === 0) {
+    setTimeout(renderChart, 300);
+    return;
+  }
+  if(calorieChart) { calorieChart.destroy(); calorieChart = null; }
   calorieChart = new Chart(ctx, {
     type:'line',
     data:{ labels, datasets:[{ label:'Calories', data:values, borderColor:primaryColor, backgroundColor:'rgba(1,105,111,.1)', fill:true, tension:.35, pointRadius:3, pointHoverRadius:5 }] },
@@ -1875,7 +1887,9 @@ function buildMicroDrawer(macro, date) {
   }
 }
 
-function toggleMicroDrawer(card) {
+function toggleMicroDrawer(card, evt) {
+  // Don't toggle if click originated inside the open drawer
+  if(evt && evt.target && evt.target.closest('.micro-drawer')) return;
   const macro = card.dataset.macro;
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
@@ -1892,11 +1906,16 @@ function toggleMicroDrawer(card) {
   }
 }
 
-document.querySelectorAll('.macro-expandable').forEach(card => {
-  card.addEventListener('click', () => toggleMicroDrawer(card));
-  card.addEventListener('keydown', e => {
-    if(e.key==='Enter'||e.key===' ') { e.preventDefault(); toggleMicroDrawer(card); }
-  });
+// Wire macro card drawers - use event delegation on parent for iOS PWA compatibility
+document.addEventListener('click', function(e) {
+  const card = e.target.closest('.macro-expandable');
+  if(card) toggleMicroDrawer(card, e);
+});
+document.addEventListener('keydown', function(e) {
+  if(e.key==='Enter'||e.key===' ') {
+    const card = e.target.closest('.macro-expandable');
+    if(card) { e.preventDefault(); toggleMicroDrawer(card); }
+  }
 });
 
 </script>
