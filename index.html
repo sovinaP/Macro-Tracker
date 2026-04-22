@@ -1,9 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>NourishOS</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
@@ -576,7 +578,6 @@
   <footer class="tweaks-bar">
     <div class="tweaks-group">
       <span class="tweaks-label">Appearance</span>
-      <button class="tweak-btn" id="settingsBtn">Settings</button>
       <button class="tweak-btn" id="themeToggle">Dark mode</button>
     </div>
     <div class="tweaks-group">
@@ -591,56 +592,12 @@
     </div>
   </footer>
 
-  <div id="settingsModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:flex-start;justify-content:center;padding:5.5rem 1rem 1rem;">
-    <div style="width:min(520px,100%);background:var(--color-surface);border:1px solid rgba(40,37,29,.12);border-radius:var(--radius-xl);box-shadow:0 18px 60px rgba(0,0,0,.28);padding:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:1rem;">
-        <div>
-          <div style="font-weight:700;font-size:1.05rem;">Appearance settings</div>
-          <div style="font-size:.8rem;color:var(--color-text-muted);">Tune accent color and transparency without overdoing the UI.</div>
-        </div>
-        <button class="tweak-btn" id="closeSettings" type="button">Close</button>
-      </div>
-      <div class="settings">
-        <div>
-          <label for="accentColor">Accent color</label>
-          <input id="accentColor" type="color" value="#4aa3b5" style="width:100%;height:44px;padding:0;border:none;background:transparent;">
-        </div>
-        <div>
-          <label for="accentOpacity">Accent opacity</label>
-          <input id="accentOpacity" type="range" min="0.15" max="1" step="0.05" value="0.45" style="width:100%;accent-color:var(--color-primary);">
-          <div style="font-size:.8rem;color:var(--color-text-muted);margin-top:.25rem;" id="accentOpacityLabel">45%</div>
-        </div>
-        <div>
-          <label for="accentSoftness">Accent softness</label>
-          <input id="accentSoftness" type="range" min="0" max="0.7" step="0.05" value="0.2" style="width:100%;accent-color:var(--color-primary);">
-          <div style="font-size:.8rem;color:var(--color-text-muted);margin-top:.25rem;" id="accentSoftnessLabel">20%</div>
-        </div>
-        <div style="font-size:.8rem;color:var(--color-text-muted);line-height:1.4;">These settings affect highlights, active states, and subtle UI accents only. The goal is a small visual lift, not a loud theme overhaul.</div>
-      </div>
-      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(40,37,29,.1);display:grid;gap:.75rem;">
-        <div style="font-size:.85rem;font-weight:700;color:var(--color-text);">Footer actions</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
-          <button class="tweak-btn" id="themeToggleModal" type="button">Dark mode</button>
-          <button class="tweak-btn" id="exportBtnModal" type="button">Export backup</button>
-          <label class="tweak-btn" for="importFile" style="cursor:pointer;">Import backup</label>
-          <button class="tweak-btn" id="rescanNutrientsBtnModal" type="button">⟳ Refresh micros</button>
-        </div>
-        <div style="font-size:.8rem;color:var(--color-text-muted);line-height:1.4;">These are the same footer actions, just grouped here so the top gear can control them without cluttering the page.</div>
-      </div>
-    </div>
   </div>
-
-</div>
 
 <script>
 const USDA_KEY = 'e85R8yLG8xe0lodYKILyv9HdfJLA8X6ZmkqmdJiB';
 const STORAGE_KEY = 'macroTrackerAlpha_v2';
 const DEFAULT_THEME = { accent:'#4aa3b5', opacity:0.45, softness:0.2 };
-function getThemePrefs(){ try { return Object.assign({}, DEFAULT_THEME, JSON.parse(localStorage.getItem('nourishThemePrefs')||'{}')); } catch(e){ return {...DEFAULT_THEME}; } }
-function saveThemePrefs(p){ localStorage.setItem('nourishThemePrefs', JSON.stringify(p)); }
-function applyThemePrefs(p){ const root = document.documentElement; root.style.setProperty('--color-primary', p.accent); root.style.setProperty('--accent-opacity', p.opacity); root.style.setProperty('--accent-softness', p.softness); const rgba = hexToRgba(p.accent, p.opacity); root.style.setProperty('--accent-rgba', rgba); }
-function hexToRgba(hex, a){ const v = hex.replace('#',''); const n = v.length===3 ? v.split('').map(x=>x+x).join('') : v; const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
-function syncSettingsModalButtons(){ [['themeToggleModal','themeToggle'],['exportBtnModal','exportBtn'],['rescanNutrientsBtnModal','rescanNutrientsBtn']].forEach(([a,b]) => { const aa=$(a), bb=$(b); if(aa&&bb) aa.addEventListener('click', ()=>bb.click()); }); }
 function getLocalDateString(d = new Date()) {
   return d.getFullYear() + '-' +
     String(d.getMonth()+1).padStart(2,'0') + '-' +
