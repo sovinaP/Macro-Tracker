@@ -214,22 +214,22 @@
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" tabindex="0" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients">
+    <div class="metric-card macro-expandable" data-macro="calories" tabindex="0" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" tabindex="0" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients">
+    <div class="metric-card macro-expandable" data-macro="protein" tabindex="0" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" tabindex="0" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients">
+    <div class="metric-card macro-expandable" data-macro="carbs" tabindex="0" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" tabindex="0" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients">
+    <div class="metric-card macro-expandable" data-macro="fat" tabindex="0" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event)">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-fat"></div>
@@ -1882,22 +1882,30 @@ function buildMicroDrawer(macro, date) {
   if(!hasData) {
     const empty = document.createElement('div');
     empty.className = 'micro-drawer-empty';
-    empty.textContent = 'Log foods with nutrient data to see breakdown.';
+    empty.textContent = 'No micronutrient data yet — log foods from USDA to see breakdown here.';
     drawer.appendChild(empty);
   }
+  // Always show a subtle "tap anywhere to close" hint
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:.65rem;color:var(--color-text-faint);text-align:right;margin-top:.4rem;';
+  hint.textContent = 'tap to close';
+  drawer.appendChild(hint);
 }
 
 function toggleMicroDrawer(card, evt) {
-  // Don't toggle if click originated inside the open drawer
-  if(evt && evt.target && evt.target.closest('.micro-drawer')) return;
+  if(evt) evt.stopPropagation();
+  // Don't toggle if click was inside the drawer content itself
+  if(evt && evt.target && evt.target !== card && evt.target.closest && evt.target.closest('.micro-drawer')) return;
   const macro = card.dataset.macro;
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
   const isOpen = drawer.classList.contains('open');
-  document.querySelectorAll('.macro-expandable').forEach(c => {
-    c.setAttribute('aria-expanded','false');
-    const d = $('microDrawer-' + c.dataset.macro);
+  // Close all drawers
+  ['calories','protein','carbs','fat'].forEach(m => {
+    const d = $('microDrawer-' + m);
     if(d) d.classList.remove('open');
+    const c = document.querySelector('[data-macro="' + m + '"]');
+    if(c) c.setAttribute('aria-expanded','false');
   });
   if(!isOpen) {
     buildMicroDrawer(macro, $('datePicker').value);
