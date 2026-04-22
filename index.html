@@ -564,8 +564,9 @@ $('microModal').addEventListener('click', e => { if(e.target === $('microModal')
     /* FOOD SEARCH */
     .search-wrap{position:relative;}
     .search-input-row{display:flex;gap:.5rem;align-items:stretch;}
-    .search-input-row input{flex:1;}
-    #searchBtn{min-height:44px;padding:.6rem 1rem;white-space:nowrap;}
+    .search-input-row input{flex:1;min-width:0;}
+    #dbSelector{flex-shrink:0;width:140px;}
+    #searchBtn{min-height:44px;padding:.6rem 1rem;white-space:nowrap;flex-shrink:0;}
     .search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:100;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);max-height:320px;overflow-y:auto;}
     .search-result-item{padding:.85rem 1rem;cursor:pointer;border-bottom:1px solid rgba(40,37,29,.07);transition:background var(--transition);}
     .search-result-item:last-child{border-bottom:none;}
@@ -768,7 +769,7 @@ $('microModal').addEventListener('click', e => { if(e.target === $('microModal')
         <div class="search-wrap">
           <div class="search-input-row">
             <input id="foodSearch" type="search" placeholder="Search food — e.g. chicken breast, oatmeal, banana..." autocomplete="off" aria-label="Search food database" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults">
-            <select id="dbSelector" aria-label="Food database" style="padding:.45rem .5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-offset);color:var(--color-text);font-size:var(--text-sm);cursor:pointer;flex-shrink:0;">
+            <select id="dbSelector" aria-label="Food database" style="padding:.45rem .5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-offset);color:var(--color-text);font-size:var(--text-sm);cursor:pointer;">
               <option value="usda">USDA</option>
               <option value="off">Open Food Facts</option>
             </select>
