@@ -296,10 +296,7 @@
             <div class="muted" id="daySummary">Log your meals below.</div>
       <div class="footer-note" id="clockSummary" style="margin-top:.35rem;"></div>
           </div>
-          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
-            <span class="pill-badge"><i data-lucide="hard-drive" style="width:13px;height:13px"></i>&nbsp;Stored locally</span>
-            <button id="rescanNutrientsBtn" class="btn btn-ghost" type="button" style="font-size:var(--text-xs);padding:.25rem .6rem;min-height:28px;" title="Fetch micronutrient data for logged foods">⟳ Fetch micros</button>
-          </div>
+          <span class="pill-badge"><i data-lucide="hard-drive" style="width:13px;height:13px"></i>&nbsp;Stored locally</span>
         </div>
         <div id="entryList" class="entry-list"></div>
       </section>
@@ -582,6 +579,7 @@
       <span class="tweaks-label">Data</span>
       <button class="tweak-btn" id="exportBtn">Export backup</button>
       <label class="tweak-btn" for="importFile" style="cursor:pointer;">Import backup</label>
+      <button class="tweak-btn" id="rescanNutrientsBtn">⟳ Refresh micros</button>
     </div>
     <div class="tweaks-group">
       <span class="tweaks-label">Version</span>
@@ -1285,6 +1283,12 @@ function renderAll() {
   renderWeightSummary();
   renderWater();
   renderTemplates();
+  if(typeof buildMicroDrawer === 'function') {
+    ['calories','protein','carbs','fat'].forEach(m => {
+      const d = $('microDrawer-' + m);
+      if(d && d.style.display === 'block') buildMicroDrawer(m, $('datePicker').value);
+    });
+  }
   if(window.lucide) lucide.createIcons();
 }
 
@@ -1827,30 +1831,51 @@ $('microModal').addEventListener('click', e => { if(e.target===$('microModal')) 
 // ── MACRO CARD DRAWERS ────────────────────────────────────────────────────
 var DRAWER_CATS = {
   calories: { color:'var(--color-accent,#b5892a)', sections:[
-    { label:null, nutrients:[{id:1008,name:'Energy',unit:'kcal',dri:2000}]}
+    { label:'Energy', nutrients:[{id:1008,name:'Energy',unit:'kcal',dri:2000}]},
+    { label:'Macronutrients', nutrients:[
+      {id:1003,name:'Protein',unit:'g',dri:50},{id:1005,name:'Carbohydrates',unit:'g',dri:275},
+      {id:1004,name:'Fat',unit:'g',dri:78},{id:1079,name:'Fiber',unit:'g',dri:28},
+    ]},
   ]},
   protein: { color:'#3b82f6', sections:[
+    { label:'Protein', nutrients:[{id:1003,name:'Protein',unit:'g',dri:50}]},
     { label:'Amino Acids', nutrients:[
       {id:1232,name:'Tryptophan',unit:'g'},{id:1212,name:'Leucine',unit:'g'},
       {id:1213,name:'Lysine',unit:'g'},{id:1211,name:'Isoleucine',unit:'g'},
       {id:1218,name:'Valine',unit:'g'},{id:1219,name:'Arginine',unit:'g'},
+      {id:1214,name:'Methionine',unit:'g'},{id:1210,name:'Threonine',unit:'g'},
+    ]},
+    { label:'Vitamins & Minerals', nutrients:[
+      {id:1162,name:'Vitamin C',unit:'mg',dri:90},{id:1087,name:'Calcium',unit:'mg',dri:1300},
+      {id:1089,name:'Iron',unit:'mg',dri:18},{id:1090,name:'Magnesium',unit:'mg',dri:420},
+      {id:1092,name:'Potassium',unit:'mg',dri:4700},{id:1093,name:'Sodium',unit:'mg',dri:2300},
     ]}
   ]},
   carbs: { color:'#f59e0b', sections:[
-    { label:'Sugars', nutrients:[
+    { label:'Carbohydrates', nutrients:[
+      {id:1005,name:'Carbohydrates',unit:'g',dri:275},{id:1079,name:'Fiber',unit:'g',dri:28},
       {id:2000,name:'Total Sugars',unit:'g',dri:50},{id:1082,name:'Added Sugars',unit:'g',dri:25},
-      {id:1011,name:'Glucose',unit:'g'},{id:1012,name:'Fructose',unit:'g'},
+      {id:1011,name:'Glucose',unit:'g'},{id:1012,name:'Fructose',unit:'g'},{id:1013,name:'Lactose',unit:'g'},
     ]},
-    { label:'Fiber', nutrients:[{id:1079,name:'Dietary Fiber',unit:'g',dri:28}]}
+    { label:'Vitamins & Minerals', nutrients:[
+      {id:1162,name:'Vitamin C',unit:'mg',dri:90},{id:1177,name:'Folate',unit:'mcg',dri:400},
+      {id:1087,name:'Calcium',unit:'mg',dri:1300},{id:1089,name:'Iron',unit:'mg',dri:18},
+      {id:1092,name:'Potassium',unit:'mg',dri:4700},{id:1093,name:'Sodium',unit:'mg',dri:2300},
+    ]}
   ]},
   fat: { color:'#ec4899', sections:[
     { label:'Fat Types', nutrients:[
-      {id:1258,name:'Saturated',unit:'g',dri:20},{id:1292,name:'Mono',unit:'g'},
-      {id:1293,name:'Poly',unit:'g'},{id:1257,name:'Trans',unit:'g',dri:2},
+      {id:1004,name:'Fat',unit:'g',dri:78},{id:1258,name:'Saturated',unit:'g',dri:20},
+      {id:1292,name:'Mono',unit:'g'},{id:1293,name:'Poly',unit:'g'},{id:1257,name:'Trans',unit:'g',dri:2},
       {id:1253,name:'Cholesterol',unit:'mg',dri:300},
     ]},
     { label:'Omega-3', nutrients:[
       {id:1278,name:'ALA',unit:'g'},{id:1404,name:'EPA',unit:'g'},{id:1405,name:'DHA',unit:'g'},
+    ]},
+    { label:'Vitamins & Minerals', nutrients:[
+      {id:1109,name:'Vitamin E',unit:'mg',dri:15},{id:1185,name:'Vitamin K',unit:'mcg',dri:120},
+      {id:1087,name:'Calcium',unit:'mg',dri:1300},{id:1089,name:'Iron',unit:'mg',dri:18},
+      {id:1090,name:'Magnesium',unit:'mg',dri:420},{id:1095,name:'Zinc',unit:'mg',dri:11},
     ]}
   ]}
 };
