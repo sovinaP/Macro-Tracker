@@ -1609,7 +1609,7 @@ function renderWater() {
   if(!$('waterProgress')) return; // guard if section not in DOM
   const date = $('datePicker').value || getLocalDateString();
   if(!state.water) state.water = {};
-  const unit = state.settings.waterUnit || 'oz';
+  const unit = state.settings.waterUnit ||| 'oz';
   const goal = parseFloat(state.settings.waterGoal) || 64;
   const goalOz = getWateroz(goal, unit);
   const totalOz = state.water[date] || 0;
@@ -1641,16 +1641,16 @@ function addWater(oz) {
   if(!state.water) state.water = {};
   state.water[date] = (state.water[date] || 0) + oz;
   saveState(); renderWater();
-  const unit = state.settings.waterUnit || 'oz';
+  const unit = state.settings.waterUnit ||| 'oz';
   const display = unit === 'ml' ? Math.round(oz * 29.5735) + ' ml' : Math.round(oz * 10) / 10 + ' oz';
   showToast(`+${display} logged.`);
 }
 
 function bindWaterControls() {
   const map = {
-    water8oz: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 250 / 29.5735 : 8); },
-    water16oz: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 500 / 29.5735 : 16); },
-    water500ml: () => { const unit = state.settings.waterUnit || 'oz'; addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735); },
+    water8oz: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 250 / 29.5735 : 8); },
+    water16oz: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 500 / 29.5735 : 16); },
+    water500ml: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735); },
     waterCustomAdd: () => { const row = $('waterCustomRow'); if(row) row.style.display = row.style.display === 'none' ? 'flex' : 'none'; },
     waterCustomSave: () => {
       const amt = parseFloat($('waterCustomInput')?.value);
