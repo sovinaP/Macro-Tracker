@@ -1708,9 +1708,10 @@ function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 // ── MICRO HELPERS ────────────────────────────────────────────────────────
 function getDayMicroTotals(date, nutrientId) {
   return (state.entries[date] || []).reduce((sum, e) => {
-    if(!e.nutrients) return sum;
-    const n = e.nutrients.find(x => (x.nutrientId || x.id) === nutrientId);
-    return sum + (n ? (n.value || n.amount || 0) : 0);
+    const list = e.nutrients || e.foodNutrients || e.nutrientData || [];
+    const n = list.find(x => (x.nutrientId || x.id || x.nutrient || x.nutrientNumber) === nutrientId);
+    const v = n ? (n.value ?? n.amount ?? n.quantity ?? n.protein ?? n.carbohydrates ?? 0) : 0;
+    return sum + Number(v || 0);
   }, 0);
 }
 
@@ -1882,40 +1883,33 @@ var DRAWER_CATS = {
 function buildMicroDrawer(macro, date) {
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
-  if(!window.DRAWER_CATS) return;
-  const cat = DRAWER_CATS[macro];
+  const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
   if(!cat) return;
-  drawer.innerHTML = '';
-
+  const rows = [];
   cat.sections.forEach(sec => {
-    if(sec.label) {
-      const h = document.createElement('div');
-      h.className = 'micro-drawer-section';
-      h.textContent = sec.label;
-      drawer.appendChild(h);
-    }
+    if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
     sec.nutrients.forEach(n => {
       const val = round(getDayMicroTotals(date, n.id));
-      const pct = n.dri ? Math.min(100,(val/n.dri)*100) : null;
-      const pctLabel = n.dri ? Math.round((val/n.dri)*100) + '%' : '';
-      const barColor = pct===null ? cat.color : pct>=100?'#10b981':pct>=60?cat.color:'#94a3b8';
-      const rowEl = document.createElement('div');
-      rowEl.className = 'micro-drawer-row';
-      rowEl.innerHTML =
-        '<div class="micro-drawer-label">' +
-          '<span>' + escHtml(n.name) + '</span>' +
-          '<span style="display:flex;gap:.4rem;align-items:center;">' +
-            '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
-            (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
-            (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
-          '</span>' +
-        '</div>' +
-        (pct !== null ?
-          '<div class="micro-drawer-bar"><span style="width:' + Math.min(100,pct) + '%;background:' + barColor + ';"></span></div>'
-          : '');
-      drawer.appendChild(rowEl);
+      const pct = n.dri ? Math.min(100, (val / n.dri) * 100) : null;
+      const pctLabel = n.dri ? Math.round((val / n.dri) * 100) + '%' : '';
+      const barColor = pct === null ? cat.color : pct >= 100 ? '#10b981' : pct >= 60 ? cat.color : '#94a3b8';
+      rows.push(
+        '<div class="micro-drawer-row">' +
+          '<div class="micro-drawer-label">' +
+            '<span>' + escHtml(n.name) + '</span>' +
+            '<span style="display:flex;gap:.4rem;align-items:center;">' +
+              '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
+              (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
+              (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
+            '</span>' +
+          '</div>' +
+          (pct !== null ? '<div class="micro-drawer-bar"><span style="width:' + pct + '%;background:' + barColor + ';"></span></div>' : '') +
+        '</div>'
+      );
     });
   });
+  if(!rows.length) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
+  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('');
 }
 
 
@@ -1942,20 +1936,15 @@ function toggleMicroDrawer(card, evt, macro) {
   card.setAttribute('aria-expanded','true');
   card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
   buildMicroDrawer(macro, $('datePicker').value);
+  setTimeout(() => {
+    const d2 = $('microDrawer-' + macro);
+    if(d2 && !d2.innerHTML.trim()) {
+      d2.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
+    }
+  }, 120);
 }
 
 
-// Wire macro card drawers - use event delegation on parent for iOS PWA compatibility
-document.addEventListener('click', function(e) {
-  const card = e.target.closest('.macro-expandable');
-  if(card) toggleMicroDrawer(card, e);
-});
-document.addEventListener('keydown', function(e) {
-  if(e.key==='Enter'||e.key===' ') {
-    const card = e.target.closest('.macro-expandable');
-    if(card) { e.preventDefault(); toggleMicroDrawer(card); }
-  }
-});
 
 
 // ── RESCAN NUTRIENTS ─────────────────────────────────────────────────────
