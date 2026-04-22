@@ -296,7 +296,10 @@
             <div class="muted" id="daySummary">Log your meals below.</div>
       <div class="footer-note" id="clockSummary" style="margin-top:.35rem;"></div>
           </div>
-          <span class="pill-badge"><i data-lucide="hard-drive" style="width:13px;height:13px"></i>&nbsp;Stored locally</span>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+            <span class="pill-badge"><i data-lucide="hard-drive" style="width:13px;height:13px"></i>&nbsp;Stored locally</span>
+            <button id="rescanNutrientsBtn" class="btn btn-ghost" type="button" style="font-size:var(--text-xs);padding:.25rem .6rem;min-height:28px;" title="Fetch micronutrient data for logged foods">⟳ Fetch micros</button>
+          </div>
         </div>
         <div id="entryList" class="entry-list"></div>
       </section>
@@ -1921,6 +1924,61 @@ document.addEventListener('keydown', function(e) {
     if(card) { e.preventDefault(); toggleMicroDrawer(card); }
   }
 });
+
+
+// ── RESCAN NUTRIENTS ─────────────────────────────────────────────────────
+async function rescanNutrients() {
+  const btn = $('rescanNutrientsBtn');
+  const date = $('datePicker').value;
+  const entries = state.entries[date] || [];
+
+  if(!entries.length) {
+    showToast('No entries to refresh.');
+    return;
+  }
+
+  if(btn) { btn.disabled = true; btn.textContent = '⟳ Fetching…'; }
+
+  let updated = 0;
+  let failed = 0;
+  const total = entries.length;
+
+  for(let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if(btn) btn.textContent = `⟳ ${i+1} / ${total}…`;
+    try {
+      const searchRes = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(entry.name)}&pageSize=1&dataType=Foundation,SR%20Legacy,Branded`
+      );
+      if(!searchRes.ok) throw new Error('search failed');
+      const searchData = await searchRes.json();
+      const firstHit = (searchData.foods || [])[0];
+      if(!firstHit || !firstHit.fdcId) throw new Error('no match');
+
+      const detailRes = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/food/${firstHit.fdcId}?api_key=${USDA_KEY}`
+      );
+      if(!detailRes.ok) throw new Error('detail failed');
+      const detail = await detailRes.json();
+
+      const idx = state.entries[date].findIndex(e => e.id === entry.id);
+      if(idx !== -1) {
+        state.entries[date][idx].nutrients = detail.foodNutrients || [];
+        updated++;
+      }
+    } catch(e) {
+      failed++;
+    }
+  }
+
+  saveState();
+  renderAll();
+
+  if(btn) { btn.disabled = false; btn.textContent = '⟳ Fetch micros'; }
+  showToast(`Refreshed ${updated} / ${total} entries.${failed ? ' (' + failed + ' unmatched)' : ''}`);
+}
+
+$('rescanNutrientsBtn').addEventListener('click', rescanNutrients);
 
 </script>
 
