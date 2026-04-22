@@ -78,7 +78,7 @@ Everything you log is saved locally in your browser via `localStorage`. The only
 
 ---
 
-## Getting Started
+## FOSS
 
 ### Run it locally
 
