@@ -66,7 +66,7 @@
     .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
     .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
     .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;}
+    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;} .macro-detail-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.1rem 0 .35rem;} .macro-detail-note{font-size:.68rem;line-height:1.35;color:var(--color-text-muted);background:rgba(1,105,111,.06);border:1px solid rgba(1,105,111,.14);padding:.45rem .55rem;border-radius:10px;margin:.35rem 0 .55rem;} .macro-detail-row{display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.25rem 0;border-bottom:1px solid rgba(40,37,29,.06);font-size:.78rem;} .macro-detail-row:last-child{border-bottom:none;} .macro-detail-sub{font-size:.68rem;color:var(--color-text-faint);} .macro-detail-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem;}
     .micro-drawer.open{display:block;padding-top:.7rem;}
     .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
     .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
@@ -207,6 +207,8 @@
       </div>
     </div>
     <div class="top-actions">
+      <div style="display:flex;align-items:center;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;">
+        <button class="date-nav-btn" id="settingsBtnTop" aria-label="Open settings" title="Settings" style="width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;">⚙</button>
       <div class="date-nav">
         <button class="date-nav-btn" id="prevDay" aria-label="Previous day">&#8249;</button>
         <input type="date" id="datePicker" aria-label="Select day">
@@ -219,22 +221,22 @@
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
+    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand details" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
+    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand details" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
+    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand details" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
+    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand details" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-fat"></div>
@@ -575,7 +577,6 @@
   <footer class="tweaks-bar">
     <div class="tweaks-group">
       <span class="tweaks-label">Appearance</span>
-      <button class="tweak-btn" id="settingsBtn">Settings</button>
       <button class="tweak-btn" id="themeToggle">Dark mode</button>
     </div>
     <div class="tweaks-group">
@@ -590,7 +591,7 @@
     </div>
   </footer>
 
-  <div id="settingsModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
+  <div id="settingsModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:flex-start;justify-content:center;padding:5.5rem 1rem 1rem;">
     <div style="width:min(520px,100%);background:var(--color-surface);border:1px solid rgba(40,37,29,.12);border-radius:var(--radius-xl);box-shadow:0 18px 60px rgba(0,0,0,.28);padding:1rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;margin-bottom:1rem;">
         <div>
@@ -616,6 +617,16 @@
         </div>
         <div style="font-size:.8rem;color:var(--color-text-muted);line-height:1.4;">These settings affect highlights, active states, and subtle UI accents only. The goal is a small visual lift, not a loud theme overhaul.</div>
       </div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(40,37,29,.1);display:grid;gap:.75rem;">
+        <div style="font-size:.85rem;font-weight:700;color:var(--color-text);">Footer actions</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+          <button class="tweak-btn" id="themeToggleModal" type="button">Dark mode</button>
+          <button class="tweak-btn" id="exportBtnModal" type="button">Export backup</button>
+          <label class="tweak-btn" for="importFile" style="cursor:pointer;">Import backup</label>
+          <button class="tweak-btn" id="rescanNutrientsBtnModal" type="button">⟳ Refresh micros</button>
+        </div>
+        <div style="font-size:.8rem;color:var(--color-text-muted);line-height:1.4;">These are the same footer actions, just grouped here so the top gear can control them without cluttering the page.</div>
+      </div>
     </div>
   </div>
 
@@ -629,6 +640,7 @@ function getThemePrefs(){ try { return Object.assign({}, DEFAULT_THEME, JSON.par
 function saveThemePrefs(p){ localStorage.setItem('nourishThemePrefs', JSON.stringify(p)); }
 function applyThemePrefs(p){ const root = document.documentElement; root.style.setProperty('--color-primary', p.accent); root.style.setProperty('--accent-opacity', p.opacity); root.style.setProperty('--accent-softness', p.softness); const rgba = hexToRgba(p.accent, p.opacity); root.style.setProperty('--accent-rgba', rgba); }
 function hexToRgba(hex, a){ const v = hex.replace('#',''); const n = v.length===3 ? v.split('').map(x=>x+x).join('') : v; const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+function syncSettingsModalButtons(){ [['themeToggleModal','themeToggle'],['exportBtnModal','exportBtn'],['rescanNutrientsBtnModal','rescanNutrientsBtn']].forEach(([a,b]) => { const aa=$(a), bb=$(b); if(aa&&bb) aa.addEventListener('click', ()=>bb.click()); }); }
 function getLocalDateString(d = new Date()) {
   return d.getFullYear() + '-' +
     String(d.getMonth()+1).padStart(2,'0') + '-' +
@@ -1984,80 +1996,85 @@ var DRAWER_CATS = {
   ]}
 };
 
+function getTopFoodsForMacro(date, macro, limit=3) {
+  const entries = (state.entries[date] || []).slice();
+  const mapped = entries.map(e => {
+    const c = Number(e.calories || e.kcal || e.energy || 0);
+    const p = Number(e.protein || 0);
+    const ca = Number(e.carbs || e.carbohydrates || 0);
+    const f = Number(e.fat || 0);
+    const scoreMap = {calories:c, protein:p, carbs:ca, fat:f};
+    return { entry:e, score: scoreMap[macro] || 0 };
+  }).sort((a,b)=>b.score-a.score);
+  return mapped.slice(0, limit).map(x => x.entry).filter(Boolean);
+}
+
+function getMacroGoal(date, macro) {
+  const t = state.settings.targets || {};
+  const map = {calories:'calories', protein:'protein', carbs:'carbs', fat:'fat'};
+  return Number(t[map[macro]] || 0);
+}
+
+function getMacroConsumed(date, macro) {
+  const totals = getDayTotals(date) || {};
+  return Number(totals[macro] || 0);
+}
+
 function buildMicroDrawer(macro, date) {
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
-  const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
-  if(!cat) return;
-  const rows = [];
-  const entries = (state.entries[date] || []);
+  const topFoods = getTopFoodsForMacro(date, macro, 3);
+  const consumed = getMacroConsumed(date, macro);
+  const goal = getMacroGoal(date, macro);
+  const remaining = goal ? Math.max(0, goal - consumed) : null;
+  const pct = goal ? Math.min(100, (consumed / goal) * 100) : null;
+  const entries = state.entries[date] || [];
   const nonUsda = entries.filter(e => getSourceLabel(e) !== 'usda');
-  const usdaCount = entries.length - nonUsda.length;
-  if(entries.length) {
-    rows.push('<div class="micro-source-note">' +
-      (nonUsda.length ? ('USDA-backed values are the most accurate. ' + nonUsda.length + ' entry' + (nonUsda.length === 1 ? '' : 'ies') + ' may be community or manual estimates.') : 'All visible entries appear to be USDA-backed.') +
-    '</div>');
+  const rows = [];
+  rows.push('<div class="macro-detail-title">' + (DRAWER_CATS[macro]?.label || macro) + ' details</div>');
+  if(nonUsda.length) {
+    rows.push('<div class="macro-detail-note">Mixed data sources are in this log. USDA-backed values are the most accurate; community or manual entries may be approximate.</div>');
   }
-  cat.sections.forEach(sec => {
-    if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
-    sec.nutrients.forEach(n => {
-      const val = round(getDayMicroTotals(date, n.id));
-      const pct = n.dri ? Math.min(100, (val / n.dri) * 100) : null;
-      const pctLabel = n.dri ? Math.round((val / n.dri) * 100) + '%' : '';
-      const barColor = pct === null ? cat.color : pct >= 100 ? '#10b981' : pct >= 60 ? cat.color : '#94a3b8';
-      const hasValue = val > 0;
-      rows.push(
-        '<div class="micro-drawer-row">' +
-          '<div class="micro-drawer-label">' +
-            '<span>' + escHtml(n.name) + '</span>' +
-            '<span style="display:flex;gap:.4rem;align-items:center;">' +
-              '<span>' + (hasValue ? val + n.unit : '—') + '</span>' +
-              (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
-              (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
-            '</span>' +
-          '</div>' +
-          (pct !== null ? '<div class="micro-drawer-bar"><span style="width:' + pct + '%;background:' + barColor + ';"></span></div>' : '') +
-        '</div>'
-      );
+  if(goal) {
+    rows.push('<div class="macro-detail-row"><span>Goal progress</span><span>' + round(consumed) + ' / ' + goal + (macro === 'calories' ? ' kcal' : 'g') + '</span></div>');
+    rows.push('<div class="progress" style="margin:.35rem 0 .55rem;"><span style="width:' + pct + '%;background:' + (macro==='protein' ? 'var(--color-success)' : 'var(--color-primary)') + ';"></span></div>');
+    rows.push('<div class="macro-detail-row"><span>' + (remaining === 0 ? 'Goal met' : 'Remaining') + '</span><span>' + (remaining === 0 ? '0' : round(remaining)) + (macro === 'calories' ? ' kcal' : ' g') + '</span></div>');
+  }
+  if(topFoods.length) {
+    rows.push('<div class="macro-detail-title" style="margin-top:.6rem;">Top contributors</div>');
+    topFoods.forEach(e => {
+      const val = Number(e[macro] || e.calories || e.protein || e.carbs || e.fat || 0);
+      rows.push('<div class="macro-detail-row"><span>' + escHtml(e.name || 'Untitled food') + '</span><span>' + round(val) + (macro === 'calories' ? ' kcal' : ' g') + '</span></div>');
     });
-  });
-  if(rows.length === 0) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
+  } else {
+    rows.push('<div class="macro-detail-note">No food entries logged yet for this day.</div>');
+  }
+  const hasMicros = entries.some(e => (getEntryNutrients(e) || []).length);
+  rows.push('<div class="macro-detail-actions">' +
+    (hasMicros ? '<button class="tweak-btn" type="button" onclick="showMacroNutrients('' + macro + '')">Show nutrients</button>' : '') +
+    '<button class="tweak-btn" type="button" onclick="$(' + "'" + 'microDrawer-' + macro + "'" + ').style.display='none'; $(' + "'" + 'microDrawer-' + macro + "'" + ').innerHTML='';">Close</button>' +
+  '</div>');
   drawer.innerHTML = rows.join('');
 }
 
-
-function toggleMicroDrawer(card, evt, macro) {
-  macro = macro || (card && card.dataset && card.dataset.macro);
-  if(!macro) return;
+function showMacroNutrients(macro) {
   const drawer = $('microDrawer-' + macro);
+  const date = $('datePicker').value;
   if(!drawer) return;
-  const isOpen = drawer.style.display === 'block';
-  document.querySelectorAll('.macro-expandable').forEach(c => {
-    if(c !== card) {
-      c.setAttribute('aria-expanded','false');
-      c.style.boxShadow = '';
-      const d = c.querySelector('.micro-drawer');
-      if(d) { d.style.display='none'; d.innerHTML=''; }
-    }
-  });
-  if(isOpen) {
-    drawer.style.display = 'none';
-    drawer.innerHTML = '';
-    card.setAttribute('aria-expanded','false');
-    card.style.boxShadow = '';
-    return;
+  const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
+  const entries = (state.entries[date] || []).filter(e => (getEntryNutrients(e) || []).length);
+  const rows = [];
+  rows.push('<div class="macro-detail-title">Nutrient details</div>');
+  if(!entries.length) {
+    rows.push('<div class="macro-detail-note">No nutrient data is available for this day.</div>');
+  } else {
+    const first = getEntryNutrients(entries[0]);
+    const sample = first.slice(0,8).map(n => ({name:n.name || n.nutrientName || 'Nutrient', value:n.value ?? n.amount ?? 0, unit:n.unitName || n.unit || ''}));
+    sample.forEach(n => rows.push('<div class="macro-detail-row"><span>' + escHtml(n.name) + '</span><span>' + round(Number(n.value)||0) + (n.unit || '') + '</span></div>'));
   }
-  const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
-  drawer.style.display = 'block';
-  card.setAttribute('aria-expanded','true');
-  card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
-  buildMicroDrawer(macro, $('datePicker').value);
-  if(!drawer.innerHTML.trim()) drawer.innerHTML = '<div class="micro-source-note">No micronutrient details available yet.</div>';
+  rows.push('<div class="macro-detail-actions"><button class="tweak-btn" type="button" onclick="buildMicroDrawer('' + macro + '', $(' + "'" + 'datePicker' + "'" + ').value)">Back</button></div>');
+  drawer.innerHTML = rows.join('');
 }
-
-
-
-
 // ── RESCAN NUTRIENTS ─────────────────────────────────────────────────────
 async function rescanNutrients() {
   const btn = $('rescanNutrientsBtn');
@@ -2112,7 +2129,8 @@ async function rescanNutrients() {
 $('rescanNutrientsBtn').addEventListener('click', rescanNutrients);
 
 
-$('settingsBtn').addEventListener('click', () => { $('settingsModal').style.display = 'flex'; });
+if($('settingsBtn')) $('settingsBtn').addEventListener('click', () => { $('settingsModal').style.display = 'flex'; });
+if($('settingsBtnTop')) $('settingsBtnTop').addEventListener('click', () => { $('settingsModal').style.display = 'flex'; });
 $('closeSettings').addEventListener('click', () => { $('settingsModal').style.display = 'none'; });
 $('settingsModal').addEventListener('click', (e) => { if(e.target.id === 'settingsModal') $('settingsModal').style.display = 'none'; });
 (function initThemeControls(){
@@ -2132,6 +2150,7 @@ $('settingsModal').addEventListener('click', (e) => { if(e.target.id === 'settin
   if(o) o.addEventListener('input', sync);
   if(s) s.addEventListener('input', sync);
   sync();
+  syncSettingsModalButtons();
 })();
 </script>
 
