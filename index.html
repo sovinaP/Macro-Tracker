@@ -65,7 +65,7 @@
     .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);}
     .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);}
     .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);}
-    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;}
+    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;}
     .micro-drawer.open{display:block;padding-top:.7rem;}
     .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
     .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
@@ -218,22 +218,22 @@
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')">
+    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')">
+    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')">
+    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')">
+    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-fat"></div>
@@ -1937,7 +1937,7 @@ function toggleMicroDrawer(card, evt, macro) {
     return;
   }
   const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
-  drawer.innerHTML = '';
+  drawer.innerHTML = '<div class="micro-drawer-empty">Loading micros…</div>';
   drawer.style.display = 'block';
   card.setAttribute('aria-expanded','true');
   card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
