@@ -118,6 +118,19 @@
     .divider{display:flex;align-items:center;gap:var(--space-3);margin:var(--space-4) 0;color:var(--color-text-faint);font-size:var(--text-xs);}
     .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(40,37,29,.1);}
 
+
+    /* GOAL WIZARD */
+    .wizard-steps{display:grid;gap:var(--space-3);}
+    .wizard-result{background:color-mix(in oklab,var(--color-primary) 7%,var(--color-surface-offset));border:1px solid color-mix(in oklab,var(--color-primary) 22%,var(--color-border));border-radius:var(--radius-lg);padding:var(--space-4);margin-top:var(--space-3);}
+    .wizard-result h3{margin:0 0 var(--space-3);font-size:var(--text-base);color:var(--color-primary);}
+    .wizard-macro-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:var(--space-3);}
+    .wizard-macro-pill{padding:.35rem .75rem;border-radius:var(--radius-full);background:var(--color-surface);border:1px solid rgba(40,37,29,.1);font-size:var(--text-sm);font-weight:600;font-variant-numeric:tabular-nums;}
+    .wizard-note{font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);line-height:1.5;}
+    .goal-btn-group{display:flex;gap:.5rem;flex-wrap:wrap;}
+    .goal-btn{flex:1;min-height:40px;padding:.5rem .75rem;border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;background:var(--color-surface-2);border:2px solid rgba(40,37,29,.1);color:var(--color-text);transition:background var(--transition),border-color var(--transition);}
+    .goal-btn.active,.goal-btn:hover{background:color-mix(in oklab,var(--color-primary) 10%,var(--color-surface-offset));border-color:var(--color-primary);color:var(--color-primary);}
+    .toggle-wizard{background:none;border:none;font-size:var(--text-sm);color:var(--color-primary);cursor:pointer;padding:0;font-weight:500;text-decoration:underline;text-underline-offset:2px;}
+
     /* spinner */
     .spinner{width:18px;height:18px;border:2px solid rgba(40,37,29,.12);border-top-color:var(--color-primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
     @keyframes spin{to{transform:rotate(360deg);}}
@@ -159,6 +172,7 @@
     </div>
     <div class="top-actions">
       <input type="date" id="datePicker" aria-label="Select day" style="max-width:180px;">
+      <button class="btn btn-secondary" id="jumpTodayBtn" aria-label="Jump to today">Today</button>
       <button class="btn btn-secondary" id="themeToggle" aria-label="Switch theme">Dark mode</button>
       <button class="btn btn-secondary" id="exportBtn">Export JSON</button>
       <label class="btn btn-secondary" for="importFile" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">Import JSON</label>
@@ -195,6 +209,7 @@
           <div>
             <h2>Today's food log</h2>
             <div class="muted" id="daySummary">Log your meals below.</div>
+      <div class="footer-note" id="clockSummary" style="margin-top:.35rem;"></div>
           </div>
           <span class="pill-badge"><i data-lucide="hard-drive" style="width:13px;height:13px"></i>&nbsp;Stored locally</span>
         </div>
@@ -289,6 +304,75 @@
 
     <aside style="display:grid;gap:1rem;align-content:start;">
 
+
+      <!-- GOAL WIZARD -->
+      <section class="panel settings" id="goalWizardPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);flex-wrap:wrap;">
+          <div>
+            <h2>Goal Wizard</h2>
+            <div class="muted">Calculate your targets from your body stats.</div>
+          </div>
+          <button class="toggle-wizard" id="toggleWizard">Hide</button>
+        </div>
+        <div id="wizardBody" class="wizard-steps" style="margin-top:var(--space-3);">
+          <div class="grid-2">
+            <div>
+              <label for="wzSex">Biological sex</label>
+              <select id="wzSex">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label for="wzAge">Age</label>
+              <input id="wzAge" type="number" min="13" max="100" placeholder="25">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label for="wzHeightFt">Height</label>
+              <div style="display:flex;gap:.4rem;">
+                <input id="wzHeightFt" type="number" min="3" max="8" placeholder="5 ft" style="flex:1;">
+                <input id="wzHeightIn" type="number" min="0" max="11" placeholder="10 in" style="flex:1;">
+              </div>
+            </div>
+            <div>
+              <label for="wzWeight">Weight (lb)</label>
+              <input id="wzWeight" type="number" min="50" max="600" placeholder="185">
+            </div>
+          </div>
+          <div>
+            <label for="wzActivity">Activity level</label>
+            <select id="wzActivity">
+              <option value="1.2">Sedentary — desk job, little or no exercise</option>
+              <option value="1.375">Lightly active — light exercise 1–3 days/week</option>
+              <option value="1.55" selected>Moderately active — moderate exercise 3–5 days/week</option>
+              <option value="1.725">Very active — hard exercise 6–7 days/week</option>
+              <option value="1.9">Extra active — physical job + hard training daily</option>
+            </select>
+          </div>
+          <div>
+            <label for="wzBodyFat">Body fat % <span style="font-size:var(--text-xs);color:var(--color-text-faint);">(optional — improves accuracy)</span></label>
+            <input id="wzBodyFat" type="number" min="3" max="60" step="0.5" placeholder="Leave blank to use Mifflin-St Jeor">
+          </div>
+          <div>
+            <label>Goal</label>
+            <div class="goal-btn-group">
+              <button class="goal-btn" id="goalCut" type="button">🔥 Cut</button>
+              <button class="goal-btn active" id="goalMaintain" type="button">⚖️ Maintain</button>
+              <button class="goal-btn" id="goalBulk" type="button">💪 Lean Bulk</button>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="runWizard" type="button">Calculate targets</button>
+          <div id="wizardResult" style="display:none;" class="wizard-result">
+            <h3 id="wzResultTitle">Suggested targets</h3>
+            <div class="wizard-macro-row" id="wzMacroRow"></div>
+            <div class="wizard-note" id="wzNote"></div>
+            <button class="btn btn-primary" id="applyWizard" type="button" style="width:100%;">Apply these targets</button>
+          </div>
+        </div>
+      </section>
+
       <!-- targets -->
       <section class="panel settings">
         <div>
@@ -348,10 +432,10 @@
 <script>
 const USDA_KEY = 'e85R8yLG8xe0lodYKILyv9HdfJLA8X6ZmkqmdJiB';
 const STORAGE_KEY = 'macroTrackerAlpha_v2';
-const todayStr = new Date().toISOString().slice(0,10);
+const todayStr = getLocalDateString();
 
 const defaultData = {
-  settings:{ targets:{calories:2200,protein:180,carbs:200,fat:70,fiber:30}, weightUnit:'lb', theme:'light' },
+  settings:{ targets:{calories:2200,protein:180,carbs:200,fat:70,fiber:30}, weightUnit:'lb', theme:'light', lastMeal:'Breakfast' },
   entries:{}, weights:{},
   quickFoods:[
     {name:'Protein Shake',calories:160,protein:30,carbs:6,fat:3,fiber:1,meal:'Snack'},
@@ -374,8 +458,33 @@ const $= id => document.getElementById(id);
 $('datePicker').value = todayStr;
 applyTheme(state.settings.theme || 'light');
 fillTargetInputs();
+$('mealType').value = state.settings.lastMeal || 'Breakfast';
 renderQuickFoods();
 renderAll();
+startClock();
+
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatLocalTime(date = new Date()) {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function updateClockSummary(selectedDate = $('datePicker').value) {
+  const now = new Date();
+  const today = getLocalDateString(now);
+  const label = selectedDate === today ? 'Today' : (selectedDate || today);
+  $('clockSummary').textContent = `${label} · Local time ${formatLocalTime(now)}`;
+}
+
+function startClock() {
+  updateClockSummary();
+  setInterval(() => updateClockSummary(), 30000);
+}
 
 // ---- EVENT LISTENERS ----
 $('themeToggle').addEventListener('click', () => {
@@ -402,6 +511,141 @@ $('importFile').addEventListener('change', async e => {
 });
 
 $('datePicker').addEventListener('change', renderAll);
+$('jumpTodayBtn').addEventListener('click', () => { $('datePicker').value = getLocalDateString(); renderAll(); });
+$('mealType').addEventListener('change', () => { state.settings.lastMeal = $('mealType').value; saveState(); }
+
+// ---- GOAL WIZARD ----
+let activeGoal = 'maintain';
+
+['goalCut','goalMaintain','goalBulk'].forEach(id => {
+  $(id).addEventListener('click', () => {
+    activeGoal = id === 'goalCut' ? 'cut' : id === 'goalBulk' ? 'bulk' : 'maintain';
+    ['goalCut','goalMaintain','goalBulk'].forEach(b => $(b).classList.remove('active'));
+    $(id).classList.add('active');
+  });
+});
+
+$('toggleWizard').addEventListener('click', () => {
+  const body = $('wizardBody');
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? 'grid' : 'none';
+  $('toggleWizard').textContent = hidden ? 'Hide' : 'Show';
+});
+
+$('runWizard').addEventListener('click', () => {
+  const sex = $('wzSex').value;
+  const age = parseFloat($('wzAge').value);
+  const ft = parseFloat($('wzHeightFt').value) || 0;
+  const inch = parseFloat($('wzHeightIn').value) || 0;
+  const weightLb = parseFloat($('wzWeight').value);
+  const bodyFatPct = parseFloat($('wzBodyFat').value);
+  const activityFactor = parseFloat($('wzActivity').value);
+
+  if(!age || !weightLb || (ft === 0 && inch === 0)) {
+    showToast('Fill in age, height, and weight first.');
+    return;
+  }
+
+  const weightKg = weightLb * 0.453592;
+  const heightCm = (ft * 12 + inch) * 2.54;
+
+  let bmr;
+  let formulaUsed;
+
+  if(!isNaN(bodyFatPct) && bodyFatPct > 0) {
+    // Katch-McArdle: uses lean body mass
+    const lbm = weightKg * (1 - bodyFatPct / 100);
+    bmr = 370 + (21.6 * lbm);
+    formulaUsed = `Katch-McArdle (body fat ${bodyFatPct}% entered)`;
+  } else {
+    // Mifflin-St Jeor
+    if(sex === 'male') {
+      bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5;
+    } else {
+      bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
+    }
+    formulaUsed = 'Mifflin-St Jeor (no body fat entered)';
+  }
+
+  const tdee = Math.round(bmr * activityFactor);
+
+  let calories, goalLabel, defSurplus;
+  if(activeGoal === 'cut') {
+    calories = tdee - 400;
+    goalLabel = 'Cut (−400 kcal deficit)';
+    defSurplus = '-400';
+  } else if(activeGoal === 'bulk') {
+    calories = tdee + 200;
+    goalLabel = 'Lean Bulk (+200 kcal surplus)';
+    defSurplus = '+200';
+  } else {
+    calories = tdee;
+    goalLabel = 'Maintain';
+    defSurplus = '0';
+  }
+
+  // Protein: 1g per lb of bodyweight (or lean mass if body fat known)
+  let proteinBase = weightLb;
+  if(!isNaN(bodyFatPct) && bodyFatPct > 0) {
+    proteinBase = weightLb * (1 - bodyFatPct / 100);
+  }
+  const protein = Math.round(Math.min(proteinBase, calories * 0.35 / 4));
+
+  // Fat: ~25% of calories, minimum 0.35g per lb
+  const fat = Math.round(Math.max(weightLb * 0.35, calories * 0.25 / 9));
+
+  // Carbs: fill remainder
+  const carbs = Math.round(Math.max(0, (calories - protein * 4 - fat * 9) / 4));
+
+  // Fiber: ~14g per 1000 kcal
+  const fiber = Math.round(calories / 1000 * 14);
+
+  // Store suggested values for apply button
+  $('applyWizard').dataset.calories = calories;
+  $('applyWizard').dataset.protein = protein;
+  $('applyWizard').dataset.carbs = carbs;
+  $('applyWizard').dataset.fat = fat;
+  $('applyWizard').dataset.fiber = fiber;
+
+  $('wzResultTitle').textContent = `${goalLabel} — Est. maintenance: ${tdee} kcal`;
+  $('wzMacroRow').innerHTML = `
+    <span class="wizard-macro-pill" style="color:var(--color-primary)">${calories} kcal</span>
+    <span class="wizard-macro-pill" style="color:var(--color-success)">Protein ${protein}g</span>
+    <span class="wizard-macro-pill" style="color:#a07020">Carbs ${carbs}g</span>
+    <span class="wizard-macro-pill" style="color:var(--color-warning)">Fat ${fat}g</span>
+    <span class="wizard-macro-pill">Fiber ${fiber}g</span>`;
+  $('wzNote').textContent = `Formula: ${formulaUsed}. Protein based on ${isNaN(bodyFatPct)||!bodyFatPct?'total bodyweight':'lean body mass'} (1g/lb). Fat at 25% of calories. Carbs fill the remainder. These are starting estimates — adjust based on real results.`;
+
+  $('wizardResult').style.display = 'block';
+  $('wizardResult').scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  // Save profile for future Apple Health integration
+  state.settings.profile = { sex, age, heightFt:ft, heightIn:inch, weightLb, bodyFatPct: bodyFatPct||null, activityFactor, source:'manual', updatedAt: new Date().toISOString() };
+  saveState();
+});
+
+$('applyWizard').addEventListener('click', () => {
+  const d = $('applyWizard').dataset;
+  state.settings.targets = { calories:+d.calories, protein:+d.protein, carbs:+d.carbs, fat:+d.fat, fiber:+d.fiber };
+  saveState();
+  fillTargetInputs();
+  renderAll();
+  showToast('Targets applied from Goal Wizard.');
+});
+
+// pre-fill wizard from saved profile if it exists
+(function prefillWizard() {
+  const p = state.settings.profile;
+  if(!p) return;
+  if(p.sex) $('wzSex').value = p.sex;
+  if(p.age) $('wzAge').value = p.age;
+  if(p.heightFt) $('wzHeightFt').value = p.heightFt;
+  if(p.heightIn !== undefined) $('wzHeightIn').value = p.heightIn;
+  if(p.weightLb) $('wzWeight').value = p.weightLb;
+  if(p.bodyFatPct) $('wzBodyFat').value = p.bodyFatPct;
+  if(p.activityFactor) $('wzActivity').value = p.activityFactor;
+})();
+);
 
 // food search
 $('foodSearch').addEventListener('input', () => {
@@ -659,7 +903,9 @@ function renderQuickFoods() {
     btn.textContent = `${food.name} · ${food.calories}`;
     btn.addEventListener('click', () => {
       $('foodName').value = food.name;
-      $('mealType').value = food.meal || 'Snack';
+      $('mealType').value = food.meal || state.settings.lastMeal || 'Snack';
+      state.settings.lastMeal = $('mealType').value;
+      saveState();
       $('foodCalories').value = food.calories;
       $('foodProtein').value = food.protein;
       $('foodCarbs').value = food.carbs;
@@ -714,9 +960,12 @@ function renderSummary() {
   setMetric('fat', totals.fat, t.fat, 'g');
   const rem = Math.max(0, round(t.calories - totals.calories));
   $('daySummary').textContent = `${rem} calories remaining · Fiber: ${round(totals.fiber)}/${round(t.fiber)}g`;
-  const w = state.weights[$('datePicker').value];
+  const selectedDate = $('datePicker').value;
+  const w = state.weights[selectedDate];
   $('weightSummary').textContent = w ? `Logged: ${w.value} ${w.unit}` : 'No weight logged for this day.';
   if(w) $('weightInput').value = w.value;
+  else $('weightInput').value = '';
+  updateClockSummary(selectedDate);
 }
 
 function setMetric(name, total, target, suffix) {
