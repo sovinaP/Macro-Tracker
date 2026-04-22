@@ -72,7 +72,7 @@
     .micro-drawer-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);}
     .micro-drawer-bar{height:3px;border-radius:2px;background:var(--color-border);overflow:hidden;}
     .micro-drawer-bar span{display:block;height:100%;border-radius:2px;transition:width .4s ease;}
-    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;}
+    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;} .micro-source-note{font-size:.68rem;line-height:1.35;color:var(--color-text-faint);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);padding:.45rem .55rem;border-radius:10px;margin:.35rem 0 .55rem;}
     .metric-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;}
     .metric-card .label{font-size:var(--text-sm);color:var(--color-text-muted);}
     .metric-card .value{font-size:var(--text-lg);font-weight:700;font-variant-numeric:tabular-nums;}
@@ -1715,6 +1715,18 @@ function getDayMicroTotals(date, nutrientId) {
   }, 0);
 }
 
+function getSourceLabel(e) {
+  const s = String(e.source || e.dataSource || e.origin || '').toLowerCase();
+  if(s.includes('usda')) return 'usda';
+  if(s.includes('community') || s.includes('crowd')) return 'community';
+  if(s.includes('manual')) return 'manual';
+  return s || 'unknown';
+}
+
+function hasNonUsdaEntries(date) {
+  return (state.entries[date] || []).some(e => getSourceLabel(e) !== 'usda');
+}
+
 // ── MICRO MODAL (entry pill tap) ─────────────────────────────────────────
 var MICRO_CATS = {
   calories: { label:'Energy', color:'var(--color-accent,#b5892a)', sections:[
@@ -1886,6 +1898,11 @@ function buildMicroDrawer(macro, date) {
   const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
   if(!cat) return;
   const rows = [];
+  const entries = (state.entries[date] || []);
+  const nonUsda = entries.filter(e => getSourceLabel(e) !== 'usda');
+  if(nonUsda.length) {
+    rows.push('<div class="micro-source-note">Some entries came from community or other non-USDA sources. USDA-backed values are the most accurate; community results should be taken with a grain of salt.</div>');
+  }
   cat.sections.forEach(sec => {
     if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
     sec.nutrients.forEach(n => {
@@ -1941,7 +1958,7 @@ function toggleMicroDrawer(card, evt, macro) {
   card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
   buildMicroDrawer(macro, $('datePicker').value);
   if(!drawer.innerHTML.trim()) {
-    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
+    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. USDA nutrient data is missing for this card or the entry came from another source.</div>';
   }
 }
 
