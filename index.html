@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -230,25 +229,25 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap for quick summary" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
+    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" style="display:none" id="microDrawer-calories"></div>
+      <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap for quick summary" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
+    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" style="display:none" id="microDrawer-protein"></div>
+      <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap for quick summary" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
+    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" style="display:none" id="microDrawer-carbs"></div>
+      <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap for quick summary" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
+    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" style="display:none" id="microDrawer-fat"></div>
+      <div class="micro-drawer" id="microDrawer-fat"></div>
     </div>
   </section>
 
@@ -419,16 +418,22 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
       <section class="panel">
         <div class="section-head">
           <div>
-            <h2>7-day calories</h2>
+            <h2>Calorie history</h2>
             <div class="muted">Spot trends before they become habits.</div>
           </div>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button class="btn btn-ghost chart-range-btn active-range" data-range="7" type="button" style="padding:.3rem .8rem;font-size:var(--text-sm)">7 days</button>
+            <button class="btn btn-ghost chart-range-btn" data-range="30" type="button" style="padding:.3rem .8rem;font-size:var(--text-sm)">30 days</button>
+            <button class="btn btn-ghost chart-range-btn" data-range="365" type="button" style="padding:.3rem .8rem;font-size:var(--text-sm)">Year</button>
+          </div>
         </div>
-        <canvas id="calorieChart" aria-label="Seven day calorie chart" style="max-height:220px;"></canvas>
+        <canvas id="calorieChart" aria-label="Calorie history chart" style="max-height:220px;"></canvas>
       </section>
-      <div class="panel" style="margin-top:16px;">
-        <div class="section-head"><div><h2>Goal progress</h2><p>How close you are to your daily targets.</p></div></div>
-        <canvas id="goalProgressChart" height="180"></canvas>
-      </div>
+      <section class="panel" style="margin-top:16px;">
+        <div class="section-head"><div><h2>Logging streak</h2><p>Past 7 days at a glance.</p></div></div>
+        <div id="streakGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem;margin-top:.25rem;text-align:center"></div>
+        <div id="streakSummary" style="margin-top:.75rem;font-size:var(--text-sm);color:var(--color-text-muted)"></div>
+      </section>
 
 
     </main>
@@ -546,7 +551,7 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
             <div><label for="targetFat">Fat (g)</label><input id="targetFat" type="number" min="0" step="0.1"></div>
             <div><label for="targetFiber">Fiber (g)</label><input id="targetFiber" type="number" min="0" step="0.1"></div>
           </div>
-          <button class="btn btn-primary" type="submit">Save targets</button>
+          <button class="btn btn-primary" type="submit" id="saveTargets">Save targets</button>
         </form>
       </section>
 
@@ -561,7 +566,7 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
             <div><label for="weightInput">Weight</label><input id="weightInput" type="number" step="0.1" min="0" placeholder="190.4"></div>
             <div><label for="weightUnit">Unit</label><select id="weightUnit"><option value="lb">lb</option><option value="kg">kg</option></select></div>
           </div>
-          <button class="btn btn-primary" type="submit">Save weigh-in</button>
+          <button class="btn btn-primary" type="submit" id="saveWeight">Save weigh-in</button>
         </form>
         <div class="footer-note" id="weightSummary">No weight logged for this day.</div>
       </section>
@@ -759,6 +764,9 @@ function updateRateRow() {
     updateRateDisplay();
   }
 }
+
+
+function updateGoalEta(){ /* replaced by streak panel */ }
 
 function updateRateDisplay() {
   const slider = $('wzRate');
@@ -1063,7 +1071,7 @@ async function searchUSDA(query) {
 }
 
 function showResultsLoading() {
-  const db = $('dbSelector') ? $('dbSelector').value : 'usda';
+  const db = 'dual';
   const label = db === 'off' ? 'Open Food Facts' : 'USDA';
   const box = $('searchResults');
   box.style.display = 'block';
@@ -1100,12 +1108,12 @@ async function searchOFF(query) {
     };
   };
   try {
-    const data = await tryFetch(`https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(query)}&page_size=10&fields=product_name,brands,nutriments,serving_size,serving_quantity&json=true`);
+    const data = await tryFetch(`https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(query)}&page_size=20&fields=product_name,brands,nutriments,serving_size,serving_quantity&json=true`);
     const foods = (data.products||[]).filter(p=>p.product_name).map(normalize);
     renderResults(foods,'off');
   } catch(e) {
     try {
-      const data2 = await tryFetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10`);
+      const data2 = await tryFetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20`);
       const foods2 = (data2.products||[]).filter(p=>p.product_name).map(normalize);
       renderResults(foods2,'off');
     } catch(e2) {
@@ -1457,14 +1465,23 @@ function renderHistory() {
   $('historyBody').innerHTML = rows.join('');
 }
 
+let _chartRange = 7;
+
+function getNDates(n) {
+  const base = new Date(($('datePicker').value || todayStr)+'T00:00:00');
+  return Array.from({length:n},(_,i)=>{
+    const d = new Date(base);
+    d.setDate(base.getDate()-(n-1-i));
+    return d.toISOString().slice(0,10);
+  });
+}
+
 function renderChart() {
-  if(typeof Chart === 'undefined') {
-    // Chart.js not loaded yet — retry once it is
-    setTimeout(renderChart, 200);
-    return;
-  }
-  const dates = lastSevenDates();
-  const labels = dates.map(d => d.slice(5));
+  if(typeof Chart === 'undefined') { setTimeout(renderChart, 200); return; }
+  const dates = getNDates(_chartRange);
+  const labels = _chartRange <= 30
+    ? dates.map(d => d.slice(5))
+    : dates.map(d => { const parts = d.slice(5).split('-'); return parts[0]+'/'+parts[1]; });
   const values = dates.map(d => round(getTotals(d).calories));
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim();
@@ -1472,17 +1489,43 @@ function renderChart() {
   const gridColor = isDark ? 'rgba(255,255,255,.08)' : 'rgba(40,37,29,.08)';
   const ctx = $('calorieChart');
   if(!ctx) return;
-  // Guard: canvas needs non-zero dimensions
-  if(ctx.offsetWidth === 0) {
-    setTimeout(renderChart, 300);
-    return;
-  }
+  if(ctx.offsetWidth === 0) { setTimeout(renderChart, 300); return; }
   if(calorieChart) { calorieChart.destroy(); calorieChart = null; }
+  const calTarget = (state.settings.targets && state.settings.targets.calories) ? state.settings.targets.calories : null;
+  const datasets = [
+    { label:'Calories', data:values, borderColor:primaryColor, backgroundColor:'rgba(1,105,111,.1)', fill:true, tension:.35, pointRadius:_chartRange > 30 ? 1 : 3, pointHoverRadius:5 }
+  ];
+  if(calTarget) {
+    datasets.push({ label:'Target', data:dates.map(()=>calTarget), borderColor:'rgba(231,76,60,.55)', borderDash:[6,4], borderWidth:1.5, pointRadius:0, fill:false });
+  }
   calorieChart = new Chart(ctx, {
     type:'line',
-    data:{ labels, datasets:[{ label:'Calories', data:values, borderColor:primaryColor, backgroundColor:'rgba(1,105,111,.1)', fill:true, tension:.35, pointRadius:3, pointHoverRadius:5 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:textColor }, grid:{ color:gridColor } }, y:{ beginAtZero:true, ticks:{ color:textColor }, grid:{ color:gridColor } } } }
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display: calTarget !== null, labels:{ color:textColor, boxWidth:12, font:{size:11} } } }, scales:{ x:{ ticks:{ color:textColor, maxTicksLimit: _chartRange > 30 ? 10 : 7 }, grid:{ color:gridColor } }, y:{ beginAtZero:true, ticks:{ color:textColor }, grid:{ color:gridColor } } } }
   });
+  renderStreak();
+}
+
+function renderStreak() {
+  const grid = $('streakGrid');
+  const summary = $('streakSummary');
+  if(!grid) return;
+  const dates = getNDates(7);
+  let logged = 0, missed = 0;
+  grid.innerHTML = dates.map(date => {
+    const cal = getTotals(date).calories;
+    const hasLog = cal > 0;
+    if(hasLog) logged++; else missed++;
+    const label = date.slice(5);
+    const color = hasLog ? 'var(--color-primary)' : 'var(--color-surface-2)';
+    const textCol = hasLog ? '#fff' : 'var(--color-text-muted)';
+    const calTxt = hasLog ? Math.round(cal)+'<br><span style="font-size:.6rem">kcal</span>' : '—';
+    return `<div style="border-radius:var(--radius-md);background:${color};color:${textCol};padding:.5rem .25rem;font-size:var(--text-xs);font-weight:600">
+      <div style="font-size:.65rem;margin-bottom:.2rem;opacity:.85">${label}</div>
+      <div style="font-size:.75rem">${calTxt}</div>
+    </div>`;
+  }).join('');
+  if(summary) summary.textContent = `${logged} day${logged!==1?'s':''} logged · ${missed} day${missed!==1?'s':''} missed in the past week`;
 }
 
 // ---- HELPERS ----
@@ -2090,7 +2133,7 @@ updateThemeButtons();
 // Goal progress chart
 let _goalChart = null;
 function renderGoalProgressChart(){
-  const canvas = document.getElementById('goalProgressChart');
+  const canvas = document.getElementById('streakCard');
   if(!canvas || typeof Chart==='undefined') return;
   const t = getTotals ? getTotals() : {calories:0,protein:0,carbs:0,fat:0};
   const g = (state&&state.settings&&state.settings.targets) ? state.settings.targets : {calories:2200,protein:180,carbs:200,fat:70};
@@ -2106,8 +2149,8 @@ function renderGoalProgressChart(){
 }
 
 // Manual entry toggle
-const _manualToggleBtn = document.getElementById('manualToggle') || document.getElementById('manualEntryToggle');
-const _manualForm = document.getElementById('foodForm') || document.getElementById('manualForm');
+const _manualToggleBtn = document.getElementById('manualEntryToggle') || document.getElementById('manualEntryToggle');
+const _manualForm = document.getElementById('foodForm') || document.getElementById('foodForm');
 function toggleManualForm(force){
   if(!_manualForm) return;
   const show = typeof force === 'boolean' ? force : (_manualForm.style.display === 'none' || getComputedStyle(_manualForm).display === 'none');
@@ -2198,7 +2241,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 <script>
 document.addEventListener('DOMContentLoaded', ()=>{
-  const alwaysBtn = document.getElementById('addToLogAlwaysBtn');
+  const alwaysBtn = null; // removed — only one add-to-log button inside form
   if(alwaysBtn && !alwaysBtn.dataset.bound){
     alwaysBtn.dataset.bound='1';
     alwaysBtn.addEventListener('click', ()=>{
@@ -2269,11 +2312,191 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 
 <script>
-function toggleMicroDrawer(){ return false; }
+// ── Smart recommendations ──────────────────────────────────────
+function buildRecos() {
+  const panel = document.getElementById('recoContent');
+  if (!panel) return;
+  const date = document.getElementById('datePicker')?.value || todayStr;
+  const totals = getTotals(date);
+  const t = state.settings.targets;
+  if (!t || !t.calories) { panel.innerHTML = '<p class="muted">Set your targets in the Goal Wizard to see suggestions.</p>'; return; }
+
+  const remCal  = Math.max(0, t.calories - totals.calories);
+  const remProt = Math.max(0, t.protein  - totals.protein);
+  const remCarb = Math.max(0, t.carbs    - totals.carbs);
+  const remFat  = Math.max(0, t.fat      - totals.fat);
+
+  const overProt = totals.protein > t.protein;
+  const overCarb = totals.carbs   > t.carbs;
+  const overFat  = totals.fat     > t.fat;
+  const overCal  = totals.calories > t.calories;
+
+  const items = [];
+
+  if (overCal) {
+    items.push({ icon:'🚫', color:'#e74c3c', msg:`You're ${Math.round(totals.calories - t.calories)} kcal over for the day. Skip heavy sides or sauces for your next meal.` });
+  } else if (remCal < 200 && remCal > 0) {
+    items.push({ icon:'✅', color:'#27ae60', msg:`Only ${Math.round(remCal)} kcal left. A light snack like Greek yogurt or a small apple will close it out cleanly.` });
+  } else if (remCal > 600) {
+    items.push({ icon:'📈', color:'#3498db', msg:`${Math.round(remCal)} kcal remaining. You have room for a solid meal — lean protein and complex carbs would hit your targets well.` });
+  }
+
+  if (overProt) {
+    items.push({ icon:'⚠️', color:'#e67e22', msg:`Protein is ${Math.round(totals.protein - t.protein)}g over target. Swap a protein-heavy item for something lighter like vegetables or fruit.` });
+  } else if (remProt > 30) {
+    items.push({ icon:'💪', color:'#9b59b6', msg:`${Math.round(remProt)}g of protein still needed. Good options: chicken breast, cottage cheese, eggs, or a protein shake.` });
+  }
+
+  if (overFat) {
+    items.push({ icon:'⚠️', color:'#e67e22', msg:`Fat is ${Math.round(totals.fat - t.fat)}g over. Avoid fried foods and heavy dressings for the rest of the day.` });
+  } else if (remFat < 5 && !overFat) {
+    items.push({ icon:'✅', color:'#27ae60', msg:`Fat target is almost exactly on track. Keep it up.` });
+  }
+
+  if (overCarb) {
+    items.push({ icon:'⚠️', color:'#e67e22', msg:`Carbs are ${Math.round(totals.carbs - t.carbs)}g over. Stick to protein and vegetables for your remaining meals.` });
+  } else if (remCarb > 50) {
+    items.push({ icon:'🍚', color:'#16a085', msg:`${Math.round(remCarb)}g of carbs remaining. Rice, oats, sweet potato, or fruit are clean options to fill this.` });
+  }
+
+  if (items.length === 0) {
+    items.push({ icon:'🎯', color:'#27ae60', msg:`You are right on track for today. Keep your next meal balanced and you will hit all your targets.` });
+  }
+
+  panel.innerHTML = items.map(i =>
+    `<div style="display:flex;gap:.6rem;align-items:flex-start;padding:.6rem .75rem;border-radius:var(--radius-md);background:var(--color-surface-2)">
+      <span style="font-size:1.1rem;flex-shrink:0">${i.icon}</span>
+      <span style="font-size:var(--text-sm);line-height:1.55">${i.msg}</span>
+    </div>`
+  ).join('');
+}
+
+// Re-run recommendations after every renderSummary call
+const _origRenderSummary = window.renderSummary;
+if (typeof renderSummary === 'function') {
+  const _orig = renderSummary;
+  window.renderSummary = function() { _orig(); buildRecos(); };
+  renderSummary = window.renderSummary;
+}
+document.addEventListener('DOMContentLoaded', buildRecos);
+
+// ── Better search: merged USDA + OFF with dedup and sorted display ──────────
+window._origSearchUSDA = window.searchUSDA;
+window._origSearchOFF  = window.searchOFF;
+
+async function dualSearch(query) {
+  if (!query) return;
+  const box = document.getElementById('searchResults');
+  if (box) { box.style.display = 'block'; box.innerHTML = '<div class="loading-row"><span class="spinner"></span> Searching…</div>'; }
+
+  let usdaFoods = [], offFoods = [];
+  await Promise.allSettled([
+    (async () => {
+      try {
+        const res = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(query)}&dataType=Foundation,SR%20Legacy,Branded,Survey%20(FNDDS)&pageSize=25`);
+        const d = await res.json();
+        usdaFoods = d.foods || [];
+      } catch(e) {}
+    })(),
+    (async () => {
+      try {
+        const res = await fetch(`https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(query)}&page_size=20&fields=product_name,brands,nutriments,serving_size,serving_quantity&json=true`);
+        const d = await res.json();
+        const normalize = p => {
+          const n = p.nutriments || {};
+          return {
+            fdcId: null, _source:'off', description: p.product_name + (p.brands ? ` (${p.brands})` : ''),
+            brandOwner: p.brands || 'Open Food Facts',
+            foodNutrients: [
+              { nutrientId:1008, value: n['energy-kcal_100g'] || (n['energy_100g']||0)/4.18 },
+              { nutrientId:1003, value: n['proteins_100g'] || 0 },
+              { nutrientId:1005, value: n['carbohydrates_100g'] || 0 },
+              { nutrientId:1004, value: n['fat_100g'] || 0 },
+              { nutrientId:1079, value: n['fiber_100g'] || 0 },
+            ]
+          };
+        };
+        offFoods = (d.products||[]).filter(p=>p.product_name).map(normalize);
+      } catch(e) {}
+    })()
+  ]);
+
+  // Interleave: 2 USDA, 1 OFF, repeat — keeps variety visible at top
+  const merged = [];
+  const maxLen = Math.max(usdaFoods.length, offFoods.length);
+  let u = 0, o = 0;
+  while (u < usdaFoods.length || o < offFoods.length) {
+    if (u < usdaFoods.length) { merged.push(usdaFoods[u++]); }
+    if (u < usdaFoods.length) { merged.push(usdaFoods[u++]); }
+    if (o < offFoods.length)  { merged.push({...offFoods[o++], _source:'off'}); }
+  }
+
+  if (merged.length === 0) {
+    if (box) box.innerHTML = '<div class="search-hint">No results found. Try a shorter or different name.</div>';
+    return;
+  }
+  if (typeof renderResults === 'function') {
+    // Render merged — pass source per item via _source flag
+    if (box) box.innerHTML = '';
+    const srcLabel = s => s === 'off' ? '<span style="font-size:.7rem;padding:.1rem .4rem;border-radius:4px;background:var(--color-surface-offset);color:var(--color-text-muted);margin-left:.4rem;">OFF</span>' : '';
+    merged.forEach(food => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.setAttribute('role','option');
+      const cal  = getNutrientValue(food.foodNutrients, 1008);
+      const pro  = getNutrientValue(food.foodNutrients, 1003);
+      const carb = getNutrientValue(food.foodNutrients, 1005);
+      const fat  = getNutrientValue(food.foodNutrients, 1004);
+      const serving = food.servingSize ? ` · ${food.servingSize}${food.servingSizeUnit||'g'}` : '';
+      const brand = food.brandOwner || '';
+      item.innerHTML = `
+        <div class="sri-name">${escHtml(food.description||'')}${srcLabel(food._source||'')}</div>
+        <div class="sri-meta">${escHtml(brand)}${serving}</div>
+        <div class="sri-macros">${cal} kcal · P ${pro}g · C ${carb}g · F ${fat}g per 100g</div>`;
+      item.addEventListener('click', () => selectFood(food));
+      if (box) box.appendChild(item);
+    });
+    if (box) box.style.display = 'block';
+  }
+}
+
+// Wire the search button to dualSearch
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('searchBtn');
+  const inp = document.getElementById('foodSearch');
+  if (btn) {
+    btn.onclick = () => dualSearch(inp?.value?.trim());
+  }
+  if (inp) {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); dualSearch(inp.value.trim()); }});
+  }
+});
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.chart-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chart-range-btn').forEach(b => b.classList.remove('active-range'));
+      btn.classList.add('active-range');
+      _chartRange = Number(btn.dataset.range);
+      renderChart();
+    });
+  });
+});
+</script>
+<style>
+.active-range { background: var(--color-primary) !important; color: #fff !important; }
+</style>
 
 </body>
 </html>
 
+
+      <section class="panel" id="recoPanel" style="margin-bottom:1rem">
+        <div class="section-head"><div><h2>Smart suggestions</h2><p>Based on what you've logged today.</p></div></div>
+        <div id="recoContent" style="display:grid;gap:.6rem"><p class="muted" style="font-size:var(--text-sm)">Set your targets to see suggestions.</p></div>
+      </section>
 
 
