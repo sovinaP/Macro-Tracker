@@ -318,7 +318,7 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
         <div class="section-head">
           <div>
             <h2>Add food</h2>
-            <div class="muted">Search a food by name and macros fill in automatically.</div>
+            <div class="muted">Search a food, then open manual entry if needed.</div>
           </div>
         </div>
 
@@ -365,7 +365,7 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
           </div>
         </div>
 
-        <div class="divider">or enter manually</div>
+        <div class="divider">or</div>
 
         <form id="foodForm" style="display:grid;gap:1rem;">
           <div class="grid-2">
@@ -2171,7 +2171,55 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
     <div id="microModalBody" style="overflow-y:auto;padding:1rem 1.25rem;flex:1;"></div>
   </div>
 </div>
+
+<script>
+(function(){
+  function toggleManualEntry(){
+    const f=document.getElementById('foodForm');
+    const b=document.getElementById('manualEntryToggle');
+    if(!f||!b) return;
+    const open=f.style.display!=='grid';
+    f.style.display=open?'grid':'none';
+    b.textContent=open?'Hide manual entry':'Enter manually';
+    b.setAttribute('aria-expanded', String(open));
+    if(open) document.getElementById('foodName')?.focus();
+  }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btn=document.getElementById('manualEntryToggle');
+    if(btn && !btn.dataset.bound){
+      btn.dataset.bound='1';
+      btn.addEventListener('click', toggleManualEntry);
+    }
+    window.auditButtons = function(){
+      const ids=['searchBtn','manualEntryToggle','addToLogBtn','saveCustomFood','clearFood','saveTemplateBtn','exportBtn','importFile','themeToggle','rescanNutrientsBtn','waterCustomAdd','waterReset','runWizard','applyWizard'];
+      return ids.filter(id => !document.getElementById(id));
+    };
+  });
+})();
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const map = [
+    ['manualToggle', 'manualEntryToggle'],
+    ['water8', 'water8oz'],
+    ['water16', 'water16oz'],
+    ['water500', 'water500ml'],
+    ['jumpToday', 'jumpTodayBtn'],
+    ['rescanNutrientsBtn', 'rescanNutrientsBtn']
+  ];
+  map.forEach(([legacy, modern])=>{
+    if(!document.getElementById(legacy)){
+      const el = document.getElementById(modern);
+      if(el) el.id = legacy;
+    }
+  });
+});
+</script>
+
 </body>
 </html>
+
 
 
