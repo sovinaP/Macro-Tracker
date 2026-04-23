@@ -367,8 +367,9 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
 
         <div class="divider">or</div>
 
-        <button class="btn btn-primary" id="manualEntryToggle" type="button" style="width:100%;margin-top:.5rem">Enter manually</button>
-          <form id="foodForm" style="display:none;gap:1rem;margin-top:1rem" style="display:grid;gap:1rem;">
+        <button class="btn btn-primary" id="manualEntryToggle" type="button" style="width:100%;margin-top:.5rem;transition:transform .18s ease,opacity .18s ease">Enter manually</button>
+          <button class="btn btn-primary" id="addToLogBtn" type="submit" form="foodForm" style="width:100%;margin-top:.5rem">Add to log</button>
+          <form id="foodForm" style="display:none;gap:1rem;margin-top:1rem">
           <div class="grid-2">
             <div>
               <label for="foodName">Food name</label>
@@ -2196,6 +2197,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 
 
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const alwaysBtn = document.getElementById('addToLogAlwaysBtn');
+  if(alwaysBtn && !alwaysBtn.dataset.bound){
+    alwaysBtn.dataset.bound='1';
+    alwaysBtn.addEventListener('click', ()=>{
+      const form = document.getElementById('foodForm');
+      if(form && form.style.display !== 'grid'){
+        document.getElementById('manualEntryToggle')?.click();
+        return;
+      }
+      document.getElementById('addToLogBtn')?.click();
+    });
+  }
+});
+</script>
+
+
+
+
+
 <script>
 (function(){
   function toggleManualEntry(){
@@ -2206,16 +2231,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
     f.style.display=open?'grid':'none';
     b.textContent=open?'Hide manual entry':'Enter manually';
     b.setAttribute('aria-expanded', String(open));
-    if(open) document.getElementById('foodName')?.focus();
-  }
-  function aliasIds(){
-    const pairs=[['manualToggle','manualEntryToggle'],['water8','water8oz'],['water16','water16oz'],['water500','water500ml'],['jumpToday','jumpTodayBtn']];
-    pairs.forEach(([legacy, modern])=>{ if(!document.getElementById(legacy)){ const el=document.getElementById(modern); if(el) el.id=legacy; }});
+    if(open) requestAnimationFrame(()=>document.getElementById('foodName')?.focus());
   }
   document.addEventListener('DOMContentLoaded', ()=>{
-    aliasIds();
     const btn=document.getElementById('manualEntryToggle');
-    if(btn && !btn.dataset.bound){ btn.dataset.bound='1'; btn.addEventListener('click', toggleManualEntry); }
+    if(btn && !btn.dataset.bound){
+      btn.dataset.bound='1';
+      btn.addEventListener('click', toggleManualEntry, {passive:true});
+    }
   });
 })();
 </script>
