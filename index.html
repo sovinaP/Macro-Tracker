@@ -1,17 +1,13 @@
 
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f1115" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>NourishOS</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" onload="if(typeof renderChart==='function')renderChart();" onerror="console.warn('Chart.js failed to load')"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" onload="if(typeof renderChart==='function')syncCharts();" onerror="console.warn('Chart.js failed to load')"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
   <style>
     :root, [data-theme="light"] {
@@ -70,14 +66,14 @@
     .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
     .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
     .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;} .macro-detail-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.1rem 0 .35rem;} .macro-detail-note{font-size:.68rem;line-height:1.35;color:var(--color-text-muted);background:rgba(1,105,111,.06);border:1px solid rgba(1,105,111,.14);padding:.45rem .55rem;border-radius:10px;margin:.35rem 0 .55rem;} .macro-detail-row{display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.25rem 0;border-bottom:1px solid rgba(40,37,29,.06);font-size:.78rem;} .macro-detail-row:last-child{border-bottom:none;} .macro-detail-sub{font-size:.68rem;color:var(--color-text-faint);} .macro-detail-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem;}
+    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;}
     .micro-drawer.open{display:block;padding-top:.7rem;}
     .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
     .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
     .micro-drawer-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);}
     .micro-drawer-bar{height:3px;border-radius:2px;background:var(--color-border);overflow:hidden;}
     .micro-drawer-bar span{display:block;height:100%;border-radius:2px;transition:width .4s ease;}
-    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;} .micro-source-note{font-size:.68rem;line-height:1.35;color:var(--color-text-faint);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);padding:.45rem .55rem;border-radius:10px;margin:.35rem 0 .55rem;}
+    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;}
     .metric-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;}
     .metric-card .label{font-size:var(--text-sm);color:var(--color-text-muted);}
     .metric-card .value{font-size:var(--text-lg);font-weight:700;font-variant-numeric:tabular-nums;}
@@ -174,7 +170,7 @@
     .tweaks-group + .tweaks-group{padding-left:var(--space-5);border-left:1px solid rgba(40,37,29,.1);}
     .tweaks-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
     .tweak-btn{min-height:36px;padding:.4rem .85rem;border-radius:var(--radius-md);background:var(--color-surface-offset);border:1px solid rgba(40,37,29,.1);color:var(--color-text);font-size:var(--text-sm);font-weight:500;display:inline-flex;align-items:center;transition:background var(--transition),transform var(--transition);}
-    .tweak-btn:hover{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface-offset));transform:translateY(-1px);} .settings input[type="range"]{width:100%;} .settings input[type="color"]{border-radius:var(--radius-md);} .settings label{display:block;margin-bottom:.35rem;font-size:var(--text-sm);color:var(--color-text-muted);}
+    .tweak-btn:hover{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface-offset));transform:translateY(-1px);}
 
     @media(max-width:720px){
       .tweaks-group + .tweaks-group{padding-left:0;border-left:none;}
@@ -191,7 +187,18 @@
       .top-actions{width:100%;}
       .top-actions>*{flex:1 1 auto;}
     }
-  </style>
+  
+:root{--theme-name:"Warm";--primary:#0f7278;--primary-hover:#0b5a5e;--surface:#fffdf8;--surface2:#f4efe6;--text:#26241e;--muted:#706a60;--border:#d8d0c5;--bg:#f7f5f0;--success:#4a7d24;--warning:#9d5e1f;--error:#a63f52}
+[data-theme="dark"]{--theme-name:"Dark";--primary:#77c8cf;--primary-hover:#5aaeb5;--surface:#1d1b18;--surface2:#23201c;--text:#eee7db;--muted:#b8b0a2;--border:#39342e;--bg:#171612;--success:#93d66d;--warning:#e2a65b;--error:#ee8394}
+[data-theme-preset="forest"]{--theme-name:"Forest";--primary:#2f7d4b;--primary-hover:#24653c;--surface:#f7fbf7;--surface2:#ecf4ec;--text:#1f2b23;--muted:#5f6f64;--border:#cad7cb;--bg:#f3f8f3;--success:#2f7d4b;--warning:#a8702f;--error:#a34c55}
+[data-theme-preset="sunset"]{--theme-name:"Sunset";--primary:#cf5c49;--primary-hover:#b94c3a;--surface:#fffaf6;--surface2:#f6ece4;--text:#2a1d1a;--muted:#7c665f;--border:#dcc8bf;--bg:#fff5ef;--success:#5a8c49;--warning:#c0752d;--error:#b34757}
+[data-theme-preset="slate"]{--theme-name:"Slate";--primary:#5f78a8;--primary-hover:#4d6590;--surface:#f7f8fa;--surface2:#eceff4;--text:#20242b;--muted:#68707e;--border:#ccd4de;--bg:#f2f4f8;--success:#4d8a67;--warning:#ac7b33;--error:#b05666}
+
+.tweak-btn.is-active{outline:2px solid var(--primary);background:color-mix(in srgb, var(--surface) 82%, var(--primary) 18%);box-shadow:0 0 0 1px var(--primary) inset;color:var(--text);}
+
+html[data-theme='dark'] .tweak-btn.is-active{background:color-mix(in srgb, var(--surface) 68%, var(--primary) 32%);color:var(--text);}
+html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(--surface) 84%, var(--primary) 16%);color:var(--text);}
+</style>
 </head>
 <body>
 
@@ -211,8 +218,7 @@
       </div>
     </div>
     <div class="top-actions">
-      <div style="display:flex;align-items:center;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;">
-        <div class="date-nav">
+      <div class="date-nav">
         <button class="date-nav-btn" id="prevDay" aria-label="Previous day">&#8249;</button>
         <input type="date" id="datePicker" aria-label="Select day">
         <button class="date-nav-btn" id="nextDay" aria-label="Next day">&#8250;</button>
@@ -224,22 +230,22 @@
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand details" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
+    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-calories"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand details" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
+    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-protein"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand details" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
+    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-carbs"></div>
     </div>
-    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand details" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
+    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
       <div class="micro-drawer" id="microDrawer-fat"></div>
@@ -257,7 +263,7 @@
       <div style="display:flex;align-items:center;gap:var(--space-2);">
         <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Goal</span>
         <input id="waterGoalInput" type="number" min="1" max="500" style="width:56px;padding:.3rem .5rem;text-align:center;font-size:var(--text-sm);" value="64">
-        <select id="waterUnitSelect" style="padding:.3rem .5rem;font-size:var(--text-sm);">
+        <select id="waterUnitSelect" style="width:72px;max-width:72px;" style="padding:.3rem .5rem;font-size:var(--text-sm);">
           <option value="oz">oz</option>
           <option value="ml">ml</option>
         </select>
@@ -359,10 +365,9 @@
           </div>
         </div>
 
-        <div class="divider">manual entry</div>
-        <button class="btn btn-secondary" id="manualEntryToggle" type="button">Enter manually</button>
+        <div class="divider">or enter manually</div>
 
-        <form id="foodForm" style="display:none;gap:1rem;margin-top:1rem;">
+        <form id="foodForm" style="display:grid;gap:1rem;">
           <div class="grid-2">
             <div>
               <label for="foodName">Food name</label>
@@ -422,6 +427,11 @@
         </div>
         <canvas id="calorieChart" aria-label="Seven day calorie chart" style="max-height:220px;"></canvas>
       </section>
+      <div class="panel" style="margin-top:16px;">
+        <div class="section-head"><div><h2>Goal progress</h2><p>How close you are to your daily targets.</p></div></div>
+        <canvas id="goalProgressChart" height="180"></canvas>
+      </div>
+
 
     </main>
 
@@ -586,20 +596,28 @@
       <span class="tweaks-label">Data</span>
       <button class="tweak-btn" id="exportBtn">Export backup</button>
       <label class="tweak-btn" for="importFile" style="cursor:pointer;">Import backup</label>
-      <button class="tweak-btn" id="rescanNutrientsBtn">⟳ Refresh micros</button>
+      
     </div>
     <div class="tweaks-group">
       <span class="tweaks-label">Version</span>
-      <span class="tweaks-label">NourishOS v0.5 alpha</span>
+      <span class="tweaks-label">NourishOS v0.7 alpha</span>
     </div>
-  </footer>
+  
+    <div class="tweaks-group">
+      <span class="tweaks-label">Themes</span>
+      <button class="tweak-btn" data-theme-preset="forest" type="button">Forest</button>
+      <button class="tweak-btn" data-theme-preset="sunset" type="button">Sunset</button>
+      <button class="tweak-btn" data-theme-preset="slate" type="button">Slate</button>
+      
+      
+    </div>
+</footer>
 
-  </div>
+</div>
 
 <script>
 const USDA_KEY = 'e85R8yLG8xe0lodYKILyv9HdfJLA8X6ZmkqmdJiB';
 const STORAGE_KEY = 'macroTrackerAlpha_v2';
-const DEFAULT_THEME = { accent:'#4aa3b5', opacity:0.45, softness:0.2 };
 function getLocalDateString(d = new Date()) {
   return d.getFullYear() + '-' +
     String(d.getMonth()+1).padStart(2,'0') + '-' +
@@ -619,22 +637,24 @@ function startClock() { updateClockSummary(); setInterval(updateClockSummary, 30
 const todayStr = getLocalDateString();
 
 const defaultData = {
-  settings:{ targets:{calories:2200,protein:180,carbs:200,fat:70,fiber:30}, weightUnit:'lb', theme:'light', lastMeal:'Breakfast', waterGoal:64, waterUnit:'oz' },
+  settings:{ accent:'#0f7278', targets:{calories:2200,protein:180,carbs:200,fat:70,fiber:30}, weightUnit:'lb', theme:'light', lastMeal:'Breakfast', waterGoal:64, waterUnit:'oz' },
   entries:{}, weights:{}, water:{},
   quickFoods:[], mealTemplates:[]
 };
 
 const state = loadState();
 
+function bind(id, evt, fn){ const el = $(id); if(el) el.addEventListener(evt, fn); }
+function bindClick(id, fn){ bind(id, 'click', fn); }
+function bindChange(id, fn){ bind(id, 'change', fn); }
+function bindInput(id, fn){ bind(id, 'input', fn); }
+function bindSubmit(id, fn){ bind(id, 'submit', fn); }
+
 // State migration — patch missing keys from older saved versions
 if (!state.water) state.water = {};
 if (!state.mealTemplates) state.mealTemplates = [];
 if (state.settings.waterGoal === undefined) state.settings.waterGoal = 64;
 if (!state.settings.waterUnit) state.settings.waterUnit = 'oz';
-if(!state.settings.theme) state.settings.theme = 'dark';
-if(!state.entries) state.entries = {};
-if(!state.weights) state.weights = {};
-if(!state.water) state.water = {};
 saveState();
 
 let calorieChart = null;
@@ -645,24 +665,23 @@ const $= id => document.getElementById(id);
 
 // init
 $('datePicker').value = todayStr;
-applyTheme(state.settings.theme || 'dark');
+applyTheme(state.settings.theme || 'light');
 fillTargetInputs();
 $('mealType').value = state.settings.lastMeal || 'Breakfast';
 renderQuickFoods();
 renderAll();
 renderWater();
-bindWaterControls();
 startClock();
 // Ensure chart renders even if Chart.js loads late
 if(typeof Chart === 'undefined') { setTimeout(renderChart, 500); setTimeout(renderChart, 1500); }
 
 // ---- EVENT LISTENERS ----
-if($('themeToggle')) $('themeToggle').addEventListener('click', () => {
+bindClick('themeToggle', () => {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  applyTheme(next); state.settings.theme = next; saveState(); renderChart();
+  applyTheme(next); state.settings.theme = next; saveState(); syncCharts();
 });
 
-if($('exportBtn')) $('exportBtn').addEventListener('click', () => {
+bindClick('exportBtn', () => {
   const json = JSON.stringify(state, null, 2);
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -675,7 +694,7 @@ if($('exportBtn')) $('exportBtn').addEventListener('click', () => {
   showToast('Backup downloaded.');
 });
 
-$('importFile').addEventListener('change', async e => {
+bindChange('importFile', async e => {
   const file = e.target.files[0]; if(!file) return;
   try {
     const imported = JSON.parse(await file.text());
@@ -685,9 +704,9 @@ $('importFile').addEventListener('change', async e => {
   } catch { showToast('Import failed — invalid backup file.'); }
 });
 
-$('datePicker').addEventListener('change', renderAll);
+bindChange('datePicker', renderAll);
 
-$('clearCustomFoods').addEventListener('click', () => {
+bindClick('clearCustomFoods', () => {
   if(state.quickFoods.length === 0) return;
   state.quickFoods = [];
   saveState(); renderQuickFoods();
@@ -695,13 +714,13 @@ $('clearCustomFoods').addEventListener('click', () => {
 });
 
 
-$('prevDay').addEventListener('click', () => {
+bindClick('prevDay', () => {
   const d = new Date($('datePicker').value + 'T00:00:00');
   d.setDate(d.getDate() - 1);
   $('datePicker').value = getLocalDateString(d);
   renderAll();
 });
-$('nextDay').addEventListener('click', () => {
+bindClick('nextDay', () => {
   const d = new Date($('datePicker').value + 'T00:00:00');
   d.setDate(d.getDate() + 1);
   const today = getLocalDateString();
@@ -710,8 +729,8 @@ $('nextDay').addEventListener('click', () => {
   else showToast("Can't log future days.");
 });
 
-$('jumpTodayBtn').addEventListener('click', () => { $('datePicker').value = getLocalDateString(); renderAll(); });
-$('mealType').addEventListener('change', () => { state.settings.lastMeal = $('mealType').value; saveState(); });
+bindClick('jumpTodayBtn', () => { $('datePicker').value = getLocalDateString(); renderAll(); });
+bindChange('mealType', () => { state.settings.lastMeal = $('mealType').value; saveState(); });
 
 // ---- GOAL WIZARD ----
 let activeGoal = 'maintain';
@@ -771,14 +790,14 @@ if(wzProteinPrefEl) wzProteinPrefEl.addEventListener('change', () => {
   if(row) row.style.display = wzProteinPrefEl.value === 'custom' ? 'block' : 'none';
 });
 
-$('toggleWizard').addEventListener('click', () => {
+bindClick('toggleWizard', () => {
   const body = $('wizardBody');
   const hidden = body.style.display === 'none';
   body.style.display = hidden ? 'grid' : 'none';
   $('toggleWizard').textContent = hidden ? 'Hide' : 'Show';
 });
 
-$('runWizard').addEventListener('click', () => {
+bindClick('runWizard', () => {
   const sex = $('wzSex').value;
   const age = parseFloat($('wzAge').value);
   const ft = parseFloat($('wzHeightFt').value) || 0;
@@ -886,7 +905,7 @@ $('runWizard').addEventListener('click', () => {
   saveState();
 });
 
-$('applyWizard').addEventListener('click', () => {
+bindClick('applyWizard', () => {
   if(!wizardSuggested) { showToast('Run the calculator first.'); return; }
   state.settings.targets = {
     calories: wizardSuggested.calories,
@@ -922,26 +941,26 @@ $('applyWizard').addEventListener('click', () => {
 })();
 
 // food search
-$('foodSearch').addEventListener('input', () => {
+bindInput('foodSearch', () => {
   clearTimeout(searchDebounce);
   const q = $('foodSearch').value.trim();
   if(q.length < 2){ hideResults(); return; }
   searchDebounce = setTimeout(() => searchUSDA(q), 500);
 });
 
-$('foodSearch').addEventListener('keydown', e => {
+bind('foodSearch','keydown', e => {
   if(e.key === 'Enter'){ e.preventDefault(); searchUSDA($('foodSearch').value.trim()); }
   if(e.key === 'Escape') hideResults();
 });
 
-$('searchBtn').addEventListener('click', () => {
+bindClick('searchBtn', () => {
   const q = $('foodSearch').value.trim();
   if(!q) return;
   const db = $('dbSelector').value;
   if(db === 'off') searchOFF(q);
   else searchUSDA(q);
 });
-$('foodSearch').addEventListener('keydown', e => {
+bind('foodSearch','keydown', e => {
   if(e.key === 'Enter') {
     const q = $('foodSearch').value.trim();
     if(!q) return;
@@ -951,10 +970,10 @@ $('foodSearch').addEventListener('keydown', e => {
   }
 });
 
-$('servingQty').addEventListener('input', updateMacroPreview);
-$('servingUnit').addEventListener('change', updateMacroPreview);
+bindInput('servingQty', updateMacroPreview);
+bindChange('servingUnit', updateMacroPreview);
 
-$('clearFood').addEventListener('click', () => {
+bindClick('clearFood', () => {
   selectedFoodData = null;
   $('servingRow').style.display = 'none';
   $('macroPreview').style.display = 'none';
@@ -963,7 +982,7 @@ $('clearFood').addEventListener('click', () => {
   clearMacroFields();
 });
 
-$('foodForm').addEventListener('submit', e => {
+bindSubmit('foodForm', e => {
   e.preventDefault();
   const entry = {
     id: crypto.randomUUID(),
@@ -993,14 +1012,14 @@ $('foodForm').addEventListener('submit', e => {
   renderAll();
 });
 
-$('foodCalories').addEventListener('blur', function() {
+bind('foodCalories','blur', function() {
   if(this.value !== '') this.value = Math.ceil(parseFloat(this.value)||0);
 });
-$('foodCalories').addEventListener('change', function() {
+bindChange('foodCalories', function() {
   if(this.value !== '') this.value = Math.ceil(parseFloat(this.value)||0);
 });
 
-$('saveCustomFood').addEventListener('click', () => {
+bindClick('saveCustomFood', () => {
   const name = $('foodName').value.trim();
   const calories = num('foodCalories');
   if(!name || !calories){ showToast('Enter a food name and calories first.'); return; }
@@ -1010,13 +1029,13 @@ $('saveCustomFood').addEventListener('click', () => {
   showToast(`Saved "${name}" to quick foods.`);
 });
 
-$('targetForm').addEventListener('submit', e => {
+bindSubmit('targetForm', e => {
   e.preventDefault();
   state.settings.targets = { calories:num('targetCalories'), protein:num('targetProtein'), carbs:num('targetCarbs'), fat:num('targetFat'), fiber:num('targetFiber') };
   saveState(); renderAll(); showToast('Targets saved.');
 });
 
-$('weightForm').addEventListener('submit', e => {
+bindSubmit('weightForm', e => {
   e.preventDefault();
   const w = parseFloat($('weightInput').value);
   if(!w){ showToast('Enter a weight value.'); return; }
@@ -1293,8 +1312,7 @@ function renderAll() {
   renderSummary();
   renderHistory();
   renderChart();
-  renderGoalChart();
-  renderProteinChart();
+  if(typeof renderGoalProgressChart === "function") renderGoalProgressChart();
   renderWeightSummary();
   renderWater();
   renderTemplates();
@@ -1441,54 +1459,6 @@ function renderHistory() {
   $('historyBody').innerHTML = rows.join('');
 }
 
-function renderGoalChart() {
-  const canvas = $('goalChart');
-  if(!canvas || !window.Chart) return;
-  const dates = getRecentDates(7);
-  const days = dates.map(d => new Date(d + 'T00:00:00').toLocaleDateString([], {weekday:'short'}));
-  const targets = dates.map(() => Number(state.settings.targets.calories || 2200));
-  const consumed = dates.map(d => getDayTotals(d).calories || 0);
-  const ctx = canvas.getContext('2d');
-  if(window.goalChart instanceof Chart) window.goalChart.destroy();
-  window.goalChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: days, datasets: [
-      { label: 'Calories consumed', data: consumed, borderColor: 'var(--color-primary)', backgroundColor: 'rgba(1,105,111,.12)', tension: .35, fill: true, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2 },
-      { label: 'Goal', data: targets, borderColor: 'rgba(100,100,100,.45)', borderDash: [5,5], pointRadius: 0, fill: false, borderWidth: 1.5 }
-    ]},
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: true, labels: { usePointStyle: true, boxWidth: 8, color: 'var(--color-text-muted)' } } },
-      scales: { y: { beginAtZero: true, grid: { color: 'rgba(40,37,29,.06)' }, ticks: { color: 'var(--color-text-muted)' } }, x: { grid: { display: false }, ticks: { color: 'var(--color-text-muted)' } } }
-    }
-  });
-}
-
-function renderProteinChart() {
-  const canvas = $('proteinChart');
-  if(!canvas || !window.Chart) return;
-  const dates = getRecentDates(7);
-  const days = dates.map(d => new Date(d + 'T00:00:00').toLocaleDateString([], {weekday:'short'}));
-  const targets = dates.map(() => Number(state.settings.targets.protein || 180));
-  const consumed = dates.map(d => getDayTotals(d).protein || 0);
-  const ctx = canvas.getContext('2d');
-  if(window.proteinChart instanceof Chart) window.proteinChart.destroy();
-  window.proteinChart = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: days, datasets: [
-      { label: 'Protein consumed (g)', data: consumed, backgroundColor: 'rgba(67,122,34,.5)', borderColor: 'rgba(67,122,34,.9)', borderWidth: 1, borderRadius: 8 },
-      { label: 'Goal', data: targets, type: 'line', borderColor: 'rgba(100,100,100,.5)', borderDash: [5,5], pointRadius: 0, tension: .25, fill: false, borderWidth: 1.5 }
-    ]},
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: true, labels: { usePointStyle: true, boxWidth: 8, color: 'var(--color-text-muted)' } } },
-      scales: { y: { beginAtZero: true, grid: { color: 'rgba(40,37,29,.06)' }, ticks: { color: 'var(--color-text-muted)' } }, x: { grid: { display: false }, ticks: { color: 'var(--color-text-muted)' } } }
-    }
-  });
-}
-
 function renderChart() {
   if(typeof Chart === 'undefined') {
     // Chart.js not loaded yet — retry once it is
@@ -1547,8 +1517,7 @@ function clearMacroFields() { ['foodCalories','foodProtein','foodCarbs','foodFat
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  const tt = $('themeToggle');
-  if(tt) tt.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+  $('themeToggle').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
 }
 
 function fillTargetInputs() {
@@ -1609,7 +1578,7 @@ function renderWater() {
   if(!$('waterProgress')) return; // guard if section not in DOM
   const date = $('datePicker').value || getLocalDateString();
   if(!state.water) state.water = {};
-  const unit = state.settings.waterUnit ||| 'oz';
+  const unit = state.settings.waterUnit || 'oz';
   const goal = parseFloat(state.settings.waterGoal) || 64;
   const goalOz = getWateroz(goal, unit);
   const totalOz = state.water[date] || 0;
@@ -1641,32 +1610,49 @@ function addWater(oz) {
   if(!state.water) state.water = {};
   state.water[date] = (state.water[date] || 0) + oz;
   saveState(); renderWater();
-  const unit = state.settings.waterUnit ||| 'oz';
+  const unit = state.settings.waterUnit || 'oz';
   const display = unit === 'ml' ? Math.round(oz * 29.5735) + ' ml' : Math.round(oz * 10) / 10 + ' oz';
   showToast(`+${display} logged.`);
 }
 
-function bindWaterControls() {
-  const map = {
-    water8oz: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 250 / 29.5735 : 8); },
-    water16oz: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 500 / 29.5735 : 16); },
-    water500ml: () => { const unit = state.settings.waterUnit ||| 'oz'; addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735); },
-    waterCustomAdd: () => { const row = $('waterCustomRow'); if(row) row.style.display = row.style.display === 'none' ? 'flex' : 'none'; },
-    waterCustomSave: () => {
-      const amt = parseFloat($('waterCustomInput')?.value);
-      const unit = $('waterCustomUnit')?.value;
-      if(!amt || amt <= 0) { showToast('Enter a valid amount.'); return; }
-      addWater(getWateroz(amt, unit));
-      if($('waterCustomInput')) $('waterCustomInput').value = '';
-      if($('waterCustomRow')) $('waterCustomRow').style.display = 'none';
-    },
-    waterReset: () => { const date = $('datePicker').value; state.water[date] = 0; saveState(); renderWater(); showToast('Water reset for today.'); },
-    waterGoalInput: () => { state.settings.waterGoal = parseFloat($('waterGoalInput').value) || 64; saveState(); renderWater(); },
-    waterUnitSelect: () => { state.settings.waterUnit = $('waterUnitSelect').value; saveState(); renderWater(); }
-  };
-  Object.entries(map).forEach(([id, fn]) => { const el = $(id); if(el) el.onclick = fn; });
-}
-bindWaterControls();
+bindClick('water8oz', () => {
+  const unit = state.settings.waterUnit || 'oz';
+  addWater(unit === 'ml' ? 250 / 29.5735 : 8);
+});
+bindClick('water16oz', () => {
+  const unit = state.settings.waterUnit || 'oz';
+  addWater(unit === 'ml' ? 500 / 29.5735 : 16);
+});
+bindClick('water500ml', () => {
+  const unit = state.settings.waterUnit || 'oz';
+  addWater(unit === 'ml' ? 1000 / 29.5735 : 500 / 29.5735);
+});
+bindClick('waterCustomAdd', () => {
+  const row = $('waterCustomRow');
+  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+});
+bindClick('waterCustomSave', () => {
+  const amt = parseFloat($('waterCustomInput').value);
+  const unit = $('waterCustomUnit').value;
+  if(!amt || amt <= 0) { showToast('Enter a valid amount.'); return; }
+  addWater(getWateroz(amt, unit));
+  $('waterCustomInput').value = '';
+  $('waterCustomRow').style.display = 'none';
+});
+bindClick('waterReset', () => {
+  const date = $('datePicker').value;
+  state.water[date] = 0;
+  saveState(); renderWater();
+  showToast('Water reset for today.');
+});
+bindChange('waterGoalInput', () => {
+  state.settings.waterGoal = parseFloat($('waterGoalInput').value) || 64;
+  saveState(); renderWater();
+});
+bindChange('waterUnitSelect', () => {
+  state.settings.waterUnit = $('waterUnitSelect').value;
+  saveState(); renderWater();
+});
 
 
 // ---- MEAL TEMPLATES ----
@@ -1720,7 +1706,7 @@ function deleteTemplate(idx) {
   showToast(`Deleted "${name}".`);
 }
 
-$('saveTemplateBtn').addEventListener('click', () => {
+bindClick('saveTemplateBtn', () => {
   const date = $('datePicker').value;
   const entries = state.entries[date] || [];
   if(!entries.length) { showToast('Nothing logged today to save as template.'); return; }
@@ -1728,12 +1714,12 @@ $('saveTemplateBtn').addEventListener('click', () => {
   $('templateNameInput').focus();
 });
 
-$('cancelSaveTemplate').addEventListener('click', () => {
+bindClick('cancelSaveTemplate', () => {
   $('templateNameRow').style.display = 'none';
   $('templateNameInput').value = '';
 });
 
-$('confirmSaveTemplate').addEventListener('click', () => {
+bindClick('confirmSaveTemplate', () => {
   const name = $('templateNameInput').value.trim();
   if(!name) { showToast('Enter a template name.'); return; }
   const date = $('datePicker').value;
@@ -1755,28 +1741,11 @@ function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 // ── MICRO HELPERS ────────────────────────────────────────────────────────
 function getDayMicroTotals(date, nutrientId) {
   return (state.entries[date] || []).reduce((sum, e) => {
-    const list = getEntryNutrients(e);
-    const n = list.find(x => String(x.nutrientId || x.id || x.nutrient || x.nutrientNumber) === String(nutrientId));
-    const v = n ? (n.value ?? n.amount ?? n.quantity ?? n.protein ?? n.carbohydrates ?? n.calories ?? 0) : 0;
+    const list = e.nutrients || e.foodNutrients || e.nutrientData || [];
+    const n = list.find(x => (x.nutrientId || x.id || x.nutrient || x.nutrientNumber) === nutrientId);
+    const v = n ? (n.value ?? n.amount ?? n.quantity ?? n.protein ?? n.carbohydrates ?? 0) : 0;
     return sum + Number(v || 0);
   }, 0);
-}
-
-function getSourceLabel(e) {
-  const s = String(e.source || e.dataSource || e.origin || e.entrySource || e.nutrientSource || '').toLowerCase();
-  if(s.includes('usda')) return 'usda';
-  if(s.includes('community') || s.includes('crowd') || s.includes('user') || s.includes('open')) return 'community';
-  if(s.includes('manual')) return 'manual';
-  if(s) return s;
-  return 'unknown';
-}
-
-function getEntryNutrients(e) {
-  return e.nutrients || e.foodNutrients || e.nutrientData || e.microNutrients || e.nutrientProfile || [];
-}
-
-function hasNonUsdaEntries(date) {
-  return (state.entries[date] || []).some(e => getSourceLabel(e) !== 'usda');
 }
 
 // ── MICRO MODAL (entry pill tap) ─────────────────────────────────────────
@@ -1889,8 +1858,8 @@ function openMicroModal(entry, category) {
   $('microModal').style.display = 'flex';
 }
 
-$('closeMicroModal').addEventListener('click', () => { $('microModal').style.display = 'none'; });
-$('microModal').addEventListener('click', e => { if(e.target===$('microModal')) $('microModal').style.display='none'; });
+bindClick('closeMicroModal', () => { const mm=$('microModal'); if(mm) mm.style.display='none'; });
+const _microModal = $('microModal'); if(_microModal) _microModal.addEventListener('click', e => { if(e.target===_microModal) _microModal.style.display='none'; });
 
 // ── MACRO CARD DRAWERS ────────────────────────────────────────────────────
 var DRAWER_CATS = {
@@ -1944,146 +1913,249 @@ var DRAWER_CATS = {
   ]}
 };
 
-function getTopFoodsForMacro(date, macro, limit=3) {
-  return (state.entries[date] || [])
-    .map(e => ({ entry: e, value: Number(e[macro] || 0) }))
-    .sort((a,b) => b.value - a.value)
-    .slice(0, limit)
-    .map(x => x.entry);
-}
-
-function getMacroGoal(macro) {
-  const t = state.settings.targets || {};
-  return Number(t[macro] || 0);
-}
-
-function getMacroConsumed(date, macro) {
-  const totals = getDayTotals(date) || {};
-  return Number(totals[macro] || 0);
-}
-
 function buildMicroDrawer(macro, date) {
   const drawer = $('microDrawer-' + macro);
   if(!drawer) return;
-  const goal = getMacroGoal(macro);
-  const consumed = getMacroConsumed(date, macro);
-  const remaining = goal ? Math.max(0, goal - consumed) : null;
-  const pct = goal ? Math.min(100, (consumed / goal) * 100) : 0;
-  const topFoods = getTopFoodsForMacro(date, macro, 3);
+  const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
+  if(!cat) return;
   const rows = [];
-  rows.push('<div class="macro-detail-title">' + (DRAWER_CATS[macro]?.label || macro) + ' details</div>');
-  rows.push('<div class="macro-detail-note">Quick summary of your day for this macro.</div>');
-  if(goal) {
-    rows.push('<div class="macro-detail-row"><span>Goal progress</span><span>' + round(consumed) + ' / ' + goal + (macro === 'calories' ? ' kcal' : ' g') + '</span></div>');
-    rows.push('<div class="progress" style="margin:.35rem 0 .55rem;"><span style="width:' + pct + '%;background:' + (macro === 'protein' ? 'var(--color-success)' : 'var(--color-primary)') + ';"></span></div>');
-    rows.push('<div class="macro-detail-row"><span>Remaining</span><span>' + (remaining === 0 ? '0' : round(remaining)) + (macro === 'calories' ? ' kcal' : ' g') + '</span></div>');
-  }
-  rows.push('<div class="macro-detail-title" style="margin-top:.6rem;">Top contributors</div>');
-  if(topFoods.length) {
-    topFoods.forEach(e => {
-      const val = Number(e[macro] || 0);
-      rows.push('<div class="macro-detail-row"><span>' + escHtml(e.name || 'Untitled food') + '</span><span>' + round(val) + (macro === 'calories' ? ' kcal' : ' g') + '</span></div>');
+  cat.sections.forEach(sec => {
+    if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
+    sec.nutrients.forEach(n => {
+      const val = round(getDayMicroTotals(date, n.id));
+      const pct = n.dri ? Math.min(100, (val / n.dri) * 100) : null;
+      const pctLabel = n.dri ? Math.round((val / n.dri) * 100) + '%' : '';
+      const barColor = pct === null ? cat.color : pct >= 100 ? '#10b981' : pct >= 60 ? cat.color : '#94a3b8';
+      rows.push(
+        '<div class="micro-drawer-row">' +
+          '<div class="micro-drawer-label">' +
+            '<span>' + escHtml(n.name) + '</span>' +
+            '<span style="display:flex;gap:.4rem;align-items:center;">' +
+              '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
+              (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
+              (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
+            '</span>' +
+          '</div>' +
+          (pct !== null ? '<div class="micro-drawer-bar"><span style="width:' + pct + '%;background:' + barColor + ';"></span></div>' : '') +
+        '</div>'
+      );
     });
-  } else {
-    rows.push('<div class="macro-detail-note">No food entries logged yet for this day.</div>');
-  }
-  if((state.entries[date] || []).some(e => (getEntryNutrients(e) || []).length)) {
-    rows.push('<div class="macro-detail-actions"><button class="tweak-btn" type="button" onclick="showMacroNutrients('' + macro + '')">Show nutrients</button></div>');
-  }
-  drawer.innerHTML = rows.join('');
+  });
+  if(!rows.length) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
+  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('') + '<div class="micro-drawer-empty" style="margin-top:.35rem;">&nbsp;</div>';
 }
 
-function showMacroNutrients(macro) {
+
+function toggleMicroDrawer(card, evt, macro) {
+  macro = macro || (card && card.dataset && card.dataset.macro);
+  if(!macro) return;
   const drawer = $('microDrawer-' + macro);
-  const date = $('datePicker').value;
   if(!drawer) return;
-  const items = (state.entries[date] || []).filter(e => (getEntryNutrients(e) || []).length);
-  const rows = ['<div class="macro-detail-title">Nutrient details</div>'];
-  if(!items.length) {
-    rows.push('<div class="macro-detail-note">No nutrient data is available for this day.</div>');
-  } else {
-    const n = getEntryNutrients(items[0]).slice(0,8);
-    n.forEach(x => rows.push('<div class="macro-detail-row"><span>' + escHtml(x.name || x.nutrientName || 'Nutrient') + '</span><span>' + round(Number(x.value ?? x.amount ?? 0)) + (x.unitName || x.unit || '') + '</span></div>'));
+  const isOpen = drawer.style.display === 'block';
+  document.querySelectorAll('.macro-expandable').forEach(c => {
+    if(c !== card) {
+      c.setAttribute('aria-expanded','false');
+      c.style.boxShadow = '';
+      const d = c.querySelector('.micro-drawer');
+      if(d) { d.style.display='none'; d.innerHTML=''; }
+    }
+  });
+  if(isOpen) {
+    drawer.style.display = 'none';
+    drawer.innerHTML = '';
+    card.setAttribute('aria-expanded','false');
+    card.style.boxShadow = '';
+    return;
   }
-  rows.push('<div class="macro-detail-actions"><button class="tweak-btn" type="button" onclick="buildMicroDrawer('' + macro + '', $(' + "'" + 'datePicker' + "'" + ').value)">Back</button></div>');
-  drawer.innerHTML = rows.join('');
+  const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
+  drawer.style.display = 'block';
+  drawer.innerHTML = '';
+  card.setAttribute('aria-expanded','true');
+  card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
+  buildMicroDrawer(macro, $('datePicker').value);
+  if(!drawer.innerHTML.trim()) {
+    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
+  }
 }
+
+
+
+
 // ── RESCAN NUTRIENTS ─────────────────────────────────────────────────────
 async function rescanNutrients() {
   const btn = $('rescanNutrientsBtn');
   const date = $('datePicker').value;
   const entries = state.entries[date] || [];
+
   if(!entries.length) {
     showToast('No entries to refresh.');
     return;
   }
+
   if(btn) { btn.disabled = true; btn.textContent = '⟳ Fetching…'; }
+
   let updated = 0;
   let failed = 0;
   const total = entries.length;
-  const batchSize = 3;
-  for(let start = 0; start < entries.length; start += batchSize) {
-    const batch = entries.slice(start, start + batchSize);
-    if(btn) btn.textContent = `⟳ ${Math.min(start + batch.length, total)} / ${total}…`;
-    const results = await Promise.all(batch.map(async entry => {
-      try {
-        const searchRes = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(entry.name)}&pageSize=1&dataType=Foundation,SR%20Legacy,Branded`);
-        if(!searchRes.ok) throw new Error('search failed');
-        const searchData = await searchRes.json();
-        const firstHit = (searchData.foods || [])[0];
-        if(!firstHit || !firstHit.fdcId) throw new Error('no match');
-        const detailRes = await fetch(`https://api.nal.usda.gov/fdc/v1/food/${firstHit.fdcId}?api_key=${USDA_KEY}`);
-        if(!detailRes.ok) throw new Error('detail failed');
-        const detail = await detailRes.json();
-        return { id: entry.id, nutrients: detail.foodNutrients || [], source: 'usda' };
-      } catch(e) {
-        return null;
+
+  for(let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if(btn) btn.textContent = `⟳ ${i+1} / ${total}…`;
+    try {
+      const searchRes = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_KEY}&query=${encodeURIComponent(entry.name)}&pageSize=1&dataType=Foundation,SR%20Legacy,Branded`
+      );
+      if(!searchRes.ok) throw new Error('search failed');
+      const searchData = await searchRes.json();
+      const firstHit = (searchData.foods || [])[0];
+      if(!firstHit || !firstHit.fdcId) throw new Error('no match');
+
+      const detailRes = await fetch(
+        `https://api.nal.usda.gov/fdc/v1/food/${firstHit.fdcId}?api_key=${USDA_KEY}`
+      );
+      if(!detailRes.ok) throw new Error('detail failed');
+      const detail = await detailRes.json();
+
+      const idx = state.entries[date].findIndex(e => e.id === entry.id);
+      if(idx !== -1) {
+        state.entries[date][idx].nutrients = detail.foodNutrients || [];
+        updated++;
       }
-    }));
-    results.forEach(res => {
-      if(res) {
-        const idx = state.entries[date].findIndex(e => e.id === res.id);
-        if(idx !== -1) {
-          state.entries[date][idx].nutrients = res.nutrients;
-          state.entries[date][idx].source = 'usda';
-          updated++;
-        }
-      } else {
-        failed++;
-      }
-    });
+    } catch(e) {
+      failed++;
+    }
   }
+
   saveState();
   renderAll();
+
   if(btn) { btn.disabled = false; btn.textContent = '⟳ Fetch micros'; }
   showToast(`Refreshed ${updated} / ${total} entries.${failed ? ' (' + failed + ' unmatched)' : ''}`);
 }
 
-$('rescanNutrientsBtn').addEventListener('click', rescanNutrients);
+const _rescanBtn = $('rescanNutrientsBtn'); if(_rescanBtn) _rescanBtn.addEventListener('click', rescanNutrients);
 
 
-if($('settingsBtn')) $('settingsBtn').addEventListener('click', () => { $('settingsModal').style.display = 'flex'; });
-if($('closeSettings')) $('closeSettings').addEventListener('click', () => { $('settingsModal').style.display = 'none'; });
-$('settingsModal').addEventListener('click', (e) => { if(e.target.id === 'settingsModal') $('settingsModal').style.display = 'none'; });
-(function initThemeControls(){
-  const p = getThemePrefs();
-  const c = $('accentColor'); const o = $('accentOpacity'); const s = $('accentSoftness');
-  if(c) c.value = p.accent;
-  if(o) o.value = p.opacity;
-  if(s) s.value = p.softness;
-  const sync = () => {
-    const np = { accent: c.value, opacity: parseFloat(o.value), softness: parseFloat(s.value) };
-    applyThemePrefs(np);
-    saveThemePrefs(np);
-    if($('accentOpacityLabel')) $('accentOpacityLabel').textContent = Math.round(np.opacity * 100) + '%';
-    if($('accentSoftnessLabel')) $('accentSoftnessLabel').textContent = Math.round(np.softness * 100) + '%';
+// Accent color support
+function applyThemePreset(preset){
+  const root = document.documentElement;
+  const mode = (state.settings.theme || 'light') === 'dark' ? 'dark' : 'light';
+  const presets = {
+    forest: {
+      light: {primary:'#2f7d4b', bg:'#f3f8f3', surface:'#f7fbf7', surface2:'#ecf4ec', text:'#1f2b23', muted:'#5f6f64', border:'#cad7cb'},
+      dark: {primary:'#68d08a', bg:'#141a16', surface:'#1b211d', surface2:'#202722', text:'#e7f2ea', muted:'#a8b6ad', border:'#344038'}
+    },
+    sunset: {
+      light: {primary:'#cf5c49', bg:'#fff5ef', surface:'#fffaf6', surface2:'#f6ece4', text:'#2a1d1a', muted:'#7c665f', border:'#dcc8bf'},
+      dark: {primary:'#ff8d73', bg:'#1b1412', surface:'#231b19', surface2:'#2a201d', text:'#f6eae4', muted:'#c9b4ab', border:'#463631'}
+    },
+    slate: {
+      light: {primary:'#5f78a8', bg:'#f2f4f8', surface:'#f7f8fa', surface2:'#eceff4', text:'#20242b', muted:'#68707e', border:'#ccd4de'},
+      dark: {primary:'#8ea6d8', bg:'#15171b', surface:'#1b1f25', surface2:'#21262d', text:'#edf2fb', muted:'#b1bbca', border:'#38414d'}
+    },
+    dark: {
+      light: {primary:'#3f8b92', bg:'#f3f2ef', surface:'#fbfaf7', surface2:'#efede8', text:'#26231f', muted:'#6f6a61', border:'#d7d1c8'},
+      dark: {primary:'#77c8cf', bg:'#171612', surface:'#1d1b18', surface2:'#23201c', text:'#eee7db', muted:'#b8b0a2', border:'#39342e'}
+    },
+    light: {
+      light: {primary:'#0f7278', bg:'#f7f5f0', surface:'#fffdf8', surface2:'#f4efe6', text:'#26241e', muted:'#706a60', border:'#d8d0c5'},
+      dark: {primary:'#59b7bf', bg:'#131416', surface:'#1a1b1d', surface2:'#202224', text:'#f0efe9', muted:'#bab4aa', border:'#39352f'}
+    }
   };
-  if(c) c.addEventListener('input', sync);
-  if(o) o.addEventListener('input', sync);
-  if(s) s.addEventListener('input', sync);
-  sync();
-  syncSettingsModalButtons();
-})();
+  const p = (presets[preset] || presets.forest)[mode];
+  root.dataset.theme = mode;
+  root.dataset.themePreset = preset;
+  root.style.setProperty('--bg', p.bg);
+  root.style.setProperty('--surface', p.surface);
+  root.style.setProperty('--surface2', p.surface2);
+  root.style.setProperty('--text', p.text);
+  root.style.setProperty('--muted', p.muted);
+  root.style.setProperty('--border', p.border);
+  root.style.setProperty('--primary', p.primary);
+  root.style.setProperty('--primary-hover', p.primary);
+  root.style.setProperty('--color-primary', p.primary);
+  root.style.setProperty('--color-primary-hover', p.primary);
+  root.style.setProperty('--color-surface', p.surface);
+  root.style.setProperty('--color-surface-2', p.surface2);
+  root.style.setProperty('--color-text', p.text);
+  root.style.setProperty('--color-text-faint', p.muted);
+  root.style.setProperty('--color-border', p.border);
+  state.settings.themePreset = preset;
+  saveState();
+  updateThemeButtons();
+  renderAll();
+  showToast(preset.charAt(0).toUpperCase()+preset.slice(1)+' '+mode+' theme');
+}
+document.querySelectorAll('[data-theme-preset]').forEach(btn=>btn.addEventListener('click',()=>applyThemePreset(btn.dataset.themePreset)));
+updateThemeButtons();
+
+// Goal progress chart
+let _goalChart = null;
+function renderGoalProgressChart(){
+  const canvas = document.getElementById('goalProgressChart');
+  if(!canvas || typeof Chart==='undefined') return;
+  const t = getTotals ? getTotals() : {calories:0,protein:0,carbs:0,fat:0};
+  const g = (state&&state.settings&&state.settings.targets) ? state.settings.targets : {calories:2200,protein:180,carbs:200,fat:70};
+  const vals = [
+    +(g.calories ? Math.min(100,(t.calories/g.calories)*100) : 0).toFixed(1),
+    +(g.protein ? Math.min(100,(t.protein/g.protein)*100) : 0).toFixed(1),
+    +(g.carbs ? Math.min(100,(t.carbs/g.carbs)*100) : 0).toFixed(1),
+    +(g.fat ? Math.min(100,(t.fat/g.fat)*100) : 0).toFixed(1)
+  ];
+  const color = (getComputedStyle(document.documentElement).getPropertyValue('--color-primary') || '').trim() || '#0f7278';
+  const prev = window.__goalChart; if(prev && typeof prev.destroy === 'function') prev.destroy();
+  window.__goalChart = new Chart(canvas, {type:'bar', data:{labels:['Calories','Protein','Carbs','Fat'], datasets:[{data:vals, backgroundColor:color, borderRadius:8, barThickness:38}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}%`}}}, scales:{y:{beginAtZero:true, max:100, ticks:{callback:v=>v+'%'}, grid:{display:false}}, x:{grid:{display:false}}}}});
+}
+
+// Manual entry toggle
+const _manualToggleBtn = document.getElementById('manualToggle') || document.getElementById('manualEntryToggle');
+const _manualForm = document.getElementById('foodForm') || document.getElementById('manualForm');
+function toggleManualForm(force){
+  if(!_manualForm) return;
+  const show = typeof force === 'boolean' ? force : (_manualForm.style.display === 'none' || getComputedStyle(_manualForm).display === 'none');
+  _manualForm.style.display = show ? 'block' : 'none';
+  if(show){ const first = _manualForm.querySelector('input,select,textarea,button'); if(first) first.focus(); }
+}
+if(_manualForm){ _manualForm.style.display='none'; }
+if(_manualToggleBtn && _manualForm){
+  _manualToggleBtn.addEventListener('click',()=>{ const open = !(_manualForm && (getComputedStyle(_manualForm).display !== 'none')); toggleManualForm(open); if(_manualToggleBtn) _manualToggleBtn.textContent = open ? 'Enter manually' : 'Hide manual entry'; });
+}
+
+// Apply persisted accent on load
+if(window.state && state.settings && state.settings.themePreset){
+  applyThemePreset(state.settings.themePreset);
+}
+updateThemeButtons();
+
+
+
+function initUI(){
+  const ids = ['themeToggle','exportBtn','importFile','manualToggle','manualEntryToggle','searchBtn','foodSearch','runWizard','water8','water16','water500','targetForm','weightForm','prevDay','nextDay','jumpToday','rescanNutrientsBtn'];
+  ids.forEach(id=>{ if(!document.getElementById(id)) console.warn('Missing element', id); });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initUI); else initUI();
+
+
+
+function updateThemeButtons(){
+  document.querySelectorAll('[data-theme-preset]').forEach(btn=>{
+    const active = document.documentElement.dataset.themePreset === btn.dataset.themePreset;
+    btn.classList.toggle('is-active', active); btn.style.color = active ? 'var(--text)' : '';
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const modeBtn = document.getElementById('themeToggle');
+  if(modeBtn) modeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? 'Dark mode' : 'Light mode';
+}
+function bootApp(){
+  try{
+    if(state && state.settings && state.settings.accent){ document.documentElement.style.setProperty('--color-primary', state.settings.accent); }
+    if(typeof renderAll === 'function') renderAll();
+    if(typeof startClock === 'function') startClock();
+    if(typeof functionAudit === 'function') functionAudit();
+    if(window.lucide) lucide.createIcons();
+  }catch(e){ console.error(e); showToast('Startup error: ' + e.message); }
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp); else bootApp();
 </script>
 
 <!-- Micronutrient Modal -->
@@ -2101,3 +2173,5 @@ $('settingsModal').addEventListener('click', (e) => { if(e.target.id === 'settin
 </div>
 </body>
 </html>
+
+
