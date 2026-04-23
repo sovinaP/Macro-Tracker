@@ -367,7 +367,8 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
 
         <div class="divider">or</div>
 
-        <form id="foodForm" style="display:grid;gap:1rem;">
+        <button class="btn btn-primary" id="manualEntryToggle" type="button" style="width:100%;margin-top:.5rem">Enter manually</button>
+          <form id="foodForm" style="display:none;gap:1rem;margin-top:1rem" style="display:grid;gap:1rem;">
           <div class="grid-2">
             <div>
               <label for="foodName">Food name</label>
@@ -2172,31 +2173,7 @@ if(document.readyState === 'loading') document.addEventListener('DOMContentLoade
   </div>
 </div>
 
-<script>
-(function(){
-  function toggleManualEntry(){
-    const f=document.getElementById('foodForm');
-    const b=document.getElementById('manualEntryToggle');
-    if(!f||!b) return;
-    const open=f.style.display!=='grid';
-    f.style.display=open?'grid':'none';
-    b.textContent=open?'Hide manual entry':'Enter manually';
-    b.setAttribute('aria-expanded', String(open));
-    if(open) document.getElementById('foodName')?.focus();
-  }
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const btn=document.getElementById('manualEntryToggle');
-    if(btn && !btn.dataset.bound){
-      btn.dataset.bound='1';
-      btn.addEventListener('click', toggleManualEntry);
-    }
-    window.auditButtons = function(){
-      const ids=['searchBtn','manualEntryToggle','addToLogBtn','saveCustomFood','clearFood','saveTemplateBtn','exportBtn','importFile','themeToggle','rescanNutrientsBtn','waterCustomAdd','waterReset','runWizard','applyWizard'];
-      return ids.filter(id => !document.getElementById(id));
-    };
-  });
-})();
-</script>
+
 
 
 <script>
@@ -2216,6 +2193,31 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
   });
 });
+</script>
+
+
+<script>
+(function(){
+  function toggleManualEntry(){
+    const f=document.getElementById('foodForm');
+    const b=document.getElementById('manualEntryToggle');
+    if(!f||!b) return;
+    const open=f.style.display!=='grid';
+    f.style.display=open?'grid':'none';
+    b.textContent=open?'Hide manual entry':'Enter manually';
+    b.setAttribute('aria-expanded', String(open));
+    if(open) document.getElementById('foodName')?.focus();
+  }
+  function aliasIds(){
+    const pairs=[['manualToggle','manualEntryToggle'],['water8','water8oz'],['water16','water16oz'],['water500','water500ml'],['jumpToday','jumpTodayBtn']];
+    pairs.forEach(([legacy, modern])=>{ if(!document.getElementById(legacy)){ const el=document.getElementById(modern); if(el) el.id=legacy; }});
+  }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    aliasIds();
+    const btn=document.getElementById('manualEntryToggle');
+    if(btn && !btn.dataset.bound){ btn.dataset.bound='1'; btn.addEventListener('click', toggleManualEntry); }
+  });
+})();
 </script>
 
 </body>
