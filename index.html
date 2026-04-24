@@ -957,18 +957,12 @@ bind('foodSearch','keydown', e => {
 
 bindClick('searchBtn', () => {
   const q = $('foodSearch').value.trim();
-  if(!q) return;
-  const db = 'dual';
-  if(db === 'off') searchOFF(q);
-  else searchUSDA(q);
+  if(q) dualSearch(q);
 });
 bind('foodSearch','keydown', e => {
   if(e.key === 'Enter') {
     const q = $('foodSearch').value.trim();
-    if(!q) return;
-    const db = 'dual';
-    if(db === 'off') searchOFF(q);
-    else searchUSDA(q);
+    if(q) dualSearch(q);
   }
 });
 
@@ -1865,24 +1859,7 @@ function renderMicroSections(sections, nutrients, date, color, container) {
   });
 }
 
-function openMicroModal(entry, category) {
-  const date = $('datePicker').value;
-  const cat = MICRO_CATS[category];
-  if(!cat) return;
-  $('microModalTitle').textContent = cat.label + ' Breakdown';
-  $('microModalSub').textContent = entry.name;
-  const body = $('microModalBody');
-  body.innerHTML = '';
-  renderMicroSections(cat.sections, entry.nutrients, date, cat.color, body);
-  if(category !== 'calories') {
-    renderMicroSections(MICRO_VITAMINS.sections, entry.nutrients, date, MICRO_VITAMINS.color, body);
-    renderMicroSections(MICRO_MINERALS.sections, entry.nutrients, date, MICRO_MINERALS.color, body);
-  }
-  if(!body.innerHTML.trim()) {
-    body.innerHTML = '<div style="font-size:.8rem;color:var(--color-text-faint);font-style:italic;">No micronutrient data available for this food.</div>';
-  }
-  $('microModal').style.display = 'flex';
-}
+
 
 bindClick('closeMicroModal', () => { const mm=$('microModal'); if(mm) mm.style.display='none'; });
 const _microModal = $('microModal'); if(_microModal) _microModal.addEventListener('click', e => { if(e.target===_microModal) _microModal.style.display='none'; });
@@ -2107,59 +2084,12 @@ function bootApp(){
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp); else bootApp();
 </script>
 
-<!-- Micronutrient Modal -->
-<div id="microModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:var(--color-surface);border-radius:var(--radius-lg);max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem .75rem;border-bottom:1px solid var(--color-border);">
-      <div>
-        <div id="microModalTitle" style="font-weight:600;font-size:var(--text-base);"></div>
-        <div id="microModalSub" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.15rem;"></div>
-      </div>
-      <button id="closeMicroModal" aria-label="Close" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:.25rem;font-size:1.2rem;line-height:1;">✕</button>
-    </div>
-    <div id="microModalBody" style="overflow-y:auto;padding:1rem 1.25rem;flex:1;"></div>
-  </div>
-</div>
 
 
 
 
 <script>
-document.addEventListener('DOMContentLoaded', ()=>{
-  const map = [
-    ['manualToggle', 'manualEntryToggle'],
-    ['water8', 'water8oz'],
-    ['water16', 'water16oz'],
-    ['water500', 'water500ml'],
-    ['jumpToday', 'jumpTodayBtn'],
-    ['rescanNutrientsBtn', 'rescanNutrientsBtn']
-  ];
-  map.forEach(([legacy, modern])=>{
-    if(!document.getElementById(legacy)){
-      const el = document.getElementById(modern);
-      if(el) el.id = legacy;
-    }
-  });
-});
-</script>
 
-
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', ()=>{
-  const alwaysBtn = null; // removed — only one add-to-log button inside form
-  if(alwaysBtn && !alwaysBtn.dataset.bound){
-    alwaysBtn.dataset.bound='1';
-    alwaysBtn.addEventListener('click', ()=>{
-      const form = document.getElementById('foodForm');
-      if(form && form.style.display !== 'grid'){
-        document.getElementById('manualEntryToggle')?.click();
-        return;
-      }
-      document.getElementById('addToLogBtn')?.click();
-    });
   }
 });
 </script>
@@ -2349,30 +2279,6 @@ async function dualSearch(query) {
 }
 
 // Wire the search button to dualSearch
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('searchBtn');
-  const inp = document.getElementById('foodSearch');
-  if (btn) {
-    btn.onclick = () => dualSearch(inp?.value?.trim());
-  }
-  if (inp) {
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); dualSearch(inp.value.trim()); }});
-  }
-});
-</script>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.chart-range-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.chart-range-btn').forEach(b => b.classList.remove('active-range'));
-      btn.classList.add('active-range');
-      _chartRange = Number(btn.dataset.range);
-      renderChart();
-    });
-  });
-});
 </script>
 <style>
 .active-range { background: var(--color-primary) !important; color: #fff !important; }
