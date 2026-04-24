@@ -58,21 +58,21 @@
     .panel h2,.panel h3{margin:0 0 .6rem;font-size:var(--text-lg);}
     .hero-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-4);}
     .metric-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid rgba(40,37,29,.1);border-radius:var(--radius-lg);transition:box-shadow .15s,max-height .2s ease;overflow:hidden;}
-    .macro-expandable{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;outline:none;}
-    .macro-expandable:focus{outline:none;} .macro-expandable[aria-expanded="true"]{transform:translateY(-1px);} .macro-expandable:focus{outline:none;box-shadow:none;} .macro-expandable:focus-visible{outline:none;}
-    .macro-expandable:active{opacity:.9;}
-    .macro-expandable[data-macro="calories"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(1,105,111,.45),0 2px 12px rgba(1,105,111,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .macro-expandable[data-macro="protein"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(67,122,34,.45),0 2px 12px rgba(67,122,34,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .macro-expandable[data-macro="carbs"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(198,139,38,.45),0 2px 12px rgba(198,139,38,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .macro-expandable[data-macro="fat"][aria-expanded="true"]{box-shadow:0 0 0 2px rgba(150,66,25,.45),0 2px 12px rgba(150,66,25,.2);} .macro-expandable[aria-expanded="false"]{box-shadow:none;}
-    .micro-drawer{display:none;overflow:hidden;padding-top:.75rem;min-height:24px;}
-    .micro-drawer.open{display:block;padding-top:.7rem;}
-    .micro-drawer-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-faint);margin:.55rem 0 .25rem;}
-    .micro-drawer-row{display:flex;flex-direction:column;gap:.15rem;margin-bottom:.45rem;}
-    .micro-drawer-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--color-text-muted);}
-    .micro-drawer-bar{height:3px;border-radius:2px;background:var(--color-border);overflow:hidden;}
-    .micro-drawer-bar span{display:block;height:100%;border-radius:2px;transition:width .4s ease;}
-    .micro-drawer-empty{font-size:.71rem;color:var(--color-text-faint);font-style:italic;padding:.1rem 0;}
+    
+       
+    
+     
+     
+     
+     
+    
+    
+    
+    
+    
+    
+    
+    
     .metric-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;}
     .metric-card .label{font-size:var(--text-sm);color:var(--color-text-muted);}
     .metric-card .value{font-size:var(--text-lg);font-weight:700;font-variant-numeric:tabular-nums;}
@@ -229,26 +229,22 @@ html[data-theme='light'] .tweak-btn.is-active{background:color-mix(in srgb, var(
 
   <!-- macro summary cards -->
   <section class="hero-grid" aria-label="Daily macro summary">
-    <div class="metric-card macro-expandable" data-macro="calories" role="button" aria-expanded="false" aria-label="Calories — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'calories')" onpointerup="toggleMicroDrawer(this,event,'calories')" ontouchend="toggleMicroDrawer(this,event,'calories')">
+    <div class="metric-card"   >
       <div class="row"><span class="label">Calories</span><span class="value" id="caloriesValue">0 / 2200</span></div>
       <div class="progress"><span class="bar-kcal" id="caloriesProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-calories"></div>
-    </div>
-    <div class="metric-card macro-expandable" data-macro="protein" role="button" aria-expanded="false" aria-label="Protein — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'protein')" onpointerup="toggleMicroDrawer(this,event,'protein')" ontouchend="toggleMicroDrawer(this,event,'protein')">
+      </div>
+    <div class="metric-card"   >
       <div class="row"><span class="label">Protein</span><span class="value" id="proteinValue">0 / 180g</span></div>
       <div class="progress"><span class="bar-protein" id="proteinProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-protein"></div>
-    </div>
-    <div class="metric-card macro-expandable" data-macro="carbs" role="button" aria-expanded="false" aria-label="Carbs — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'carbs')" onpointerup="toggleMicroDrawer(this,event,'carbs')" ontouchend="toggleMicroDrawer(this,event,'carbs')">
+      </div>
+    <div class="metric-card"   >
       <div class="row"><span class="label">Carbs</span><span class="value" id="carbsValue">0 / 200g</span></div>
       <div class="progress"><span class="bar-carbs" id="carbsProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-carbs"></div>
-    </div>
-    <div class="metric-card macro-expandable" data-macro="fat" role="button" aria-expanded="false" aria-label="Fat — tap to expand micronutrients" onclick="toggleMicroDrawer(this,event,'fat')" onpointerup="toggleMicroDrawer(this,event,'fat')" ontouchend="toggleMicroDrawer(this,event,'fat')">
+      </div>
+    <div class="metric-card"   >
       <div class="row"><span class="label">Fat</span><span class="value" id="fatValue">0 / 70g</span></div>
       <div class="progress"><span class="bar-fat" id="fatProgress" style="width:0%"></span></div>
-      <div class="micro-drawer" id="microDrawer-fat"></div>
-    </div>
+      </div>
   </section>
 
   <!-- water -->
@@ -962,7 +958,7 @@ bind('foodSearch','keydown', e => {
 bindClick('searchBtn', () => {
   const q = $('foodSearch').value.trim();
   if(!q) return;
-  const db = $('dbSelector').value;
+  const db = 'dual';
   if(db === 'off') searchOFF(q);
   else searchUSDA(q);
 });
@@ -970,7 +966,7 @@ bind('foodSearch','keydown', e => {
   if(e.key === 'Enter') {
     const q = $('foodSearch').value.trim();
     if(!q) return;
-    const db = $('dbSelector').value;
+    const db = 'dual';
     if(db === 'off') searchOFF(q);
     else searchUSDA(q);
   }
@@ -1318,14 +1314,9 @@ function renderAll() {
   renderSummary();
   renderHistory();
   renderChart();
-  if(typeof renderGoalProgressChart === "function") renderGoalProgressChart();
-  renderWeightSummary();
+    renderWeightSummary();
   renderWater();
   renderTemplates();
-  if(typeof buildMicroDrawer === 'function') {
-    const openCard = document.querySelector('.macro-expandable[aria-expanded="true"]');
-    if(openCard) buildMicroDrawer(openCard.dataset.macro, $('datePicker').value);
-  }
   if(window.lucide) lucide.createIcons();
 }
 
@@ -1441,12 +1432,6 @@ function renderSummary() {
   if(w) $('weightInput').value = w.value;
   else $('weightInput').value = '';
   updateClockSummary(selectedDate);
-  if(typeof buildMicroDrawer === 'function') {
-    const panel = $('microDrawerPanel');
-    if(panel && panel.style.display === 'block') {
-      const openCard = document.querySelector('.macro-expandable[aria-expanded="true"]');
-      if(openCard) buildMicroDrawer(openCard.dataset.macro, selectedDate);
-    }
   }
 }
 
@@ -1954,70 +1939,8 @@ var DRAWER_CATS = {
   ]}
 };
 
-function buildMicroDrawer(macro, date) {
-  const drawer = $('microDrawer-' + macro);
-  if(!drawer) return;
-  const cat = window.DRAWER_CATS && DRAWER_CATS[macro];
-  if(!cat) return;
-  const rows = [];
-  cat.sections.forEach(sec => {
-    if(sec.label) rows.push('<div class="micro-drawer-section">' + escHtml(sec.label) + '</div>');
-    sec.nutrients.forEach(n => {
-      const val = round(getDayMicroTotals(date, n.id));
-      const pct = n.dri ? Math.min(100, (val / n.dri) * 100) : null;
-      const pctLabel = n.dri ? Math.round((val / n.dri) * 100) + '%' : '';
-      const barColor = pct === null ? cat.color : pct >= 100 ? '#10b981' : pct >= 60 ? cat.color : '#94a3b8';
-      rows.push(
-        '<div class="micro-drawer-row">' +
-          '<div class="micro-drawer-label">' +
-            '<span>' + escHtml(n.name) + '</span>' +
-            '<span style="display:flex;gap:.4rem;align-items:center;">' +
-              '<span>' + (val > 0 ? val + n.unit : '—') + '</span>' +
-              (n.dri ? '<span style="color:var(--color-text-faint);font-size:.65rem;">/ ' + n.dri + n.unit + '</span>' : '') +
-              (pct !== null ? '<span style="font-size:.65rem;font-weight:600;color:' + barColor + ';">' + pctLabel + '</span>' : '') +
-            '</span>' +
-          '</div>' +
-          (pct !== null ? '<div class="micro-drawer-bar"><span style="width:' + pct + '%;background:' + barColor + ';"></span></div>' : '') +
-        '</div>'
-      );
-    });
-  });
-  if(!rows.length) rows.push('<div class="micro-drawer-empty">No micronutrient data available.</div>');
-  drawer.innerHTML = '<div class="micro-drawer-section">Micronutrients</div>' + rows.join('') + '<div class="micro-drawer-empty" style="margin-top:.35rem;">&nbsp;</div>';
-}
 
 
-function toggleMicroDrawer(card, evt, macro) {
-  macro = macro || (card && card.dataset && card.dataset.macro);
-  if(!macro) return;
-  const drawer = $('microDrawer-' + macro);
-  if(!drawer) return;
-  const isOpen = drawer.style.display === 'block';
-  document.querySelectorAll('.macro-expandable').forEach(c => {
-    if(c !== card) {
-      c.setAttribute('aria-expanded','false');
-      c.style.boxShadow = '';
-      const d = c.querySelector('.micro-drawer');
-      if(d) { d.style.display='none'; d.innerHTML=''; }
-    }
-  });
-  if(isOpen) {
-    drawer.style.display = 'none';
-    drawer.innerHTML = '';
-    card.setAttribute('aria-expanded','false');
-    card.style.boxShadow = '';
-    return;
-  }
-  const colors = {calories:'var(--color-primary)',protein:'var(--color-success)',carbs:'#c68b26',fat:'var(--color-warning)'};
-  drawer.style.display = 'block';
-  drawer.innerHTML = '';
-  card.setAttribute('aria-expanded','true');
-  card.style.boxShadow = `0 0 0 2px ${colors[macro] || 'var(--color-primary)'}, 0 2px 14px rgba(0,0,0,.12)`;
-  buildMicroDrawer(macro, $('datePicker').value);
-  if(!drawer.innerHTML.trim()) {
-    drawer.innerHTML = '<div class="micro-drawer-empty">Unable to load micros. Check that the food entry has USDA nutrient data.</div>';
-  }
-}
 
 
 
@@ -2132,21 +2055,6 @@ updateThemeButtons();
 
 // Goal progress chart
 let _goalChart = null;
-function renderGoalProgressChart(){
-  const canvas = document.getElementById('streakCard');
-  if(!canvas || typeof Chart==='undefined') return;
-  const t = getTotals ? getTotals() : {calories:0,protein:0,carbs:0,fat:0};
-  const g = (state&&state.settings&&state.settings.targets) ? state.settings.targets : {calories:2200,protein:180,carbs:200,fat:70};
-  const vals = [
-    +(g.calories ? Math.min(100,(t.calories/g.calories)*100) : 0).toFixed(1),
-    +(g.protein ? Math.min(100,(t.protein/g.protein)*100) : 0).toFixed(1),
-    +(g.carbs ? Math.min(100,(t.carbs/g.carbs)*100) : 0).toFixed(1),
-    +(g.fat ? Math.min(100,(t.fat/g.fat)*100) : 0).toFixed(1)
-  ];
-  const color = (getComputedStyle(document.documentElement).getPropertyValue('--color-primary') || '').trim() || '#0f7278';
-  const prev = window.__goalChart; if(prev && typeof prev.destroy === 'function') prev.destroy();
-  window.__goalChart = new Chart(canvas, {type:'bar', data:{labels:['Calories','Protein','Carbs','Fat'], datasets:[{data:vals, backgroundColor:color, borderRadius:8, barThickness:38}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}%`}}}, scales:{y:{beginAtZero:true, max:100, ticks:{callback:v=>v+'%'}, grid:{display:false}}, x:{grid:{display:false}}}}});
-}
 
 // Manual entry toggle
 const _manualToggleBtn = document.getElementById('manualEntryToggle') || document.getElementById('manualEntryToggle');
@@ -2260,27 +2168,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 
 
-<script>
-(function(){
-  function toggleManualEntry(){
-    const f=document.getElementById('foodForm');
-    const b=document.getElementById('manualEntryToggle');
-    if(!f||!b) return;
-    const open=f.style.display!=='grid';
-    f.style.display=open?'grid':'none';
-    b.textContent=open?'Hide manual entry':'Enter manually';
-    b.setAttribute('aria-expanded', String(open));
-    if(open) requestAnimationFrame(()=>document.getElementById('foodName')?.focus());
-  }
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const btn=document.getElementById('manualEntryToggle');
-    if(btn && !btn.dataset.bound){
-      btn.dataset.bound='1';
-      btn.addEventListener('click', toggleManualEntry, {passive:true});
-    }
-  });
-})();
-</script>
+
 
 
 <script>
@@ -2498,4 +2386,5 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="section-head"><div><h2>Smart suggestions</h2><p>Based on what you've logged today.</p></div></div>
         <div id="recoContent" style="display:grid;gap:.6rem"><p class="muted" style="font-size:var(--text-sm)">Set your targets to see suggestions.</p></div>
       </section>
+
 
