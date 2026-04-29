@@ -19,13 +19,9 @@
 </p>
 
 <p align="center">
-  <a href="https://YOUR-DEPLOY-LINK-HERE"><strong>Live Demo</strong></a>
+  <a href="(https://sovinap.github.io/Macro-Tracker/)"><strong>Web App</strong></a>
   ·
   <a href="#features">Features</a>
-  ·
-  <a href="#getting-started">Getting Started</a>
-  ·
-  <a href="#v10-public-beta">Release Notes</a>
 </p>
 
 ---
