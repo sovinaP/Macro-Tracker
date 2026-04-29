@@ -1307,12 +1307,12 @@ bindSubmit('foodForm', e => {
     return;
   }
 
-  // Calories must be a positive number
- if (!calories < 0 | | isNaN(calories)) {
-   showtoast('⚠️ Calories cannot be negative.');
-   $('foodCalories').focus();
-   return;
- }
+  // Calories cannot be negative — zero is valid (diet drinks, gum, etc.)
+  if (calories < 0 || isNaN(calories)) {
+    showToast('⚠️ Calories cannot be negative.');
+    $('foodCalories').focus();
+    return;
+  }
 
   // Sanity cap — 10,000 kcal single entry is almost certainly a typo
   if (calories > 9999) {
