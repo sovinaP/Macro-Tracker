@@ -13,7 +13,7 @@ To use NourishOS like an app on iOS:
 4. Name it **NourishOS**.
 5. Tap **Add**.
 
-It will launch from your home screen with a more app-like, full-screen experience. [file:850]
+It will launch from your home screen with a more app-like, full-screen experience. 
 
 <p align="center">
   <a href="https://github.com/YOUR-USERNAME/YOUR-REPO/releases">
