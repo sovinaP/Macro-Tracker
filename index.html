@@ -1373,7 +1373,7 @@ bindChange('foodCalories', function() {
 bindClick('saveCustomFood', () => {
   const name = $('foodName').value.trim();
   const calories = num('foodCalories');
-  if(!name || !calories){ showToast('Enter a food name and calories first.'); return; }
+  if(!name || calories == null || isNaN(calories) || calories < 0){ showToast('Enter a food name first.'); return; }
   state.quickFoods.unshift({ name, meal:$('mealType').value, calories, protein:num('foodProtein'), carbs:num('foodCarbs'), fat:num('foodFat'), fiber:num('foodFiber') });
   state.quickFoods = state.quickFoods.slice(0,18);
   saveState(); renderQuickFoods();
