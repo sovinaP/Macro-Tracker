@@ -1307,7 +1307,7 @@ bindSubmit('foodForm', e => {
     return;
   }
 
-  // Calories cannot be negative — zero is valid (diet drinks, gum, etc.)
+  // Zero is valid (diet drinks, gum, etc.) — only block negative values
   if (calories < 0 || isNaN(calories)) {
     showToast('⚠️ Calories cannot be negative.');
     $('foodCalories').focus();
