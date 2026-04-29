@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="(https://sovinap.github.io/Macro-Tracker/)"><strong>Web App</strong></a>
+  <a href="[https://sovinap.github.io/Macro-Tracker/]"><strong>Web App</strong></a>
   ·
   <a href="#features">Features</a>
 </p>
