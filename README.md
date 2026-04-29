@@ -1,114 +1,139 @@
 # NourishOS
 
-A privacy-first nutrition tracker that runs entirely in your browser.
+> Your personal nutrition OS.  
+> A privacy-first macro tracker that runs entirely in the browser with no account, no backend, and no subscription.
 
-No account. No subscription. No backend. Just open it and start logging.
+<p align="center">
+  <a href="https://github.com/YOUR-USERNAME/YOUR-REPO/releases">
+    <img src="https://img.shields.io/badge/release-v1.0%20Public%20Beta-0f766e?style=for-the-badge" alt="Release">
+  </a>
+  <a href="https://choosealicense.com/licenses/mit/">
+    <img src="https://img.shields.io/badge/license-MIT-166534?style=for-the-badge" alt="License">
+  </a>
+  <a href="https://pages.github.com/">
+    <img src="https://img.shields.io/badge/deploy-GitHub%20Pages-334155?style=for-the-badge" alt="Deploy">
+  </a>
+  <a href="https://developer.mozilla.org/">
+    <img src="https://img.shields.io/badge/built%20with-HTML%20%2B%20CSS%20%2B%20Vanilla%20JS-f59e0b?style=for-the-badge" alt="Built With">
+  </a>
+</p>
 
-## v1.0 Public Beta
+<p align="center">
+  <a href="https://YOUR-DEPLOY-LINK-HERE"><strong>Live Demo</strong></a>
+  ·
+  <a href="#features">Features</a>
+  ·
+  <a href="#getting-started">Getting Started</a>
+  ·
+  <a href="#v10-public-beta">Release Notes</a>
+</p>
 
-NourishOS is now in **public beta**. This release brings the main repo up to date with the current app experience, including smarter food search, better serving controls, micronutrient visibility, reusable meal templates, water tracking, and a more complete goal-setting flow.
+---
 
-## What NourishOS does
+## Overview
 
-NourishOS helps you:
+NourishOS is a lightweight nutrition tracker built for people who want fast logging, clear daily targets, and full control over their own data. It runs as a static web app, stores your logs locally in the browser, and keeps the experience simple instead of turning food tracking into another subscription product.
 
-- Log foods by meal.
-- Track calories, protein, carbs, fat, and fiber.
-- Search foods from USDA FoodData Central.
-- Optionally switch to Open Food Facts for more packaged foods.
-- Choose serving sizes and units before adding food to your log.
-- View daily progress against calorie and macro targets.
-- Use the Goal Wizard to estimate targets for cutting, maintaining, or lean bulking.
-- Save custom foods for fast re-logging.
-- Save full days as meal templates and reuse them later.
-- Track daily water intake.
-- Log bodyweight by day.
-- Review recent history with charts and summary tables.
-- Export and import your data as a JSON backup.
+This release marks the move from the older `v0.7` line to **v1.0 Public Beta**, bringing the main repo up to date with the newer app experience and feature set.
 
-## Why it is different
+---
 
-Most nutrition apps push accounts, subscriptions, cloud sync, and locked features.
+## Why NourishOS
 
-NourishOS takes a simpler approach:
+Most nutrition apps are bloated, locked behind accounts, or designed to trap your data in someone else’s service.
 
-- Your data stays in your browser.
-- There is no required sign-in.
-- There is no hosted backend storing your logs.
-- The app is lightweight and fast.
-- It can be deployed as a single static site.
+NourishOS takes the opposite approach:
 
-## Key features
+- No sign-up required.
+- No backend required.
+- No monthly fee.
+- No cloud dependency for your core data.
+- No complicated install process.
+- Just open the app and start logging.
+
+---
+
+## Features
 
 ### Food logging
-- Search foods by name.
-- Pull nutrition data from USDA FoodData Central.
-- Switch between USDA and Open Food Facts from the search bar.
-- Auto-fill macros from selected food results.
-- Adjust quantity and serving unit before logging.
-- Fall back to manual entry whenever needed.
+- Search foods by name from **USDA FoodData Central**.
+- Switch to **Open Food Facts** for branded and packaged foods.
+- Select serving size and unit before adding food.
+- Auto-fill calories, protein, carbs, fat, and fiber from search results.
+- Use manual entry anytime when search data is not what you want.
 
 ### Daily tracking
-- Calories, protein, carbs, fat, and fiber.
-- Live progress bars against your targets.
-- Food log organized by meal.
-- Quick view of recent daily history.
-- Seven day calorie trend chart.
+- Track calories, protein, carbs, fat, and fiber.
+- See live progress bars against your daily targets.
+- Organize entries by meal.
+- Review recent days in a history table.
+- Spot trends with a 7-day calorie chart.
 
-### Smarter nutrition detail
+### Better nutrition detail
 - Expand macro cards to inspect more detailed nutrient information.
-- View micronutrient breakdowns when source data is available.
-- Refresh entries with fuller USDA nutrient data when needed.
-- See when values come from lower-trust non-USDA sources.
+- View micronutrient breakdowns when source data supports it.
+- Refresh entries with fuller USDA nutrient data.
+- Clearly distinguish lower-confidence non-USDA entries.
 
-### Planning tools
-- Goal Wizard for cut, maintain, and lean bulk targets.
-- Support for bodyweight, activity level, body fat, and protein preference inputs.
-- Manual target overrides for full control.
-- Goal weight and rate-of-change support.
+### Goal setting
+- Use the Goal Wizard for **cut**, **maintain**, or **lean bulk** targets.
+- Estimate calories from body stats and activity level.
+- Support body fat input for more accurate calculations.
+- Choose protein strategy based on bodyweight, lean mass, or custom grams per pound.
+- Override targets manually at any time.
 
 ### Reuse and convenience
-- Save custom foods for one-tap reuse.
-- Save entire days as meal templates.
-- Reapply templates to future dates.
-- Export or import your full app data as a backup file.
+- Save custom foods for one-tap relogging.
+- Save full days as meal templates.
+- Reuse templates on future dates.
+- Export and import your full data as JSON.
 
-### Lifestyle tracking
-- Daily water tracker with quick-add buttons and custom amounts.
-- Adjustable water goal and unit selection.
-- Daily weight logging with lb or kg support.
+### Lifestyle tools
+- Track daily water intake with quick-add buttons.
+- Set your own water goal and unit.
+- Log bodyweight by day in pounds or kilograms.
 
-### UI and deployment
-- Light and dark mode.
-- Additional theme presets.
-- Mobile-friendly single page layout.
-- Works well as a GitHub Pages project.
-- Can be added to an iPhone home screen for an app-like experience.
+### Interface
+- Light mode and dark mode.
+- Extra theme presets.
+- Mobile-friendly layout.
+- Works well from GitHub Pages.
+- Easy to add to an iPhone home screen for app-like use.
 
-## Privacy
+---
 
-NourishOS is designed to keep your nutrition data under your control.
+## Built for privacy
 
-- Data is stored locally in your browser using local storage.
+NourishOS is designed so your nutrition data stays under your control.
+
+- Data is stored in browser `localStorage`.
 - No account is required.
-- No personal nutrition log is sent to your own server.
-- Food searches call public food data sources only when you search.
+- No personal logs are stored on your own server.
+- The app only makes outbound calls when you search food databases.
+- You can export a full backup whenever you want.
+
+That makes it simple, portable, and hard to lose control of.
+
+---
 
 ## Tech stack
 
-- HTML
-- CSS
-- Vanilla JavaScript
-- Browser localStorage
-- Chart.js
-- Lucide Icons
-- GitHub Pages
+| Layer | Details |
+|---|---|
+| Frontend | HTML5, CSS, Vanilla JavaScript |
+| Storage | Browser `localStorage` |
+| Food sources | USDA FoodData Central, Open Food Facts |
+| Charts | Chart.js |
+| Icons | Lucide |
+| Hosting | GitHub Pages |
+
+---
 
 ## Getting started
 
 ### Run locally
 
-Clone the repo and open the main HTML file in your browser.
+No build step. No framework. No package install.
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
